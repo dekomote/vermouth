@@ -202,6 +202,16 @@ GridView {
                 icon.name: "folder-open"
                 onTriggered: Qt.openUrlExternally("file://" + launcher.logDir())
             }
+            MenuItem {
+                text: "Open prefix folder"
+                icon.name: "folder-open"
+                onTriggered: {
+                    var prefix = delegateRoot.runtimeType === "proton" ? delegateRoot.protonPrefix : delegateRoot.winePrefix
+                    if (prefix !== "")
+                        Qt.openUrlExternally("file://" + prefix)
+                }
+                enabled: (delegateRoot.runtimeType === "proton" ? delegateRoot.protonPrefix : delegateRoot.winePrefix) !== ""
+            }
             MenuSeparator {}
             MenuItem {
                 text: "Edit"

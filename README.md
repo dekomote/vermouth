@@ -1,7 +1,15 @@
-# Vermouth
+<p align="center">
+  <img src="assets/vermouth.svg" width="128" height="128" alt="Vermouth logo">
+</p>
 
-A no-frills game (or any Windows exe) launcher for Linux.
-Point it at Windows executables and run them with Proton or Wine - no Steam required.
+<h1 align="center">Vermouth</h1>
+
+<p align="center">A no-frills game (or any Windows exe) launcher for Linux.<br>
+Point it at Windows executables and run them with Proton or Wine - no Steam required.</p>
+
+<p align="center">
+  <img src="assets/screenshot.png" alt="Vermouth screenshot" width="700">
+</p>
 
 ## What it does
 
@@ -45,6 +53,6 @@ Games are stored in `~/.config/vermouth/apps.json`. Proton is launched the same 
 
 The launch options field lets you wrap the command with tools like mangohud, gamescope, or gamemoderun. Use `%command%` as the placeholder for where the actual game command goes. If you leave out `%command%`, your options get prepended automatically.
 
-## Disclaimer
+## AI Disclaimer
 
 The code has been developed, reviewed and tested by a human. However, development included assistance of AI tools, so keep that in mind.
