@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Dialogs
 
 GridView {
     id: gridView
@@ -210,10 +211,34 @@ GridView {
             MenuItem {
                 text: "Remove"
                 icon.name: "edit-delete"
-                onTriggered: appModel.removeApp(delegateRoot.index)
+                onTriggered: confirmDeleteAppDialog.payload = delegateRoot.index, confirmDeleteAppDialog.open()
+            }
+            MenuItem {
+                text: "Remove and Delete Prefix"
+                icon.name: "edit-delete"
+                onTriggered: confirmDeleteDialog.payload = delegateRoot.index, confirmDeleteDialog.open()
             }
         }
     }
+
+    MessageDialog {
+        property var payload
+        id: confirmDeleteDialog
+        text: "This will delete both the app and the prefix"
+        informativeText: "Are you sure you want to delete the app and the prefix?"
+        onAccepted: appModel.removeAndCleanApp(payload)
+        buttons: MessageDialog.Ok | MessageDialog.Cancel
+    }
+
+    MessageDialog {
+        property var payload
+        id: confirmDeleteAppDialog
+        text: "This will only delete the app, the prefix will remain intact"
+        informativeText: "Are you sure you want to delete the app and preserve the prefix?"
+        onAccepted: appModel.removeApp(payload)
+        buttons: MessageDialog.Ok | MessageDialog.Cancel
+    }
+
 
     Label {
         anchors.centerIn: parent
@@ -223,4 +248,5 @@ GridView {
         horizontalAlignment: Text.AlignHCenter
         visible: gridView.count === 0
     }
+    
 }

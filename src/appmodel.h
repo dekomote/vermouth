@@ -38,6 +38,7 @@ public:
                             const QString &launchOptions = QString(),
                             bool enableLogging = false);
     Q_INVOKABLE void removeApp(int index);
+    Q_INVOKABLE void removeAndCleanApp(int index);
     Q_INVOKABLE void editApp(int index,
                              const QString &name, const QString &exePath,
                              const QString &runtimeType,

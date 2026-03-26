@@ -115,6 +115,28 @@ void AppModel::removeApp(int index) {
     save();
 }
 
+void AppModel::removeAndCleanApp(int index) {
+    int src = sourceIndex(index);
+    if (src < 0) return;
+
+
+    if (!m_entries[src].winePrefix.isEmpty()) {
+        if (QDir(m_entries[src].winePrefix).exists()) {
+            QDir(m_entries[src].winePrefix).removeRecursively();
+        }
+    }
+
+
+    if (!m_entries[src].protonPrefix.isEmpty()) {
+        if (QDir(m_entries[src].protonPrefix).exists()) {
+            QDir(m_entries[src].protonPrefix).removeRecursively();
+        }
+    }
+
+    AppModel::removeApp(index);
+
+}
+
 void AppModel::editApp(int index,
                        const QString &name, const QString &exePath,
                        const QString &runtimeType,

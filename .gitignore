@@ -42,6 +42,9 @@ ui_*.h
 gmon.out
 
 .vscode/
+.appimage-tools/
+AppDir/
+*.AppImage
 
 .DS_Store
 Thumbs.db
