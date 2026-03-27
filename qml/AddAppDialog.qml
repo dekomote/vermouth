@@ -190,11 +190,26 @@ Dialog {
                 spacing: 10
 
                 Label { text: "Proton Version"; font.pixelSize: 12 }
-                ComboBox {
-                    id: protonCombo
+                RowLayout {
                     Layout.fillWidth: true
-                    model: protonModel
-                    textRole: "label"
+                    ComboBox {
+                        id: protonCombo
+                        Layout.fillWidth: true
+                        model: protonModel
+                        textRole: "label"
+                    }
+                    Button {
+                        icon.name: "folder-open"
+                        ToolTip.visible: hovered
+                        ToolTip.text: "Open local Protons folder (" + protonScanner.localProtonPath() + ")"
+                        onClicked: Qt.openUrlExternally("file://" + protonScanner.localProtonPath())
+                    }
+                    Button {
+                        icon.name: "view-refresh"
+                        ToolTip.visible: hovered
+                        ToolTip.text: "Refresh Proton versions"
+                        onClicked: dialog.refreshProton()
+                    }
                 }
 
                 Label { text: "Proton Prefix (optional)"; font.pixelSize: 12 }

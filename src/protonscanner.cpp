@@ -8,13 +8,14 @@
 
 ProtonScanner::ProtonScanner(QObject *parent)
     : QObject(parent)
-{}
+{
+    QDir().mkpath(localProtonPath());
+}
 
 QStringList ProtonScanner::steamPaths() const {
     QStringList paths;
     QString home = QDir::homePath();
 
-    // Standard Steam locations
     QStringList candidates = {
         home + "/.steam/steam",
         home + "/.steam/root",
@@ -32,7 +33,6 @@ QStringList ProtonScanner::steamPaths() const {
         }
     }
 
-    // Parse libraryfolders.vdf for additional Steam library paths
     QStringList vdfCandidates = {
         home + "/.local/share/Steam/config/libraryfolders.vdf",
         home + "/.steam/steam/config/libraryfolders.vdf",
@@ -92,11 +92,19 @@ QStringList ProtonScanner::findProtonVersions() const {
         }
     }
 
+    QDir localDir(localProtonPath());
+    if (localDir.exists()) {
+        for (const auto &entry : localDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+            QString path = localDir.absoluteFilePath(entry);
+            if (QFileInfo::exists(path + "/proton"))
+                result << path;
+        }
+    }
+
     result.removeDuplicates();
     result.sort();
     return result;
 }
-
 
 QString ProtonScanner::homePath() const {
     return QDir::homePath();
@@ -106,6 +114,9 @@ QString ProtonScanner::prefixBasePath() const {
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/prefixes";
 }
 
+QString ProtonScanner::localProtonPath() const {
+    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/protons";
+}
 
 QStringList ProtonScanner::findExistingPrefixes() const {
     QStringList result;
