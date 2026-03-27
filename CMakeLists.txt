@@ -6,7 +6,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Quick Gui Widgets QuickControls2)
+set(QT_MIN_VERSION "6.6.0")
+set(KF_MIN_VERSION "6.0.0")
+
+find_package(ECM ${KF_MIN_VERSION} REQUIRED NO_MODULE)
+set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
+
+include(KDEInstallDirs)
+include(KDECMakeSettings)
+include(KDECompilerSettings NO_POLICY_SCOPE)
+
+
+find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core Quick Gui Widgets QuickControls2)
+find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Kirigami CoreAddons I18n)
 
 qt_add_executable(vermouth
     src/main.cpp
@@ -37,19 +49,20 @@ target_link_libraries(vermouth PRIVATE
     Qt6::Gui
     Qt6::Widgets
     Qt6::QuickControls2
+    KF6::Kirigami
+    KF6::CoreAddons
+    KF6::I18n
 )
 
 target_compile_definitions(vermouth PRIVATE
     APP_VERSION_STRING="${PROJECT_VERSION}"
-)
-target_compile_definitions(vermouth PRIVATE
     APP_NAME_STRING="${PROJECT_NAME}"
 )
 
-install(TARGETS vermouth DESTINATION bin)
-install(FILES assets/vermouth.desktop DESTINATION share/applications)
-install(FILES assets/vermouth.svg DESTINATION share/icons/hicolor/scalable/apps)
-
+install(TARGETS vermouth ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
+install(FILES assets/vermouth.desktop DESTINATION ${KDE_INSTALL_APPDIR})
+install(FILES assets/vermouth.svg DESTINATION ${KDE_INSTALL_FULL_ICONDIR}/hicolor/scalable/apps)
+install(FILES assets/com.dekomote.vermouth.metainfo.xml DESTINATION ${KDE_INSTALL_METAINFODIR})
 
 
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
@@ -57,12 +70,12 @@ set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 set(CPACK_PACKAGE_CONTACT "deko@duck.com")
 set(CPACK_PACKAGE_RELEASE 1)
 set(CPACK_PACKAGE_DESCRIPTION "")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A simple addition library.")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A no-frills Wine/Proton game launcher for Linux.")
 set(CPACK_RPM_PACKAGE_LICENSE "MIT")
 set(CPACK_RPM_PACKAGE_URL "https://github.com/dekomote/vermouth/")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "qt6-base, qt6-declarative, qt6-quickcontrols2")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "qt6-base, qt6-declarative, qt6-quickcontrols2, kirigami2")
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "x86_64")
-set(CPACK_RPM_PACKAGE_REQUIRES "qt6-qtbase, qt6-qtdeclarative, qt6-qtquickcontrols2")
+set(CPACK_RPM_PACKAGE_REQUIRES "qt6-qtbase, qt6-qtdeclarative, qt6-qtquickcontrols2, kf6-kirigami")
 set(CPACK_RPM_PACKAGE_RECOMMENDS "icoutils")
 set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
 set(CPACK_GENERATOR "DEB;RPM")

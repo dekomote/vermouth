@@ -9,7 +9,6 @@ class IconExtractor : public QObject {
 public:
     explicit IconExtractor(QObject *parent = nullptr);
 
-    // Extracts the icon from an exe, saves as PNG, returns the path (empty on failure)
     Q_INVOKABLE QString extractIcon(const QString &exePath);
 
 private:

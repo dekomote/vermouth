@@ -9,7 +9,7 @@
 Launcher::Launcher(QObject *parent)
     : QObject(parent)
 {
-    m_logDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/logs";
+    m_logDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/logs");
     QDir().mkpath(m_logDir);
 }
 
@@ -19,8 +19,8 @@ QString Launcher::logDir() const {
 
 static QString shellQuote(const QString &s) {
     QString quoted = s;
-    quoted.replace("'", "'\\''");
-    return "'" + quoted + "'";
+    quoted.replace(QLatin1Char('\''), QStringLiteral("'\\''"));
+    return QLatin1Char('\'') + quoted + QLatin1Char('\'');
 }
 
 void Launcher::launch(const QString &binary, const QStringList &baseArgs,
@@ -39,18 +39,17 @@ void Launcher::launch(const QString &binary, const QStringList &baseArgs,
     }
 
     if (!launchOptions.trimmed().isEmpty()) {
-        // Build quoted base command: binary [baseArgs...] exePath
         QString baseCmd = shellQuote(binary);
         for (const auto &a : baseArgs)
-            baseCmd += " " + shellQuote(a);
-        baseCmd += " " + shellQuote(exePath);
+            baseCmd += QStringLiteral(" ") + shellQuote(a);
+        baseCmd += QStringLiteral(" ") + shellQuote(exePath);
 
         QString opts = launchOptions.trimmed();
-        QString fullCmd = opts.contains("%command%")
-            ? QString(opts).replace("%command%", baseCmd)
-            : opts + " " + baseCmd;
+        QString fullCmd = opts.contains(QStringLiteral("%command%"))
+            ? QString(opts).replace(QStringLiteral("%command%"), baseCmd)
+            : opts + QStringLiteral(" ") + baseCmd;
 
-        proc->start("/bin/sh", {"-c", fullCmd});
+        proc->start(QStringLiteral("/bin/sh"), {QStringLiteral("-c"), fullCmd});
     } else {
         QStringList args = baseArgs;
         args << exePath;
@@ -58,51 +57,51 @@ void Launcher::launch(const QString &binary, const QStringList &baseArgs,
     }
 
     if (!proc->waitForStarted(5000)) {
-        emit launchError(exePath, proc->errorString());
+        Q_EMIT launchError(exePath, proc->errorString());
         proc->deleteLater();
     } else {
-        emit launched(exePath);
+        Q_EMIT launched(exePath);
     }
 }
 
 void Launcher::launchEntry(const QVariantMap &app) {
-    QString exePath = app["exePath"].toString();
-    QString opts = app["launchOptions"].toString();
-    bool logging = app["enableLogging"].toBool();
-    QString name = app["name"].toString();
+    QString exePath = app[QStringLiteral("exePath")].toString();
+    QString opts = app[QStringLiteral("launchOptions")].toString();
+    bool logging = app[QStringLiteral("enableLogging")].toBool();
+    QString name = app[QStringLiteral("name")].toString();
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 
-    if (app["runtimeType"].toString() == "proton") {
-        QString prefix = app["protonPrefix"].toString();
+    if (app[QStringLiteral("runtimeType")].toString() == QStringLiteral("proton")) {
+        QString prefix = app[QStringLiteral("protonPrefix")].toString();
         if (!prefix.isEmpty())
             QDir().mkpath(prefix);
-        env.insert("STEAM_COMPAT_CLIENT_INSTALL_PATH", QDir::homePath() + "/.steam/steam");
-        env.insert("STEAM_COMPAT_DATA_PATH", prefix);
-        launch(app["protonPath"].toString() + "/proton", {"run"},
+        env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
+        env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
+        launch(app[QStringLiteral("protonPath")].toString() + QStringLiteral("/proton"), {QStringLiteral("run")},
                exePath, env, opts, logging, name);
     } else {
-        QString prefix = app["winePrefix"].toString();
+        QString prefix = app[QStringLiteral("winePrefix")].toString();
         if (!prefix.isEmpty()) {
             QDir().mkpath(prefix);
-            env.insert("WINEPREFIX", prefix);
+            env.insert(QStringLiteral("WINEPREFIX"), prefix);
         }
-        launch(app["wineBinary"].toString(), {},
+        launch(app[QStringLiteral("wineBinary")].toString(), {},
                exePath, env, opts, logging, name);
     }
 }
 
 void Launcher::runInPrefix(const QVariantMap &app, const QString &exePath) {
     QVariantMap copy = app;
-    copy["exePath"] = exePath;
+    copy[QStringLiteral("exePath")] = exePath;
     launchEntry(copy);
 }
 
 void Launcher::setupLogging(QProcess *proc, const QString &name) {
     QString safeName = name;
-    safeName.replace(QRegularExpression("[^a-zA-Z0-9_-]"), "_");
-    QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss");
-    QString logPath = m_logDir + "/" + safeName + "_" + timestamp + ".log";
+    safeName.replace(QRegularExpression(QStringLiteral("[^a-zA-Z0-9_-]")), QStringLiteral("_"));
+    QString timestamp = QDateTime::currentDateTime().toString(QStringLiteral("yyyy-MM-dd_HH-mm-ss"));
+    QString logPath = m_logDir + QStringLiteral("/") + safeName + QStringLiteral("_") + timestamp + QStringLiteral(".log");
 
     auto *logFile = new QFile(logPath, proc);
     if (!logFile->open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -110,8 +109,8 @@ void Launcher::setupLogging(QProcess *proc, const QString &name) {
         return;
     }
 
-    logFile->write(QString("=== Vermouth log: %1 ===\n").arg(name).toUtf8());
-    logFile->write(QString("=== Started: %1 ===\n\n")
+    logFile->write(QStringLiteral("=== Vermouth log: %1 ===\n").arg(name).toUtf8());
+    logFile->write(QStringLiteral("=== Started: %1 ===\n\n")
                        .arg(QDateTime::currentDateTime().toString()).toUtf8());
 
     connect(proc, &QProcess::readyReadStandardOutput, proc, [proc, logFile]() {
@@ -120,13 +119,13 @@ void Launcher::setupLogging(QProcess *proc, const QString &name) {
     });
 
     connect(proc, &QProcess::readyReadStandardError, proc, [proc, logFile]() {
-        logFile->write("[stderr] ");
+        logFile->write(QByteArrayLiteral("[stderr] "));
         logFile->write(proc->readAllStandardError());
         logFile->flush();
     });
 
     connect(proc, &QProcess::finished, proc, [logFile](int exitCode) {
-        logFile->write(QString("\n=== Exited with code %1 ===\n").arg(exitCode).toUtf8());
+        logFile->write(QStringLiteral("\n=== Exited with code %1 ===\n").arg(exitCode).toUtf8());
         logFile->close();
     });
 }

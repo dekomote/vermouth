@@ -14,7 +14,7 @@ public:
     Q_INVOKABLE void runInPrefix(const QVariantMap &app, const QString &exePath);
     Q_INVOKABLE QString logDir() const;
 
-signals:
+Q_SIGNALS:
     void launched(const QString &name);
     void launchError(const QString &name, const QString &error);
 

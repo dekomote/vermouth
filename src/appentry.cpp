@@ -2,30 +2,30 @@
 
 QJsonObject AppEntry::toJson() const {
     QJsonObject obj;
-    obj["name"] = name;
-    obj["exePath"] = exePath;
-    obj["runtimeType"] = (runtimeType == Proton) ? "proton" : "wine";
-    obj["protonPath"] = protonPath;
-    obj["protonPrefix"] = protonPrefix;
-    obj["wineBinary"] = wineBinary;
-    obj["winePrefix"] = winePrefix;
-    obj["iconPath"] = iconPath;
-    obj["launchOptions"] = launchOptions;
-    obj["enableLogging"] = enableLogging;
+    obj[QStringLiteral("name")] = name;
+    obj[QStringLiteral("exePath")] = exePath;
+    obj[QStringLiteral("runtimeType")] = (runtimeType == Proton) ? QStringLiteral("proton") : QStringLiteral("wine");
+    obj[QStringLiteral("protonPath")] = protonPath;
+    obj[QStringLiteral("protonPrefix")] = protonPrefix;
+    obj[QStringLiteral("wineBinary")] = wineBinary;
+    obj[QStringLiteral("winePrefix")] = winePrefix;
+    obj[QStringLiteral("iconPath")] = iconPath;
+    obj[QStringLiteral("launchOptions")] = launchOptions;
+    obj[QStringLiteral("enableLogging")] = enableLogging;
     return obj;
 }
 
 AppEntry AppEntry::fromJson(const QJsonObject &obj) {
     AppEntry e;
-    e.name = obj["name"].toString();
-    e.exePath = obj["exePath"].toString();
-    e.runtimeType = (obj["runtimeType"].toString() == "proton") ? Proton : Wine;
-    e.protonPath = obj["protonPath"].toString();
-    e.protonPrefix = obj["protonPrefix"].toString();
-    e.wineBinary = obj["wineBinary"].toString();
-    e.winePrefix = obj["winePrefix"].toString();
-    e.iconPath = obj["iconPath"].toString();
-    e.launchOptions = obj["launchOptions"].toString();
-    e.enableLogging = obj["enableLogging"].toBool(false);
+    e.name = obj[QStringLiteral("name")].toString();
+    e.exePath = obj[QStringLiteral("exePath")].toString();
+    e.runtimeType = (obj[QStringLiteral("runtimeType")].toString() == QStringLiteral("proton")) ? Proton : Wine;
+    e.protonPath = obj[QStringLiteral("protonPath")].toString();
+    e.protonPrefix = obj[QStringLiteral("protonPrefix")].toString();
+    e.wineBinary = obj[QStringLiteral("wineBinary")].toString();
+    e.winePrefix = obj[QStringLiteral("winePrefix")].toString();
+    e.iconPath = obj[QStringLiteral("iconPath")].toString();
+    e.launchOptions = obj[QStringLiteral("launchOptions")].toString();
+    e.enableLogging = obj[QStringLiteral("enableLogging")].toBool(false);
     return e;
 }

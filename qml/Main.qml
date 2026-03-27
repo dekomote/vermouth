@@ -1,8 +1,9 @@
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls as QQC2
 import QtQuick.Layouts
+import org.kde.kirigami as Kirigami
 
-ApplicationWindow {
+Kirigami.ApplicationWindow {
     id: root
     width: 600
     height: 700
@@ -11,37 +12,39 @@ ApplicationWindow {
     visible: true
     title: "Vermouth"
 
-    header: ToolBar {
-        RowLayout {
-            anchors.fill: parent
-            anchors.margins: 3
+    pageStack.initialPage: Kirigami.ScrollablePage {
+        id: mainPage
+        supportsRefreshing: false
 
-            Image {
-                source: "qrc:/icons/vermouth.svg"
-                Layout.preferredWidth: 28
-                Layout.preferredHeight: 28
-                fillMode: Image.PreserveAspectFit
-            }
+        header: QQC2.ToolBar {
+            contentItem: RowLayout {
+                spacing: Kirigami.Units.smallSpacing
 
-            TextField {
-                id: searchField
-                Layout.fillWidth: true
-                placeholderText: "Search..."
-                onTextChanged: appModel.setFilterString(text)
-            }
+                Image {
+                    source: "qrc:/icons/vermouth.svg"
+                    Layout.preferredWidth: 28
+                    Layout.preferredHeight: 28
+                    fillMode: Image.PreserveAspectFit
+                }
 
-            Button {
-                text: "Add App/Game"
-                icon.name: "list-add"
-                onClicked: addDialog.openForNew()
-                highlighted: true
+                Kirigami.SearchField {
+                    id: searchField
+                    Layout.fillWidth: true
+                    onTextChanged: appModel.setFilterString(text)
+                }
+
+                QQC2.Button {
+                    text: "Add App/Game"
+                    icon.name: "list-add"
+                    onClicked: addDialog.openForNew()
+                    highlighted: true
+                }
             }
         }
-    }
 
-    AppGridView {
-        anchors.fill: parent
-        anchors.margins: 12
+        AppGridView {
+            anchors.fill: parent
+        }
     }
 
     AddAppDialog {
@@ -55,35 +58,10 @@ ApplicationWindow {
     Connections {
         target: launcher
         function onLaunched(name) {
-            launchToast.text = "Launched: " + name
-            launchToast.visible = true
-            toastTimer.restart()
+            showPassiveNotification("Launched: " + name, 3000)
         }
         function onLaunchError(name, error) {
-            launchToast.text = "Error: " + error
-            launchToast.visible = true
-            toastTimer.restart()
+            showPassiveNotification("Error: " + error, 5000)
         }
-    }
-
-    Label {
-        id: launchToast
-        anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottomMargin: 20
-        visible: false
-        padding: 12
-        font.pixelSize: 13
-        background: Rectangle {
-            color: palette.toolTipBase
-            radius: 6
-        }
-        color: palette.toolTipText
-    }
-
-    Timer {
-        id: toastTimer
-        interval: 3000
-        onTriggered: launchToast.visible = false
     }
 }

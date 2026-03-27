@@ -1,7 +1,8 @@
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import QtQuick.Dialogs
+import org.kde.kirigami as Kirigami
 
 GridView {
     id: gridView
@@ -38,35 +39,16 @@ GridView {
         property bool isSelected: gridView.selectedIndex === delegateRoot.index
 
         Rectangle {
-            id: card
-            anchors.fill: parent
-            anchors.margins: 6
-            radius: 10
-            color: mouseArea.containsMouse ? palette.highlight : palette.button
-            opacity: mouseArea.containsMouse ? 0.15 : 1.0
-
-            Rectangle {
-                anchors.fill: parent
-                radius: 10
-                color: "transparent"
-                border.color: delegateRoot.isSelected ? palette.highlight : mouseArea.containsMouse ? palette.highlight : "transparent"
-                border.width: 2
-            }
-        }
-
-        Rectangle {
             id: cardBg
             anchors.fill: parent
-            anchors.margins: 6
-            radius: 10
-            color: palette.button
-            border.color: delegateRoot.isSelected ? palette.highlight : mouseArea.containsMouse ? Qt.darker(palette.highlight, 1.5) : "transparent"
+            anchors.margins: Kirigami.Units.smallSpacing
+            radius: Kirigami.Units.cornerRadius
+            color: Kirigami.Theme.backgroundColor
+            border.color: delegateRoot.isSelected ? Kirigami.Theme.highlightColor : mouseArea.containsMouse ? Qt.darker(Kirigami.Theme.highlightColor, 1.5) : "transparent"
             border.width: delegateRoot.isSelected ? 2 : mouseArea.containsMouse ? 1 : 0
 
             Behavior on border.color { ColorAnimation { duration: 150; easing.type: Easing.OutCubic } }
             Behavior on border.width { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
-            scale: 1.0
-            transformOrigin: Item.Center
 
             SequentialAnimation {
                 id: launchAnim
@@ -74,12 +56,11 @@ GridView {
                 NumberAnimation { target: cardBg; property: "scale"; to: 1.0; duration: 200; easing.type: Easing.OutBack }
             }
 
-            // Brief overlay flash on launch
             Rectangle {
                 id: launchFlash
                 anchors.fill: parent
-                radius: 10
-                color: palette.highlight
+                radius: Kirigami.Units.cornerRadius
+                color: Kirigami.Theme.highlightColor
                 opacity: 0
                 z: 10
 
@@ -92,15 +73,15 @@ GridView {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 8
-                spacing: 6
+                anchors.margins: Kirigami.Units.smallSpacing + 2
+                spacing: Kirigami.Units.smallSpacing
 
                 Rectangle {
                     Layout.alignment: Qt.AlignHCenter
                     Layout.preferredWidth: 80
                     Layout.preferredHeight: 80
-                    radius: 8
-                    color: palette.alternateBase
+                    radius: Kirigami.Units.cornerRadius
+                    color: Kirigami.Theme.alternateBackgroundColor
 
                     Image {
                         anchors.centerIn: parent
@@ -112,17 +93,17 @@ GridView {
                         sourceSize: Qt.size(128, 128)
                     }
 
-                    Label {
+                    QQC2.Label {
                         anchors.centerIn: parent
                         text: delegateRoot.name.charAt(0).toUpperCase()
                         font.pixelSize: 32
                         font.bold: true
-                        color: palette.highlight
+                        color: Kirigami.Theme.highlightColor
                         visible: delegateRoot.iconPath === ""
                     }
                 }
 
-                Label {
+                QQC2.Label {
                     text: delegateRoot.name
                     font.pixelSize: 12
                     font.bold: true
@@ -134,7 +115,7 @@ GridView {
                     maximumLineCount: 2
                 }
 
-                Label {
+                QQC2.Label {
                     text: {
                         if (delegateRoot.runtimeType === "proton") {
                             var parts = delegateRoot.protonPath.split("/")
@@ -143,7 +124,7 @@ GridView {
                         return "Wine"
                     }
                     font.pixelSize: 10
-                    color: palette.placeholderText
+                    color: Kirigami.Theme.disabledTextColor
                     elide: Text.ElideRight
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
@@ -177,9 +158,9 @@ GridView {
             }
         }
 
-        Menu {
+        QQC2.Menu {
             id: contextMenu
-            MenuItem {
+            QQC2.MenuItem {
                 text: "Launch"
                 icon.name: "media-playback-start"
                 onTriggered: {
@@ -189,8 +170,8 @@ GridView {
                     launcher.launchEntry(app)
                 }
             }
-            MenuSeparator {}
-            MenuItem {
+            QQC2.MenuSeparator {}
+            QQC2.MenuItem {
                 text: "Run another EXE in this prefix"
                 icon.name: "system-run"
                 onTriggered: {
@@ -198,8 +179,8 @@ GridView {
                     runExeDialog.open()
                 }
             }
-            MenuSeparator {}
-            MenuItem {
+            QQC2.MenuSeparator {}
+            QQC2.MenuItem {
                 text: "Create start menu entry"
                 icon.name: "application-menu"
                 onTriggered: {
@@ -207,7 +188,7 @@ GridView {
                     desktopWriter.createStartMenuEntry(app)
                 }
             }
-            MenuItem {
+            QQC2.MenuItem {
                 text: "Create desktop shortcut"
                 icon.name: "user-desktop"
                 onTriggered: {
@@ -215,12 +196,12 @@ GridView {
                     desktopWriter.createDesktopShortcut(app)
                 }
             }
-            MenuItem {
+            QQC2.MenuItem {
                 text: "Open log folder"
                 icon.name: "folder-open"
                 onTriggered: Qt.openUrlExternally("file://" + launcher.logDir())
             }
-            MenuItem {
+            QQC2.MenuItem {
                 text: "Open prefix folder"
                 icon.name: "folder-open"
                 onTriggered: {
@@ -230,13 +211,13 @@ GridView {
                 }
                 enabled: (delegateRoot.runtimeType === "proton" ? delegateRoot.protonPrefix : delegateRoot.winePrefix) !== ""
             }
-            MenuSeparator {}
-            MenuItem {
+            QQC2.MenuSeparator {}
+            QQC2.MenuItem {
                 text: "Edit"
                 icon.name: "document-edit"
                 onTriggered: addDialog.openForEdit(delegateRoot.index)
             }
-            MenuItem {
+            QQC2.MenuItem {
                 text: "Remove"
                 icon.name: "edit-delete"
                 onTriggered: {
@@ -244,7 +225,7 @@ GridView {
                     confirmDeleteAppDialog.open()
                 }
             }
-            MenuItem {
+            QQC2.MenuItem {
                 text: "Remove and Delete Prefix"
                 icon.name: "edit-delete"
                 onTriggered: {
@@ -255,32 +236,30 @@ GridView {
         }
     }
 
-    MessageDialog {
+    Kirigami.PromptDialog {
         property var payload
         id: confirmDeleteDialog
-        text: "This will delete both the app and the prefix"
-        informativeText: "Are you sure you want to delete the app and the prefix?"
+        title: "Delete both app and prefix?"
+        subtitle: "This will delete both the app and the prefix?"
         onAccepted: appModel.removeAndCleanApp(payload)
-        buttons: MessageDialog.Ok | MessageDialog.Cancel
+        standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
     }
 
-    MessageDialog {
+    Kirigami.PromptDialog {
         property var payload
         id: confirmDeleteAppDialog
-        text: "This will only delete the app, the prefix will remain intact"
-        informativeText: "Are you sure you want to delete the app and preserve the prefix?"
+        title: "Delete the app?"
+        subtitle: "This will delete the app but preserve the prefix folder."
         onAccepted: appModel.removeApp(payload)
-        buttons: MessageDialog.Ok | MessageDialog.Cancel
+        standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
     }
 
-
-    Label {
+    Kirigami.PlaceholderMessage {
         anchors.centerIn: parent
-        text: "No apps or games added yet.\nClick \"Add App/Game\" to get started."
-        color: palette.placeholderText
-        font.pixelSize: 16
-        horizontalAlignment: Text.AlignHCenter
+        width: parent.width - Kirigami.Units.gridUnit * 4
         visible: gridView.count === 0
+        text: "No apps or games added yet"
+        explanation: "Click \"Add App/Game\" to get started"
+        icon.name: "games-config-custom"
     }
-    
 }
