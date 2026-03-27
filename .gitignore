@@ -53,3 +53,7 @@ Thumbs.db
 *.tmp
 *.swp
 *~
+
+*.flatpak
+repo/
+.flatpak-builder

@@ -1,4 +1,4 @@
-app-id: com.dekomote.Vermouth
+app-id: com.dekomote.vermouth
 runtime: org.kde.Platform
 runtime-version: '6.10'
 sdk: org.kde.Sdk
@@ -25,6 +25,7 @@ modules:
       - type: dir
         path: .
     post-install:
-      - install -Dm644 assets/vermouth.desktop ${FLATPAK_DEST}/share/applications/com.dekomote.Vermouth.desktop
-      - install -Dm644 assets/vermouth.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/com.dekomote.Vermouth.svg
-      - desktop-file-edit --set-key=Icon --set-value=com.dekomote.Vermouth ${FLATPAK_DEST}/share/applications/com.dekomote.Vermouth.desktop
+      - install -Dm644 assets/vermouth.desktop ${FLATPAK_DEST}/share/applications/com.dekomote.vermouth.desktop
+      - install -Dm644 assets/vermouth.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/com.dekomote.vermouth.svg
+      - install -Dm644 assets/com.dekomote.vermouth.metainfo.xml ${FLATPAK_DEST}/share/metainfo/com.dekomote.vermouth.metainfo.xml
+      - desktop-file-edit --set-key=Icon --set-value=com.dekomote.vermouth ${FLATPAK_DEST}/share/applications/com.dekomote.vermouth.desktop
