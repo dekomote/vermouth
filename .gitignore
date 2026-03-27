@@ -57,3 +57,4 @@ Thumbs.db
 *.flatpak
 repo/
 .flatpak-builder
+rpmbuild
