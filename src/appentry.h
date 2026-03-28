@@ -13,13 +13,11 @@ public:
     QString exePath;
     RuntimeType runtimeType = Proton;
 
-    // Proton fields
-    QString protonPath;    // e.g. ~/.steam/steam/compatibilitytools.d/GE-Proton9-1
-    QString protonPrefix;  // STEAM_COMPAT_DATA_PATH
+    QString protonPath;
+    QString protonPrefix;
 
-    // Wine fields
-    QString wineBinary;    // path to wine binary
-    QString winePrefix;    // WINEPREFIX
+    QString wineBinary;
+    QString winePrefix;
 
     QString iconPath;
     QString launchOptions;

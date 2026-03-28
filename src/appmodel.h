@@ -53,7 +53,7 @@ public:
     void load();
     void save() const;
 
-signals:
+Q_SIGNALS:
     void countChanged();
 
 private:

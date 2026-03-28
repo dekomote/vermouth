@@ -33,7 +33,7 @@ void AppModel::setFilterString(const QString &filter) {
     m_filter = filter;
     rebuildFilter();
     endResetModel();
-    emit countChanged();
+    Q_EMIT countChanged();
 }
 
 int AppModel::rowCount(const QModelIndex &) const {
@@ -49,7 +49,7 @@ QVariant AppModel::data(const QModelIndex &index, int role) const {
     switch (role) {
     case NameRole:          return e.name;
     case ExePathRole:       return e.exePath;
-    case RuntimeTypeRole:   return (e.runtimeType == AppEntry::Proton) ? "proton" : "wine";
+    case RuntimeTypeRole:   return (e.runtimeType == AppEntry::Proton) ? QStringLiteral("proton") : QStringLiteral("wine");
     case ProtonPathRole:    return e.protonPath;
     case ProtonPrefixRole:  return e.protonPrefix;
     case WineBinaryRole:    return e.wineBinary;
@@ -86,7 +86,7 @@ void AppModel::addApp(const QString &name, const QString &exePath,
     AppEntry e;
     e.name = name;
     e.exePath = exePath;
-    e.runtimeType = (runtimeType == "proton") ? AppEntry::Proton : AppEntry::Wine;
+    e.runtimeType = (runtimeType == QStringLiteral("proton")) ? AppEntry::Proton : AppEntry::Wine;
     e.protonPath = protonPath;
     e.protonPrefix = protonPrefix;
     e.wineBinary = wineBinary;
@@ -99,7 +99,7 @@ void AppModel::addApp(const QString &name, const QString &exePath,
     m_entries.append(e);
     rebuildFilter();
     endResetModel();
-    emit countChanged();
+    Q_EMIT countChanged();
     save();
 }
 
@@ -111,7 +111,7 @@ void AppModel::removeApp(int index) {
     m_entries.removeAt(src);
     rebuildFilter();
     endResetModel();
-    emit countChanged();
+    Q_EMIT countChanged();
     save();
 }
 
@@ -119,13 +119,11 @@ void AppModel::removeAndCleanApp(int index) {
     int src = sourceIndex(index);
     if (src < 0) return;
 
-
     if (!m_entries[src].winePrefix.isEmpty()) {
         if (QDir(m_entries[src].winePrefix).exists()) {
             QDir(m_entries[src].winePrefix).removeRecursively();
         }
     }
-
 
     if (!m_entries[src].protonPrefix.isEmpty()) {
         if (QDir(m_entries[src].protonPrefix).exists()) {
@@ -134,7 +132,6 @@ void AppModel::removeAndCleanApp(int index) {
     }
 
     AppModel::removeApp(index);
-
 }
 
 void AppModel::editApp(int index,
@@ -151,7 +148,7 @@ void AppModel::editApp(int index,
     auto &e = m_entries[src];
     e.name = name;
     e.exePath = exePath;
-    e.runtimeType = (runtimeType == "proton") ? AppEntry::Proton : AppEntry::Wine;
+    e.runtimeType = (runtimeType == QStringLiteral("proton")) ? AppEntry::Proton : AppEntry::Wine;
     e.protonPath = protonPath;
     e.protonPrefix = protonPrefix;
     e.wineBinary = wineBinary;
@@ -160,11 +157,10 @@ void AppModel::editApp(int index,
     e.launchOptions = launchOptions;
     e.enableLogging = enableLogging;
 
-    // Name may have changed, so filter could change
     beginResetModel();
     rebuildFilter();
     endResetModel();
-    emit countChanged();
+    Q_EMIT countChanged();
     save();
 }
 
@@ -174,23 +170,23 @@ QVariantMap AppModel::getApp(int index) const {
 
     const auto &e = m_entries[src];
     return {
-        {"name", e.name},
-        {"exePath", e.exePath},
-        {"runtimeType", (e.runtimeType == AppEntry::Proton) ? "proton" : "wine"},
-        {"protonPath", e.protonPath},
-        {"protonPrefix", e.protonPrefix},
-        {"wineBinary", e.wineBinary},
-        {"winePrefix", e.winePrefix},
-        {"iconPath", e.iconPath},
-        {"launchOptions", e.launchOptions},
-        {"enableLogging", e.enableLogging},
+        {QStringLiteral("name"), e.name},
+        {QStringLiteral("exePath"), e.exePath},
+        {QStringLiteral("runtimeType"), (e.runtimeType == AppEntry::Proton) ? QStringLiteral("proton") : QStringLiteral("wine")},
+        {QStringLiteral("protonPath"), e.protonPath},
+        {QStringLiteral("protonPrefix"), e.protonPrefix},
+        {QStringLiteral("wineBinary"), e.wineBinary},
+        {QStringLiteral("winePrefix"), e.winePrefix},
+        {QStringLiteral("iconPath"), e.iconPath},
+        {QStringLiteral("launchOptions"), e.launchOptions},
+        {QStringLiteral("enableLogging"), e.enableLogging},
     };
 }
 
 QString AppModel::configPath() const {
     QString dir = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     QDir().mkpath(dir);
-    return dir + "/apps.json";
+    return dir + QStringLiteral("/apps.json");
 }
 
 void AppModel::load() {
@@ -205,7 +201,7 @@ void AppModel::load() {
         m_entries.append(AppEntry::fromJson(val.toObject()));
     rebuildFilter();
     endResetModel();
-    emit countChanged();
+    Q_EMIT countChanged();
 }
 
 void AppModel::save() const {

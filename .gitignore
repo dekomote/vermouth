@@ -60,3 +60,6 @@ flatpakbuild
 .flatpak-builder
 
 rpmbuild
+_CPack_Packages
+*.deb
+*.rpm

@@ -1,47 +1,73 @@
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls as QQC2
 import QtQuick.Layouts
+import org.kde.kirigami as Kirigami
 
-ApplicationWindow {
-    id: root
+Kirigami.ApplicationWindow {
     width: 600
     height: 700
     minimumWidth: 600
     minimumHeight: 700
-    visible: true
-    title: "Vermouth"
 
-    header: ToolBar {
-        RowLayout {
-            anchors.fill: parent
-            anchors.margins: 3
+    pageStack.initialPage: Kirigami.ScrollablePage {
+        id: mainPage
 
-            Image {
-                source: "qrc:/icons/vermouth.svg"
-                Layout.preferredWidth: 28
-                Layout.preferredHeight: 28
-                fillMode: Image.PreserveAspectFit
-            }
-
-            TextField {
+        titleDelegate: RowLayout {
+            Layout.fillWidth: true
+            Kirigami.SearchField {
                 id: searchField
                 Layout.fillWidth: true
-                placeholderText: "Search..."
                 onTextChanged: appModel.setFilterString(text)
             }
-
-            Button {
-                text: "Add App/Game"
+            QQC2.Button {
+                text: i18n("Add &App/Game")
                 icon.name: "list-add"
                 onClicked: addDialog.openForNew()
-                highlighted: true
             }
         }
-    }
 
-    AppGridView {
-        anchors.fill: parent
-        anchors.margins: 12
+        AppGridView {
+            id: gridView
+            anchors.fill: parent
+        }
+
+        footer: QQC2.ToolBar {
+            position: QQC2.ToolBar.Footer
+            contentItem: RowLayout {
+                QQC2.Label {
+                    text: {
+                        if (gridView.selectedIndex < 0) return "";
+                        var app = appModel.getApp(gridView.selectedIndex);
+                        var runner = app.runtimeType === "proton"
+                            ? app.protonPath.split("/").pop()
+                            : app.wineBinary;
+                        return i18n("%1 — %2", runner, app.exePath);
+                    }
+                    elide: Text.ElideMiddle
+                    Layout.fillWidth: true
+                }
+                QQC2.Button {
+                    icon.name: "zoom-out"
+                    flat: true
+                    enabled: gridView.scaleFactor > 0.5
+                    onClicked: gridView.scaleFactor = Math.max(0.5, gridView.scaleFactor - 0.25)
+                }
+                QQC2.Slider {
+                    from: 0.5
+                    to: 2.0
+                    stepSize: 0.25
+                    value: gridView.scaleFactor
+                    onMoved: gridView.scaleFactor = value
+                    implicitWidth: Kirigami.Units.gridUnit * 6
+                }
+                QQC2.Button {
+                    icon.name: "zoom-in"
+                    flat: true
+                    enabled: gridView.scaleFactor < 2.0
+                    onClicked: gridView.scaleFactor = Math.min(2.0, gridView.scaleFactor + 0.25)
+                }
+            }
+        }
     }
 
     AddAppDialog {
@@ -55,35 +81,10 @@ ApplicationWindow {
     Connections {
         target: launcher
         function onLaunched(name) {
-            launchToast.text = "Launched: " + name
-            launchToast.visible = true
-            toastTimer.restart()
+            showPassiveNotification(i18n("Launched: %1", name), 3000);
         }
         function onLaunchError(name, error) {
-            launchToast.text = "Error: " + error
-            launchToast.visible = true
-            toastTimer.restart()
+            showPassiveNotification(i18n("Error: %1", error), 5000);
         }
-    }
-
-    Label {
-        id: launchToast
-        anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottomMargin: 20
-        visible: false
-        padding: 12
-        font.pixelSize: 13
-        background: Rectangle {
-            color: palette.toolTipBase
-            radius: 6
-        }
-        color: palette.toolTipText
-    }
-
-    Timer {
-        id: toastTimer
-        interval: 3000
-        onTriggered: launchToast.visible = false
     }
 }
