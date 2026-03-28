@@ -15,10 +15,15 @@ set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 include(KDEInstallDirs)
 include(KDECMakeSettings)
 include(KDECompilerSettings NO_POLICY_SCOPE)
+include(ECMFindQmlModule)
+include(ECMQmlModule)
 
 
 find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core Quick Gui Widgets QuickControls2)
-find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Kirigami CoreAddons I18n)
+find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Kirigami CoreAddons I18n QQC2DesktopStyle)
+
+ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
+
 
 qt_add_executable(vermouth
     src/main.cpp
