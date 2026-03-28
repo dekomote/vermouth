@@ -6,7 +6,7 @@ import org.kde.kirigami as Kirigami
 
 Kirigami.Dialog {
     id: dialog
-    title: "Run EXE in Prefix"
+    title: i18n("Run EXE in Prefix")
     preferredWidth: Kirigami.Units.gridUnit * 26
     padding: Kirigami.Units.largeSpacing
     standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
@@ -26,7 +26,7 @@ Kirigami.Dialog {
         spacing: Kirigami.Units.largeSpacing
 
         QQC2.Label {
-            text: dialog.appIndex >= 0 ? "Run an executable using the same prefix as \"" + appModel.getApp(dialog.appIndex).name + "\"" : ""
+            text: dialog.appIndex >= 0 ? i18n("Run an executable using the same prefix as \"%1\"", appModel.getApp(dialog.appIndex).name) : ""
             wrapMode: Text.Wrap
             Layout.fillWidth: true
         }
@@ -34,7 +34,7 @@ Kirigami.Dialog {
         Kirigami.FormLayout {
             Layout.topMargin: Kirigami.Units.largeSpacing
             RowLayout {
-                Kirigami.FormData.label: "Executable (.exe):"
+                Kirigami.FormData.label: i18n("Executable (.exe):")
                 QQC2.TextField {
                     id: exeField
                     Layout.fillWidth: true
@@ -50,9 +50,9 @@ Kirigami.Dialog {
 
     FileDialog {
         id: fileDialog
-        title: "Select Executable"
+        title: i18n("Select Executable")
         currentFolder: "file://" + protonScanner.homePath()
-        nameFilters: ["Executables (*.exe)", "All files (*)"]
+        nameFilters: [i18n("Executables (*.exe)"), i18n("All files (*)")]
         onAccepted: exeField.text = selectedFile.toString().replace("file://", "")
     }
 }

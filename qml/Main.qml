@@ -15,7 +15,7 @@ Kirigami.ApplicationWindow {
 
         actions: [
             Kirigami.Action {
-                text: "&Search"
+                text: i18n("&Search")
                 icon.name: "search"
                 displayComponent: Kirigami.SearchField {
                     id: searchField
@@ -24,7 +24,7 @@ Kirigami.ApplicationWindow {
                 }
             },
             Kirigami.Action {
-                text: "Add &App/Game"
+                text: i18n("Add &App/Game")
                 icon.name: "list-add"
                 onTriggered: addDialog.openForNew()
             }
@@ -46,10 +46,10 @@ Kirigami.ApplicationWindow {
     Connections {
         target: launcher
         function onLaunched(name) {
-            showPassiveNotification("Launched: " + name, 3000);
+            showPassiveNotification(i18n("Launched: %1", name), 3000);
         }
         function onLaunchError(name, error) {
-            showPassiveNotification("Error: " + error, 5000);
+            showPassiveNotification(i18n("Error: %1", error), 5000);
         }
     }
 }

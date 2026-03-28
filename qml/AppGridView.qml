@@ -153,7 +153,7 @@ GridView {
                             var parts = delegateRoot.protonPath.split("/");
                             return parts[parts.length - 1];
                         }
-                        return "Wine";
+                        return i18n("Wine");
                     }
                     font.pixelSize: 10
                     color: Kirigami.Theme.disabledTextColor
@@ -193,7 +193,7 @@ GridView {
         QQC2.Menu {
             id: contextMenu
             QQC2.MenuItem {
-                text: "Launch"
+                text: i18n("Launch")
                 icon.name: "media-playback-start"
                 onTriggered: {
                     launchAnim.start();
@@ -204,7 +204,7 @@ GridView {
             }
             QQC2.MenuSeparator {}
             QQC2.MenuItem {
-                text: "Run another EXE in this prefix"
+                text: i18n("Run another EXE in this prefix")
                 icon.name: "system-run"
                 onTriggered: {
                     runExeDialog.appIndex = delegateRoot.index;
@@ -213,7 +213,7 @@ GridView {
             }
             QQC2.MenuSeparator {}
             QQC2.MenuItem {
-                text: "Create start menu entry"
+                text: i18n("Create start menu entry")
                 icon.name: "application-menu"
                 onTriggered: {
                     var app = appModel.getApp(delegateRoot.index);
@@ -221,7 +221,7 @@ GridView {
                 }
             }
             QQC2.MenuItem {
-                text: "Create desktop shortcut"
+                text: i18n("Create desktop shortcut")
                 icon.name: "user-desktop"
                 onTriggered: {
                     var app = appModel.getApp(delegateRoot.index);
@@ -229,12 +229,12 @@ GridView {
                 }
             }
             QQC2.MenuItem {
-                text: "Open log folder"
+                text: i18n("Open log folder")
                 icon.name: "folder-open"
                 onTriggered: Qt.openUrlExternally("file://" + launcher.logDir())
             }
             QQC2.MenuItem {
-                text: "Open prefix folder"
+                text: i18n("Open prefix folder")
                 icon.name: "folder-open"
                 onTriggered: {
                     var prefix = delegateRoot.runtimeType === "proton" ? delegateRoot.protonPrefix : delegateRoot.winePrefix;
@@ -245,12 +245,12 @@ GridView {
             }
             QQC2.MenuSeparator {}
             QQC2.MenuItem {
-                text: "Edit"
+                text: i18n("Edit")
                 icon.name: "document-edit"
                 onTriggered: addDialog.openForEdit(delegateRoot.index)
             }
             QQC2.MenuItem {
-                text: "Remove"
+                text: i18n("Remove")
                 icon.name: "edit-delete"
                 onTriggered: {
                     confirmDeleteAppDialog.payload = delegateRoot.index;
@@ -258,7 +258,7 @@ GridView {
                 }
             }
             QQC2.MenuItem {
-                text: "Remove and Delete Prefix"
+                text: i18n("Remove and Delete Prefix")
                 icon.name: "edit-delete"
                 onTriggered: {
                     confirmDeleteDialog.payload = delegateRoot.index;
@@ -271,8 +271,8 @@ GridView {
     Kirigami.PromptDialog {
         id: confirmDeleteDialog
         property var payload
-        title: "Delete both app and prefix?"
-        subtitle: "This will delete both the app and the prefix?"
+        title: i18n("Delete both app and prefix?")
+        subtitle: i18n("This will delete both the app and the prefix?")
         onAccepted: appModel.removeAndCleanApp(payload)
         standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
     }
@@ -280,8 +280,8 @@ GridView {
     Kirigami.PromptDialog {
         id: confirmDeleteAppDialog
         property var payload
-        title: "Delete the app?"
-        subtitle: "This will delete the app but preserve the prefix folder."
+        title: i18n("Delete the app?")
+        subtitle: i18n("This will delete the app but preserve the prefix folder.")
         onAccepted: appModel.removeApp(payload)
         standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
     }
@@ -290,8 +290,8 @@ GridView {
         anchors.centerIn: parent
         width: parent.width - Kirigami.Units.gridUnit * 4
         visible: gridView.count === 0
-        text: "No apps or games added yet"
-        explanation: "Click \"Add App/Game\" to get started"
+        text: i18n("No apps or games added yet")
+        explanation: i18n("Click \"Add App/Game\" to get started")
         icon.name: "games-config-custom"
     }
 }

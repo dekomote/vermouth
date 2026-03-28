@@ -6,14 +6,14 @@ import org.kde.kirigami as Kirigami
 
 Kirigami.Dialog {
     id: dialog
-    title: editMode ? "Edit App/Game" : "Add App/Game"
+    title: editMode ? i18n("Edit App/Game") : i18n("Add App/Game")
     preferredWidth: Kirigami.Units.gridUnit * 30
     padding: Kirigami.Units.largeSpacing
     standardButtons: Kirigami.Dialog.NoButton
 
     customFooterActions: [
         Kirigami.Action {
-            text: "OK"
+            text: i18n("OK")
             icon.name: "dialog-ok"
             onTriggered: {
                 if (dialog.validate()) {
@@ -23,7 +23,7 @@ Kirigami.Dialog {
             }
         },
         Kirigami.Action {
-            text: "Cancel"
+            text: i18n("Cancel")
             icon.name: "dialog-cancel"
             onTriggered: dialog.close()
         }
@@ -91,21 +91,21 @@ Kirigami.Dialog {
 
     function validate() {
         if (nameField.text.trim() === "") {
-            validationError = "Name is required.";
+            validationError = i18n("Name is required.");
             return false;
         }
         if (exeField.text.trim() === "") {
-            validationError = "Executable path is required.";
+            validationError = i18n("Executable path is required.");
             return false;
         }
         if (runtimeCombo.currentIndex === 0) {
             if (protonCombo.currentIndex < 0 || protonCombo.currentIndex >= protonModel.count) {
-                validationError = "Please select a Proton version.";
+                validationError = i18n("Please select a Proton version.");
                 return false;
             }
         } else {
             if (wineBinaryField.text.trim() === "") {
-                validationError = "Wine binary path is required.";
+                validationError = i18n("Wine binary path is required.");
                 return false;
             }
         }
@@ -144,12 +144,12 @@ Kirigami.Dialog {
 
             QQC2.TextField {
                 id: nameField
-                Kirigami.FormData.label: "Name:"
-                placeholderText: "My Game"
+                Kirigami.FormData.label: i18n("Name:")
+                placeholderText: i18n("My Game")
             }
 
             RowLayout {
-                Kirigami.FormData.label: "Executable (.exe):"
+                Kirigami.FormData.label: i18n("Executable (.exe):")
                 QQC2.TextField {
                     id: exeField
                     Layout.fillWidth: true
@@ -163,13 +163,13 @@ Kirigami.Dialog {
 
             QQC2.ComboBox {
                 id: runtimeCombo
-                Kirigami.FormData.label: "Runtime:"
+                Kirigami.FormData.label: i18n("Runtime:")
                 model: ["Proton", "Wine"]
             }
 
             RowLayout {
                 visible: runtimeCombo.currentIndex === 0
-                Kirigami.FormData.label: "Proton Version:"
+                Kirigami.FormData.label: i18n("Proton Version:")
                 QQC2.ComboBox {
                     id: protonCombo
                     Layout.fillWidth: true
@@ -179,20 +179,20 @@ Kirigami.Dialog {
                 QQC2.Button {
                     icon.name: "folder-open"
                     QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: "Open local Protons folder (" + protonScanner.localProtonPath() + ")"
+                    QQC2.ToolTip.text: i18n("Open local Protons folder (%1)", protonScanner.localProtonPath())
                     onClicked: Qt.openUrlExternally("file://" + protonScanner.localProtonPath())
                 }
                 QQC2.Button {
                     icon.name: "view-refresh"
                     QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: "Refresh Proton versions"
+                    QQC2.ToolTip.text: i18n("Refresh Proton versions")
                     onClicked: dialog.refreshProton()
                 }
             }
 
             RowLayout {
                 visible: runtimeCombo.currentIndex === 0
-                Kirigami.FormData.label: "Proton Prefix (optional):"
+                Kirigami.FormData.label: i18n("Proton Prefix (optional):")
                 QQC2.TextField {
                     id: protonPrefixField
                     Layout.fillWidth: true
@@ -206,7 +206,7 @@ Kirigami.Dialog {
 
             RowLayout {
                 visible: runtimeCombo.currentIndex === 1
-                Kirigami.FormData.label: "Wine Binary:"
+                Kirigami.FormData.label: i18n("Wine Binary:")
                 QQC2.TextField {
                     id: wineBinaryField
                     Layout.fillWidth: true
@@ -220,7 +220,7 @@ Kirigami.Dialog {
 
             RowLayout {
                 visible: runtimeCombo.currentIndex === 1
-                Kirigami.FormData.label: "Wine Prefix (WINEPREFIX):"
+                Kirigami.FormData.label: i18n("Wine Prefix (WINEPREFIX):")
                 QQC2.TextField {
                     id: winePrefixField
                     Layout.fillWidth: true
@@ -234,12 +234,12 @@ Kirigami.Dialog {
 
             QQC2.TextField {
                 id: launchOptionsField
-                Kirigami.FormData.label: "Launch Options (optional):"
-                placeholderText: "e.g. mangohud %command%"
+                Kirigami.FormData.label: i18n("Launch Options (optional):")
+                placeholderText: i18n("e.g. mangohud %command%")
             }
 
             RowLayout {
-                Kirigami.FormData.label: "Icon (optional):"
+                Kirigami.FormData.label: i18n("Icon (optional):")
                 QQC2.TextField {
                     id: iconField
                     Layout.fillWidth: true
@@ -253,16 +253,16 @@ Kirigami.Dialog {
 
             QQC2.CheckBox {
                 id: enableLoggingCheck
-                text: "Write output to log file"
+                text: i18n("Write output to log file")
             }
         }
     }
 
     FileDialog {
         id: exeFileDialog
-        title: "Select Executable"
+        title: i18n("Select Executable")
         currentFolder: "file://" + protonScanner.homePath()
-        nameFilters: ["Executables (*.exe)", "All files (*)"]
+        nameFilters: [i18n("Executables (*.exe)"), i18n("All files (*)")]
         onAccepted: {
             var path = selectedFile.toString().replace("file://", "");
             exeField.text = path;
@@ -287,29 +287,29 @@ Kirigami.Dialog {
 
     FileDialog {
         id: wineBinaryDialog
-        title: "Select Wine Binary"
+        title: i18n("Select Wine Binary")
         currentFolder: "file://" + protonScanner.homePath()
         onAccepted: wineBinaryField.text = selectedFile.toString().replace("file://", "")
     }
 
     FileDialog {
         id: iconFileDialog
-        title: "Select Icon"
+        title: i18n("Select Icon")
         currentFolder: "file://" + protonScanner.homePath()
-        nameFilters: ["Images (*.png *.svg *.ico *.jpg)", "All files (*)"]
+        nameFilters: [i18n("Images (*.png *.svg *.ico *.jpg)"), i18n("All files (*)")]
         onAccepted: iconField.text = selectedFile.toString().replace("file://", "")
     }
 
     FolderDialog {
         id: prefixFolderDialog
-        title: "Select Proton Prefix Directory"
+        title: i18n("Select Proton Prefix Directory")
         currentFolder: "file://" + protonScanner.homePath()
         onAccepted: protonPrefixField.text = selectedFolder.toString().replace("file://", "")
     }
 
     FolderDialog {
         id: winePrefixFolderDialog
-        title: "Select Wine Prefix Directory"
+        title: i18n("Select Wine Prefix Directory")
         currentFolder: "file://" + protonScanner.homePath()
         onAccepted: winePrefixField.text = selectedFolder.toString().replace("file://", "")
     }
