@@ -29,6 +29,7 @@ void Launcher::launch(const QString &binary, const QStringList &baseArgs,
                       const QString &logName) {
     auto *proc = new QProcess(this);
     connect(proc, &QProcess::finished, proc, &QProcess::deleteLater);
+    connect(proc, &QProcess::finished, this, &Launcher::processFinished);
 
     proc->setProcessEnvironment(env);
     proc->setWorkingDirectory(QFileInfo(exePath).absolutePath());

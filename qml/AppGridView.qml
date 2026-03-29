@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
-import Qt.labs.settings
+import QtCore
 import org.kde.kirigami as Kirigami
 
 GridView {

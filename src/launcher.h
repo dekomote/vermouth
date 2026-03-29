@@ -17,6 +17,7 @@ public:
 Q_SIGNALS:
     void launched(const QString &name);
     void launchError(const QString &name, const QString &error);
+    void processFinished(int exitCode);
 
 private:
     void launch(const QString &binary, const QStringList &baseArgs,
