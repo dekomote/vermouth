@@ -2,12 +2,39 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
+import com.dekomote.vermouth 1.0
 
 Kirigami.ApplicationWindow {
     width: 600
     height: 700
     minimumWidth: 600
     minimumHeight: 700
+
+    globalDrawer: Kirigami.GlobalDrawer {
+        actions: [
+            Kirigami.Action {
+                text: i18n("Add &App/Game")
+                icon.name: "list-add"
+                onTriggered: addDialog.openForNew()
+            },
+            Kirigami.Action {
+                text: i18n("&Settings")
+                icon.name: "configure"
+                onTriggered: settingsDialog.openDialog()
+            },
+            Kirigami.Action {
+                text: i18n("&About Vermouth")
+                icon.name: "help-about"
+                onTriggered: pageStack.pushDialogLayer(aboutPage)
+            },
+            Kirigami.Action {
+                text: i18n("Quit")
+                icon.name: "application-exit-symbolic"
+                shortcut: StandardKey.Quit
+                onTriggered: Qt.quit()
+            }
+        ]
+    }
 
     pageStack.initialPage: Kirigami.ScrollablePage {
         id: mainPage
@@ -36,11 +63,10 @@ Kirigami.ApplicationWindow {
             contentItem: RowLayout {
                 QQC2.Label {
                     text: {
-                        if (gridView.selectedIndex < 0) return "";
+                        if (gridView.selectedIndex < 0)
+                            return "";
                         var app = appModel.getApp(gridView.selectedIndex);
-                        var runner = app.runtimeType === "proton"
-                            ? app.protonPath.split("/").pop()
-                            : app.wineBinary;
+                        var runner = app.runtimeType === "proton" ? app.protonPath.split("/").pop() : app.wineBinary;
                         return i18n("%1 — %2", runner, app.exePath);
                     }
                     elide: Text.ElideMiddle
@@ -76,6 +102,17 @@ Kirigami.ApplicationWindow {
 
     RunExeDialog {
         id: runExeDialog
+    }
+
+    SettingsDialog {
+        id: settingsDialog
+    }
+
+    Component {
+        id: aboutPage
+        Kirigami.AboutPage {
+            aboutData: About
+        }
     }
 
     Connections {

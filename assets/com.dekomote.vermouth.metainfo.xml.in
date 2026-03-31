@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>@APP_ID@</id>
+  <name>Vermouth</name>
+  <developer id="com.dekomote">
+    <name>@APP_AUTHOR_NAME@</name>
+    <email>@APP_AUTHOR_EMAIL@</email>
+  </developer>
+  <summary>@APP_DESCRIPTION@</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>@APP_LICENSE@</project_license>
+  <description>
+    <p>@APP_LONG_DESCRIPTION@</p>
+  </description>
+  <launchable type="desktop-id">@APP_ID@.desktop</launchable>
+  <content_rating type="oars-1.1" />
+  <releases>
+    <release version="@PROJECT_VERSION@" />
+  </releases>
+</component>

@@ -12,6 +12,7 @@
 #include "launcher.h"
 #include "desktopfilewriter.h"
 #include "iconextractor.h"
+#include "settingsmanager.h"
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
@@ -19,17 +20,33 @@ int main(int argc, char *argv[]) {
     KLocalizedString::setApplicationDomain(QByteArrayLiteral("vermouth"));
 
     KAboutData aboutData(
-        QStringLiteral("vermouth"),
+        QStringLiteral(APP_NAME_STRING),
         i18n("Vermouth"),
         QStringLiteral(APP_VERSION_STRING),
-        i18n("A no-frills Wine/Proton game launcher for Linux"),
+        i18n(APP_DESCRIPTION),
         KAboutLicense::MIT,
-        i18n("(c) 2024-2026")
+        i18n(APP_COPYRIGHT)
     );
-    aboutData.setBugAddress(QByteArrayLiteral("https://github.com/dekomote/vermouth/issues"));
-    aboutData.setHomepage(QStringLiteral("https://github.com/dekomote/vermouth"));
-    aboutData.setDesktopFileName(QStringLiteral("com.dekomote.vermouth"));
+    aboutData.addAuthor(
+        i18n(APP_AUTHOR_NAME),
+        i18n("Lead Developer"),
+        QStringLiteral(APP_AUTHOR_EMAIL),
+        QStringLiteral(APP_AUTHOR_URL)
+    );
+    aboutData.setBugAddress(QByteArrayLiteral(APP_BUG_ADDRESS));
+    aboutData.setHomepage(QStringLiteral(APP_HOMEPAGE));
+    aboutData.setDesktopFileName(QStringLiteral(APP_ID));
     KAboutData::setApplicationData(aboutData);
+
+    qmlRegisterSingletonType(
+        APP_ID,
+        1, 0,
+        "About",
+        [](QQmlEngine* engine, QJSEngine *) -> QJSValue {
+            return engine->toScriptValue(KAboutData::applicationData());
+        }
+    );
+
     app.setWindowIcon(QIcon(QStringLiteral(":/icons/vermouth.svg")));
 
     QCommandLineParser parser;
@@ -86,6 +103,16 @@ int main(int argc, char *argv[]) {
     ProtonScanner protonScanner;
     DesktopFileWriter desktopWriter;
     IconExtractor iconExtractor;
+    SettingsManager settingsManager;
+
+    protonScanner.setExtraProtonPaths(settingsManager.extraProtonPaths());
+    protonScanner.setCustomPrefixBasePath(settingsManager.defaultPrefixDir());
+    QObject::connect(&settingsManager, &SettingsManager::extraProtonPathsChanged, [&]() {
+        protonScanner.setExtraProtonPaths(settingsManager.extraProtonPaths());
+    });
+    QObject::connect(&settingsManager, &SettingsManager::defaultPrefixDirChanged, [&]() {
+        protonScanner.setCustomPrefixBasePath(settingsManager.defaultPrefixDir());
+    });
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
@@ -94,6 +121,7 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty(QStringLiteral("launcher"), &launcher);
     engine.rootContext()->setContextProperty(QStringLiteral("desktopWriter"), &desktopWriter);
     engine.rootContext()->setContextProperty(QStringLiteral("iconExtractor"), &iconExtractor);
+    engine.rootContext()->setContextProperty(QStringLiteral("settingsManager"), &settingsManager);
 
     engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));
 

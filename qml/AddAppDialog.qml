@@ -32,6 +32,7 @@ Kirigami.Dialog {
 
     property bool editMode: false
     property int editIndex: -1
+    property string prefixBasePath
 
     function openForNew() {
         editMode = false;
@@ -47,6 +48,7 @@ Kirigami.Dialog {
         enableLoggingCheck.checked = false;
         iconField.text = "";
         refreshProton();
+        prefixBasePath = protonScanner.prefixBasePath();
         dialog.open();
     }
 
@@ -63,6 +65,7 @@ Kirigami.Dialog {
         launchOptionsField.text = app.launchOptions;
         enableLoggingCheck.checked = app.enableLogging;
         iconField.text = app.iconPath;
+        prefixBasePath = protonScanner.prefixBasePath();
         refreshProton();
 
         if (app.runtimeType === "proton") {
@@ -221,7 +224,7 @@ Kirigami.Dialog {
                 QQC2.TextField {
                     id: protonPrefixField
                     Layout.fillWidth: true
-                    placeholderText: "~/.local/share/vermouth/prefixes/mygame"
+                    placeholderText: prefixBasePath + "/mygame"
                 }
                 QQC2.Button {
                     icon.name: "document-open"
@@ -294,7 +297,7 @@ Kirigami.Dialog {
                 nameField.text = filename.replace(/\.exe$/i, "");
             }
             var safeName = nameField.text.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
-            var prefixBase = protonScanner.prefixBasePath() + "/" + safeName;
+            var prefixBase = prefixBasePath + "/" + safeName;
             if (protonPrefixField.text === "")
                 protonPrefixField.text = prefixBase;
             if (winePrefixField.text === "")

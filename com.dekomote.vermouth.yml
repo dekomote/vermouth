@@ -27,5 +27,5 @@ modules:
     post-install:
       - install -Dm644 assets/vermouth.desktop ${FLATPAK_DEST}/share/applications/com.dekomote.vermouth.desktop
       - install -Dm644 assets/vermouth.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/com.dekomote.vermouth.svg
-      - install -Dm644 assets/com.dekomote.vermouth.metainfo.xml ${FLATPAK_DEST}/share/metainfo/com.dekomote.vermouth.metainfo.xml
+      # metainfo is installed by CMake via configure_file + install
       - desktop-file-edit --set-key=Icon --set-value=com.dekomote.vermouth ${FLATPAK_DEST}/share/applications/com.dekomote.vermouth.desktop

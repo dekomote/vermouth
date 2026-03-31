@@ -15,6 +15,11 @@ public:
     Q_INVOKABLE QString localProtonPath() const;
     Q_INVOKABLE QString homePath() const;
 
+    void setExtraProtonPaths(const QStringList &paths);
+    void setCustomPrefixBasePath(const QString &path);
+
 private:
     QStringList steamPaths() const;
+    QStringList m_extraProtonPaths;
+    QString m_customPrefixBasePath;
 };

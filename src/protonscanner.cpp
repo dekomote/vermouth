@@ -99,6 +99,17 @@ QStringList ProtonScanner::findProtonVersions() const {
         }
     }
 
+    for (const auto &extraPath : m_extraProtonPaths) {
+        QDir extraDir(extraPath);
+        if (!extraDir.exists())
+            continue;
+        for (const auto &entry : extraDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+            QString path = extraDir.absoluteFilePath(entry);
+            if (QFileInfo::exists(path + QStringLiteral("/proton")))
+                result << path;
+        }
+    }
+
     result.removeDuplicates();
     result.sort();
     return result;
@@ -108,12 +119,22 @@ QString ProtonScanner::homePath() const {
     return QDir::homePath();
 }
 
+void ProtonScanner::setCustomPrefixBasePath(const QString &path) {
+    m_customPrefixBasePath = path;
+}
+
 QString ProtonScanner::prefixBasePath() const {
+    if (!m_customPrefixBasePath.isEmpty())
+        return m_customPrefixBasePath;
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/prefixes");
 }
 
 QString ProtonScanner::localProtonPath() const {
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/protons");
+}
+
+void ProtonScanner::setExtraProtonPaths(const QStringList &paths) {
+    m_extraProtonPaths = paths;
 }
 
 QStringList ProtonScanner::findExistingPrefixes() const {
