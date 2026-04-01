@@ -63,3 +63,5 @@ rpmbuild
 _CPack_Packages
 *.deb
 *.rpm
+
+artifacts

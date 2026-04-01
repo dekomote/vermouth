@@ -1,0 +1,74 @@
+name: Build AppImage
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+
+jobs:
+  build-appimage:
+    runs-on: ubuntu-latest
+    container: ubuntu:25.10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y \
+            build-essential cmake extra-cmake-modules file wget fuse3 nodejs \
+            qt6-base-dev qt6-declarative-dev qt6-tools-dev-tools qmake6 \
+            libkirigami-dev libkf6coreaddons-dev libkf6i18n-dev libkf6qqc2desktopstyle-dev \
+            qml6-module-org-kde-kirigami \
+            qml6-module-org-kde-desktop \
+            qml6-module-org-kde-iconthemes \
+            qml6-module-org-kde-sonnet \
+            qt6-wayland breeze
+
+      - name: Build
+        run: |
+          VERSION=$(grep -oP 'project\(vermouth VERSION \K[0-9.]+' CMakeLists.txt)
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+
+          cmake -B build -S . \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/usr \
+            -Wno-dev
+          cmake --build build --parallel
+          DESTDIR=AppDir cmake --install build
+
+      - name: Download linuxdeploy
+        run: |
+          wget -q -O linuxdeploy "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
+          wget -q -O linuxdeploy-plugin-qt "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
+          chmod +x linuxdeploy linuxdeploy-plugin-qt
+          ./linuxdeploy --appimage-extract
+          mv squashfs-root linuxdeploy-extracted
+          ./linuxdeploy-plugin-qt --appimage-extract
+          mv squashfs-root linuxdeploy-plugin-qt-extracted
+          ln -s "$PWD/linuxdeploy-plugin-qt-extracted/AppRun" linuxdeploy-extracted/plugins/linuxdeploy-plugin-qt
+
+      - name: Package AppImage
+        env:
+          QML_SOURCES_PATHS: ${{ github.workspace }}/qml
+          QMAKE: /usr/bin/qmake6
+          EXTRA_QT_PLUGINS: svg;wayland-shell-integration;wayland-graphics-integration-client
+          APPIMAGE_EXTRACT_AND_RUN: 1
+        run: |
+          export VERSION="${{ env.VERSION }}"
+          ./linuxdeploy-extracted/AppRun --appdir AppDir \
+            --desktop-file AppDir/usr/share/applications/vermouth.desktop \
+            --icon-file AppDir/usr/share/icons/hicolor/scalable/apps/vermouth.svg \
+            --plugin qt \
+            --output appimage
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: appimage-package
+          path: Vermouth-*.AppImage

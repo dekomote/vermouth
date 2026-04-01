@@ -1,0 +1,108 @@
+name: Generate AUR PKGBUILD
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  generate-aur-pkgbuild:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Generate AUR PKGBUILD
+        run: |
+          PKGVER=$(grep -oP 'project\(vermouth VERSION \K[0-9.]+' CMakeLists.txt)
+          PKGDESC=$(grep -oP 'set\(APP_DESCRIPTION "\K[^"]+' CMakeLists.txt)
+          PKGURL=$(grep -oP 'set\(APP_HOMEPAGE "\K[^"]+' CMakeLists.txt)
+          PKGLICENSE=$(grep -oP 'set\(APP_LICENSE "\K[^"]+' CMakeLists.txt)
+
+          # Download tarball and compute sha256
+          TARBALL_URL="https://github.com/dekomote/vermouth/archive/refs/tags/v${PKGVER}.tar.gz"
+          curl -sL -o source.tar.gz "$TARBALL_URL"
+          SHA256=$(sha256sum source.tar.gz | awk '{print $1}')
+          rm source.tar.gz
+
+          mkdir -p aur
+
+          cat > aur/PKGBUILD <<EOF
+          # Maintainer: Dejan Noveski <deko@duck.com>
+          pkgname=vermouth
+          pkgver=${PKGVER}
+          pkgrel=1
+          pkgdesc="${PKGDESC}"
+          arch=('x86_64')
+          url="${PKGURL}"
+          license=('${PKGLICENSE}')
+          depends=(
+              'qt6-base'
+              'qt6-declarative'
+              'kirigami'
+              'ki18n'
+              'kcoreaddons'
+              'qqc2-desktop-style'
+          )
+          makedepends=(
+              'cmake'
+              'ninja'
+              'extra-cmake-modules'
+          )
+          optdepends=('icoutils: Windows icon extraction')
+          source=("\${pkgname}-\${pkgver}.tar.gz::https://github.com/dekomote/vermouth/archive/refs/tags/v\${pkgver}.tar.gz")
+          sha256sums=('${SHA256}')
+
+          build() {
+              cd "\${pkgname}-\${pkgver}"
+              cmake -B build \\
+                  -G Ninja \\
+                  -DCMAKE_BUILD_TYPE=Release \\
+                  -DCMAKE_INSTALL_PREFIX=/usr
+              cmake --build build
+          }
+
+          package() {
+              cd "\${pkgname}-\${pkgver}"
+              DESTDIR="\$pkgdir" cmake --install build
+              install -Dm644 LICENSE "\$pkgdir/usr/share/licenses/\$pkgname/LICENSE"
+          }
+          EOF
+
+          sed -i 's/^          //' aur/PKGBUILD
+
+          # Generate .SRCINFO
+          cat > aur/.SRCINFO <<EOF
+          pkgbase = vermouth
+          	pkgdesc = ${PKGDESC}
+          	pkgver = ${PKGVER}
+          	pkgrel = 1
+          	url = ${PKGURL}
+          	arch = x86_64
+          	license = ${PKGLICENSE}
+          	makedepends = cmake
+          	makedepends = ninja
+          	makedepends = extra-cmake-modules
+          	depends = qt6-base
+          	depends = qt6-declarative
+          	depends = kirigami
+          	depends = ki18n
+          	depends = kcoreaddons
+          	depends = qqc2-desktop-style
+          	optdepends = icoutils: Windows icon extraction
+          	source = vermouth-${PKGVER}.tar.gz::https://github.com/dekomote/vermouth/archive/refs/tags/v${PKGVER}.tar.gz
+          	sha256sums = ${SHA256}
+
+          pkgname = vermouth
+          EOF
+
+          sed -i 's/^          //' aur/.SRCINFO
+
+      - name: Upload AUR PKGBUILD
+        uses: actions/upload-artifact@v4
+        with:
+          name: aur-pkgbuild
+          path: |
+            aur/PKGBUILD
+            aur/.SRCINFO

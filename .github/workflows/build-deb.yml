@@ -1,0 +1,38 @@
+name: Build DEB
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  DEBIAN_FRONTEND: noninteractive
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-latest
+    container: ubuntu:25.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y \
+            build-essential cmake extra-cmake-modules dpkg-dev nodejs \
+            qt6-base-dev qt6-declarative-dev qt6-tools-dev-tools \
+            libkirigami-dev libkf6coreaddons-dev libkf6i18n-dev libkf6qqc2desktopstyle-dev
+
+      - name: Build and package
+        run: |
+          cmake -S . -B build -DCPACK_PACKAGE_VERSION=${{ github.ref_name }} -DCMAKE_INSTALL_PREFIX=/usr
+          cmake --build build
+          cpack --config build/CPackConfig.cmake -G DEB
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-package
+          path: "*.deb"

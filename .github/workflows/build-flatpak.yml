@@ -1,0 +1,34 @@
+name: Build Flatpak
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-flatpak:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:43
+      options: --privileged
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install build dependencies
+        run: |
+          dnf upgrade --refresh -y
+          dnf install -y flatpak-builder node
+          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+      - name: Build Flatpak
+        run: |
+          flatpak-builder --force-clean --repo=flatpakrepo build-dir com.dekomote.vermouth.yml --install-deps-from=flathub --disable-rofiles-fuse
+          flatpak build-bundle flatpakrepo vermouth-${{ github.ref_name }}.flatpak com.dekomote.vermouth
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-package
+          path: vermouth-*.flatpak

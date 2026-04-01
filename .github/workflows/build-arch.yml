@@ -1,0 +1,84 @@
+name: Build Arch Package
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-arch:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+
+    steps:
+      - name: Setup build user
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm --needed \
+            base-devel cmake ninja extra-cmake-modules git nodejs \
+            qt6-base qt6-declarative \
+            kirigami ki18n kcoreaddons qqc2-desktop-style
+          useradd -m builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Generate PKGBUILD
+        run: |
+          PKGVER=$(grep -oP 'project\(vermouth VERSION \K[0-9.]+' CMakeLists.txt)
+          PKGDESC=$(grep -oP 'set\(APP_DESCRIPTION "\K[^"]+' CMakeLists.txt)
+          PKGURL=$(grep -oP 'set\(APP_HOMEPAGE "\K[^"]+' CMakeLists.txt)
+          PKGLICENSE=$(grep -oP 'set\(APP_LICENSE "\K[^"]+' CMakeLists.txt)
+
+          cat > PKGBUILD <<EOF
+          pkgname=vermouth
+          pkgver=${PKGVER}
+          pkgrel=1
+          pkgdesc="${PKGDESC}"
+          arch=('x86_64')
+          url="${PKGURL}"
+          license=('${PKGLICENSE}')
+          depends=(
+              'qt6-base'
+              'qt6-declarative'
+              'kirigami'
+              'ki18n'
+              'kcoreaddons'
+              'qqc2-desktop-style'
+          )
+          makedepends=(
+              'cmake'
+              'ninja'
+              'extra-cmake-modules'
+          )
+          optdepends=('icoutils: Windows icon extraction')
+          source=()
+          sha256sums=()
+
+          build() {
+              cmake -B build -S "\$startdir" \\
+                  -G Ninja \\
+                  -DCMAKE_BUILD_TYPE=Release \\
+                  -DCMAKE_INSTALL_PREFIX=/usr
+              cmake --build build
+          }
+
+          package() {
+              DESTDIR="\$pkgdir" cmake --install build
+              install -Dm644 "\$startdir/LICENSE" "\$pkgdir/usr/share/licenses/\$pkgname/LICENSE"
+          }
+          EOF
+
+          sed -i 's/^          //' PKGBUILD
+
+      - name: Build package
+        run: |
+          chown -R builder:builder .
+          su builder -c "makepkg -sf --noconfirm"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: arch-package
+          path: "*.pkg.tar.zst"
