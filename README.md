@@ -1,3 +1,11 @@
+[![Build AppImage](https://github.com/dekomote/vermouth/actions/workflows/build-appimage.yml/badge.svg)](https://github.com/dekomote/vermouth/actions/workflows/build-appimage.yml)
+[![Build DEB](https://github.com/dekomote/vermouth/actions/workflows/build-deb.yml/badge.svg)](https://github.com/dekomote/vermouth/actions/workflows/build-deb.yml)
+[![Build RPM](https://github.com/dekomote/vermouth/actions/workflows/build-rpm.yml/badge.svg)](https://github.com/dekomote/vermouth/actions/workflows/build-rpm.yml)
+[![Build Flatpak](https://github.com/dekomote/vermouth/actions/workflows/build-flatpak.yml/badge.svg)](https://github.com/dekomote/vermouth/actions/workflows/build-flatpak.yml)
+[![Build Arch Package](https://github.com/dekomote/vermouth/actions/workflows/build-arch.yml/badge.svg)](https://github.com/dekomote/vermouth/actions/workflows/build-arch.yml)
+[![Build Arch Package](https://github.com/dekomote/vermouth/actions/workflows/build-arch.yml/badge.svg)](https://github.com/dekomote/vermouth/actions/workflows/build-arch.yml)
+
+
 <p align="center">
   <img src="assets/vermouth.svg" width="128" height="128" alt="Vermouth logo">
 </p>
@@ -8,8 +16,9 @@
 Point it at Windows executables and run them with Proton or Wine.</p>
 
 <p align="center">
-  <img src="assets/screenshot.png" alt="Vermouth screenshot" width="500">
-  <img src="assets/screenshot1.png" alt="Vermouth screenshot" width="500">
+  <img src="assets/screen1.png" alt="Vermouth screenshot" width="400">
+  <img src="assets/screen2.png" alt="Vermouth screenshot" width="400">
+  <img src="assets/screen3.png" alt="Vermouth screenshot" width="400">
 </p>
 
 ## What it does
@@ -34,20 +43,38 @@ Additionally:
 
 ## Installing
 
-There are some packages provided in the releases section - specifically deb, rpm and flatpak. There's an AppImage too but it might not work, I still have some kinks to fix there. Not that the other packages work flawlessly, so please, try them and report bugs!
+In the [releases section](https://github.com/dekomote/vermouth/releases/latest), you can find pre-built packages:
 
+- The deb package can be used for Ubuntu 25.04 and onward
+- The rpm package can be used for Fedora 41+ and OpenSuse
+- The flatpack package and the AppImage are universal for x86_64
+- You can also find a package for Archlinux as well as PKGBUILD pack
 
-Currently only tested on Fedora 43.
+I have limited testing capabilities at the moment, so please, report any bugs you might find.
+
+For icon extraction from .exe files, install `icoutils` (provides `wrestool` and `icotool`).
 
 ## Building from source
 
 You need Qt 6 and CMake. On Fedora:
 
 ```
-sudo dnf install qt6-qtbase-devel qt6-qtdeclarative-devel cmake gcc-c++
+sudo dnf install cmake gcc-c++ extra-cmake-modules qt6-qtbase-devel qt6-qtdeclarative-devel qt6-qtquickcontrols2-devel kf6-kirigami-devel kf6-kcoreaddons-devel kf6-ki18n-devel kf6-qqc2-desktop-style
 ```
 
-Then:
+On *buntu:
+
+```
+sudo apt install build-essential cmake extra-cmake-modules qt6-base-dev qt6-declarative-dev qt6-tools-dev-tools libkirigami-dev libkf6coreaddons-dev libkf6i18n-dev libkf6qqc2desktopstyle-dev
+```
+
+On Arch and derrivatives:
+
+```
+pacman -S --needed base-devel cmake ninja extra-cmake-modules qt6-base qt6-declarative kirigami ki18n kcoreaddons qqc2-desktop-style
+```
+
+Then inside the root folder of the project:
 
 ```
 cmake -B build
@@ -56,8 +83,6 @@ cmake --build build
 ```
 
 For icon extraction from .exe files, install `icoutils` (provides `wrestool` and `icotool`).
-
-I'll follow up with build instructions for other distros as the code matures.
 
 ## How it works
 
