@@ -26,20 +26,19 @@ Point it at Windows executables and run them with Proton or Wine.</p>
 Vermouth keeps a list of your games and applications, paired with a Proton or Wine version. Double-click to launch. That's pretty much it.
 It works like Lutris, Heroic, Fagus or Bottles, but:
 
-- it's KDE first
-- tries to be lighter and easier to use by letting other apps manage the compatibility tools (e.g. Steam, Protonup-qt etc.) and the complex stuff.
+- It's KDE first (written in Qt/Qml and using Kirigami)
+- It tries to be lighter and easier to use - less buttons, checks and knobs, just the bare necessities.
 
 Additionally:
 
-- Picks up Proton versions from your Steam installation automatically, including custom ones like GE-Proton from compatibilitytools.d and across multiple Steam library folders
-- You can install custom proton builds in it's local folder (usually ~/.local/share/vermouth/protons, there's a button for it)
+- It searches for Proton versions from your Steam installation automatically, including custom ones like GE-Proton
+- You can also download the latest GE Proton release and set everything up with one click, if you don't have Steam
+- You can place custom proton builds in its local folder (usually ~/.local/share/vermouth/protons, there's a button to open it)
 - Wine works too - just point it at the Wine binary and set a prefix folder
-- It tries to extract icons from .exe files so the grid actually looks nice, just install `icoutils`
-- Launch options with `%command%` placeholder, same as Steam (e.g. `mangohud %command%`)
-- Run a separate .exe inside an existing prefix (useful for installers, config tools, etc.)
-- Create start menu entries or desktop shortcuts for individual games
-- Can be launched from .desktop files directly, so shortcuts work without opening the application
-
+- It will try to extract icons from .exe files so the grid actually looks nice, you just install `icoutils`
+- You can define launch options with `%command%` placeholder, same as in Steam (e.g. `mangohud %command%`)
+- You can run a separate .exe inside an existing prefix (useful for installers, config tools, etc.)
+- You can create start menu entries and desktop shortcuts for individual games, and they work without opening the application window
 
 ## Installing
 
@@ -84,11 +83,20 @@ cmake --build build
 
 For icon extraction from .exe files, install `icoutils` (provides `wrestool` and `icotool`).
 
+## How to use it
+
+Open the app, click the "Add App/Game" button on the top right, browse for the exe file, choose the Proton version in the dropdown (click Download GE Proton if you don't have any versions in the list) and then launch the game from the grid!
+
+The optional fields can be ommited. The name, and icon will be inferred from the exe (you need icoutils for the icon), the prefix will be set based on the game name and the default prefix folder.
+
+The launch options field lets you wrap the command with tools like mangohud, gamescope, or gamemoderun. Use `%command%` as the placeholder for where the actual game command goes. If you leave out `%command%`, your options get prepended automatically.
+
+In the app's settings you can set the default prefix folder to your liking and add additional folders to be scanned for Proton versions.
+
 ## How it works
 
 Games are stored in `~/.config/vermouth/apps.json`. Proton is launched the same way Steam does it, by calling the `proton run` script with `STEAM_COMPAT_DATA_PATH` set to your prefix. Wine games just get `WINEPREFIX` set and the binary called directly.
 
-The launch options field lets you wrap the command with tools like mangohud, gamescope, or gamemoderun. Use `%command%` as the placeholder for where the actual game command goes. If you leave out `%command%`, your options get prepended automatically.
 
 ## AI Disclaimer
 
