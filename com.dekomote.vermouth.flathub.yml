@@ -24,7 +24,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/dekomote/vermouth.git
-        tag: v0.8.1
+        tag: v1.0.0
     post-install:
       - install -Dm644 assets/vermouth.desktop ${FLATPAK_DEST}/share/applications/com.dekomote.vermouth.desktop
       - install -Dm644 assets/vermouth.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/com.dekomote.vermouth.svg
