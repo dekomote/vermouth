@@ -48,7 +48,7 @@ In the [releases section](https://github.com/dekomote/vermouth/releases/latest),
 
 - The deb package can be used for Ubuntu 25.04 and onward
 - The rpm package can be used for Fedora 41+ and OpenSuse
-- The flatpack package and the AppImage are universal for x86_64
+- The flatpak package and the AppImage are universal for x86_64. See [FLATPAK NOTES](#flatpak-notes)
 - You can also find a package for Archlinux as well as PKGBUILD pack
 
 I have limited testing capabilities at the moment, so please, report any bugs you might find.
@@ -94,6 +94,10 @@ The optional fields can be ommited. The name, and icon will be inferred from the
 The launch options field lets you wrap the command with tools like mangohud, gamescope, or gamemoderun. Use `%command%` as the placeholder for where the actual game command goes. If you leave out `%command%`, your options get prepended automatically.
 
 In the app's settings you can set the default prefix folder to your liking and add additional folders to be scanned for Proton versions.
+
+## FLATPAK NOTES
+
+When running Vermouth as a Flatpak, it is sandboxed and cannot access your filesystem by default. You need to grant it access to the folder(s) containing your games. You can do this using [Flatseal](https://flathub.org/apps/com.github.tchx84.Flatseal) or through your desktop environment's application permissions settings. Add the relevant paths (e.g. your games folder) under "Filesystem" permissions.
 
 ## How it works
 
