@@ -3,21 +3,24 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QProcess>
-#include <QStandardPaths>
 #include <QRegularExpression>
+#include <QStandardPaths>
 #include <QTemporaryFile>
 
 IconExtractor::IconExtractor(QObject *parent)
     : QObject(parent)
-{}
+{
+}
 
-QString IconExtractor::cacheDir() const {
+QString IconExtractor::cacheDir() const
+{
     QString dir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + QStringLiteral("/icons");
     QDir().mkpath(dir);
     return dir;
 }
 
-QString IconExtractor::extractIcon(const QString &exePath) {
+QString IconExtractor::extractIcon(const QString &exePath)
+{
     if (!QFileInfo::exists(exePath))
         return {};
 
@@ -34,7 +37,8 @@ QString IconExtractor::extractIcon(const QString &exePath) {
     return {};
 }
 
-QString IconExtractor::tryWrestool(const QString &exePath, const QString &outPath) {
+QString IconExtractor::tryWrestool(const QString &exePath, const QString &outPath)
+{
     QString wrestool = QStandardPaths::findExecutable(QStringLiteral("wrestool"));
     QString icotool = QStandardPaths::findExecutable(QStringLiteral("icotool"));
     if (wrestool.isEmpty() || icotool.isEmpty())
@@ -80,8 +84,9 @@ QString IconExtractor::tryWrestool(const QString &exePath, const QString &outPat
     }
 
     QProcess convertProc;
-    convertProc.start(icotool, {QStringLiteral("--extract"), QStringLiteral("--index=") + QString::number(bestIndex),
-                                QStringLiteral("--output=") + outPath, icoFile.fileName()});
+    convertProc.start(
+        icotool,
+        {QStringLiteral("--extract"), QStringLiteral("--index=") + QString::number(bestIndex), QStringLiteral("--output=") + outPath, icoFile.fileName()});
     if (!convertProc.waitForFinished(5000) || convertProc.exitCode() != 0) {
         QProcess fallback;
         fallback.start(icotool, {QStringLiteral("--extract"), QStringLiteral("--output=") + outPath, icoFile.fileName()});

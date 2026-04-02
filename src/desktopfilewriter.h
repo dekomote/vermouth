@@ -3,7 +3,8 @@
 #include <QObject>
 #include <QVariantMap>
 
-class DesktopFileWriter : public QObject {
+class DesktopFileWriter : public QObject
+{
     Q_OBJECT
 
 public:

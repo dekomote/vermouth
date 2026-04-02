@@ -1,14 +1,20 @@
 #pragma once
 
+#include <QJsonObject>
 #include <QObject>
 #include <QString>
-#include <QJsonObject>
+#include <QUuid>
 
-class AppEntry {
+class AppEntry
+{
     Q_GADGET
 public:
-    enum RuntimeType { Proton, Wine };
+    enum RuntimeType {
+        Proton,
+        Wine
+    };
 
+    QString id;
     QString name;
     QString exePath;
     RuntimeType runtimeType = Proton;

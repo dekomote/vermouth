@@ -1,11 +1,12 @@
 #pragma once
 
-#include <QObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QObject>
 #include <QTimer>
 
-class ProtonDownloader : public QObject {
+class ProtonDownloader : public QObject
+{
     Q_OBJECT
     Q_PROPERTY(bool busy READ busy NOTIFY busyChanged)
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusTextChanged)

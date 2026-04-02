@@ -3,7 +3,8 @@
 #include <QObject>
 #include <QStringList>
 
-class ProtonScanner : public QObject {
+class ProtonScanner : public QObject
+{
     Q_OBJECT
 
 public:

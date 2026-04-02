@@ -1,13 +1,14 @@
 #include "protondownloader.h"
 #include <QDir>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
 #include <QProcess>
 #include <QTemporaryFile>
 
 ProtonDownloader::ProtonDownloader(QObject *parent)
     : QObject(parent)
+
 {
     m_statusClearTimer.setSingleShot(true);
     m_statusClearTimer.setInterval(6000);
@@ -21,9 +22,18 @@ void ProtonDownloader::setLocalProtonPath(const QString &path)
     m_localProtonPath = path;
 }
 
-bool ProtonDownloader::busy() const { return m_busy; }
-QString ProtonDownloader::statusText() const { return m_statusText; }
-double ProtonDownloader::progress() const { return m_progress; }
+bool ProtonDownloader::busy() const
+{
+    return m_busy;
+}
+QString ProtonDownloader::statusText() const
+{
+    return m_statusText;
+}
+double ProtonDownloader::progress() const
+{
+    return m_progress;
+}
 
 void ProtonDownloader::setBusy(bool busy)
 {

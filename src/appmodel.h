@@ -1,16 +1,18 @@
 #pragma once
 
+#include "appentry.h"
 #include <QAbstractListModel>
 #include <QVector>
-#include "appentry.h"
 
-class AppModel : public QAbstractListModel {
+class AppModel : public QAbstractListModel
+{
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
 
 public:
     enum Roles {
-        NameRole = Qt::UserRole + 1,
+        IdRole = Qt::UserRole + 1,
+        NameRole,
         ExePathRole,
         RuntimeTypeRole,
         ProtonPathRole,
@@ -28,26 +30,36 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;
 
-    int count() const { return m_filtered.size(); }
+    int count() const
+    {
+        return m_filtered.size();
+    }
 
-    Q_INVOKABLE void addApp(const QString &name, const QString &exePath,
+    Q_INVOKABLE void addApp(const QString &name,
+                            const QString &exePath,
                             const QString &runtimeType,
-                            const QString &protonPath, const QString &protonPrefix,
-                            const QString &wineBinary, const QString &winePrefix,
+                            const QString &protonPath,
+                            const QString &protonPrefix,
+                            const QString &wineBinary,
+                            const QString &winePrefix,
                             const QString &iconPath,
                             const QString &launchOptions = QString(),
                             bool enableLogging = false);
     Q_INVOKABLE void removeApp(int index);
     Q_INVOKABLE void removeAndCleanApp(int index);
     Q_INVOKABLE void editApp(int index,
-                             const QString &name, const QString &exePath,
+                             const QString &name,
+                             const QString &exePath,
                              const QString &runtimeType,
-                             const QString &protonPath, const QString &protonPrefix,
-                             const QString &wineBinary, const QString &winePrefix,
+                             const QString &protonPath,
+                             const QString &protonPrefix,
+                             const QString &wineBinary,
+                             const QString &winePrefix,
                              const QString &iconPath,
                              const QString &launchOptions = QString(),
                              bool enableLogging = false);
     Q_INVOKABLE QVariantMap getApp(int index) const;
+    Q_INVOKABLE QVariantMap getAppById(const QString &id) const;
     Q_INVOKABLE void setFilterString(const QString &filter);
 
     void load();

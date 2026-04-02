@@ -1,58 +1,48 @@
-#include <QApplication>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
-#include <QCommandLineParser>
-#include <QQuickStyle>
-#include <QIcon>
+#include "appmodel.h"
+#include "desktopfilewriter.h"
+#include "iconextractor.h"
+#include "launcher.h"
+#include "protondownloader.h"
+#include "protonscanner.h"
+#include "settingsmanager.h"
 #include <KAboutData>
 #include <KLocalizedContext>
 #include <KLocalizedString>
-#include "appmodel.h"
-#include "protonscanner.h"
-#include "launcher.h"
-#include "desktopfilewriter.h"
-#include "iconextractor.h"
-#include "settingsmanager.h"
-#include "protondownloader.h"
+#include <QApplication>
+#include <QCommandLineParser>
+#include <QIcon>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QQuickStyle>
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     QApplication app(argc, argv);
 
     KLocalizedString::setApplicationDomain(QByteArrayLiteral("vermouth"));
 
-    KAboutData aboutData(
-        QStringLiteral(APP_NAME_STRING),
-        i18n("Vermouth"),
-        QStringLiteral(APP_VERSION_STRING),
-        i18n(APP_DESCRIPTION),
-        KAboutLicense::MIT,
-        i18n(APP_COPYRIGHT)
-    );
-    aboutData.addAuthor(
-        i18n(APP_AUTHOR_NAME),
-        i18n("Lead Developer"),
-        QStringLiteral(APP_AUTHOR_EMAIL),
-        QStringLiteral(APP_AUTHOR_URL)
-    );
+    KAboutData aboutData(QStringLiteral(APP_NAME_STRING),
+                         i18n("Vermouth"),
+                         QStringLiteral(APP_VERSION_STRING),
+                         i18n(APP_DESCRIPTION),
+                         KAboutLicense::MIT,
+                         i18n(APP_COPYRIGHT));
+    aboutData.addAuthor(i18n(APP_AUTHOR_NAME), i18n("Lead Developer"), QStringLiteral(APP_AUTHOR_EMAIL), QStringLiteral(APP_AUTHOR_URL));
     aboutData.setBugAddress(QByteArrayLiteral(APP_BUG_ADDRESS));
     aboutData.setHomepage(QStringLiteral(APP_HOMEPAGE));
     aboutData.setDesktopFileName(QStringLiteral(APP_ID));
     KAboutData::setApplicationData(aboutData);
 
-    qmlRegisterSingletonType(
-        APP_ID,
-        1, 0,
-        "About",
-        [](QQmlEngine* engine, QJSEngine *) -> QJSValue {
-            return engine->toScriptValue(KAboutData::applicationData());
-        }
-    );
+    qmlRegisterSingletonType(APP_ID, 1, 0, "About", [](QQmlEngine *engine, QJSEngine *) -> QJSValue {
+        return engine->toScriptValue(KAboutData::applicationData());
+    });
 
     app.setWindowIcon(QIcon(QStringLiteral(":/icons/vermouth.svg")));
 
     QCommandLineParser parser;
     aboutData.setupCommandLine(&parser);
 
+    QCommandLineOption launchIdOpt(QStringLiteral("launch-id"), i18n("Launch app by its config ID"), QStringLiteral("id"));
     QCommandLineOption launchProtonOpt(QStringLiteral("launch-proton"), i18n("Launch exe with Proton"), QStringLiteral("exe"));
     QCommandLineOption launchWineOpt(QStringLiteral("launch-wine"), i18n("Launch exe with Wine"), QStringLiteral("exe"));
     QCommandLineOption protonOpt(QStringLiteral("proton"), i18n("Proton path"), QStringLiteral("path"));
@@ -61,6 +51,7 @@ int main(int argc, char *argv[]) {
     QCommandLineOption launchOptsOpt(QStringLiteral("launch-options"), i18n("Launch options (use %command% as placeholder)"), QStringLiteral("options"));
     QCommandLineOption loggingOpt(QStringLiteral("enable-logging"), i18n("Enable logging to file"));
 
+    parser.addOption(launchIdOpt);
     parser.addOption(launchProtonOpt);
     parser.addOption(launchWineOpt);
     parser.addOption(protonOpt);
@@ -73,6 +64,23 @@ int main(int argc, char *argv[]) {
     aboutData.processCommandLine(&parser);
 
     Launcher launcher;
+
+    // Launch by config ID - looks up entry from apps.json
+    if (parser.isSet(launchIdOpt)) {
+        AppModel appModel;
+        QVariantMap entry = appModel.getAppById(parser.value(launchIdOpt));
+        if (entry.isEmpty()) {
+            qCritical() << "No app found with id:" << parser.value(launchIdOpt);
+            return 1;
+        }
+
+        QObject::connect(&launcher, &Launcher::processFinished, &app, &QApplication::exit);
+        QObject::connect(&launcher, &Launcher::launchError, &app, [](const QString &, const QString &) {
+            QApplication::exit(1);
+        });
+        launcher.launchEntry(entry);
+        return app.exec();
+    }
 
     // Direct launch mode - no GUI
     if (parser.isSet(launchProtonOpt) || parser.isSet(launchWineOpt)) {

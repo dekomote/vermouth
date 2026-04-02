@@ -13,20 +13,26 @@ Launcher::Launcher(QObject *parent)
     QDir().mkpath(m_logDir);
 }
 
-QString Launcher::logDir() const {
+QString Launcher::logDir() const
+{
     return m_logDir;
 }
 
-static QString shellQuote(const QString &s) {
+static QString shellQuote(const QString &s)
+{
     QString quoted = s;
     quoted.replace(QLatin1Char('\''), QStringLiteral("'\\''"));
     return QLatin1Char('\'') + quoted + QLatin1Char('\'');
 }
 
-void Launcher::launch(const QString &binary, const QStringList &baseArgs,
-                      const QString &exePath, const QProcessEnvironment &env,
-                      const QString &launchOptions, bool enableLogging,
-                      const QString &logName) {
+void Launcher::launch(const QString &binary,
+                      const QStringList &baseArgs,
+                      const QString &exePath,
+                      const QProcessEnvironment &env,
+                      const QString &launchOptions,
+                      bool enableLogging,
+                      const QString &logName)
+{
     auto *proc = new QProcess(this);
     connect(proc, &QProcess::finished, proc, &QProcess::deleteLater);
     connect(proc, &QProcess::finished, this, &Launcher::processFinished);
@@ -46,9 +52,8 @@ void Launcher::launch(const QString &binary, const QStringList &baseArgs,
         baseCmd += QStringLiteral(" ") + shellQuote(exePath);
 
         QString opts = launchOptions.trimmed();
-        QString fullCmd = opts.contains(QStringLiteral("%command%"))
-            ? QString(opts).replace(QStringLiteral("%command%"), baseCmd)
-            : opts + QStringLiteral(" ") + baseCmd;
+        QString fullCmd =
+            opts.contains(QStringLiteral("%command%")) ? QString(opts).replace(QStringLiteral("%command%"), baseCmd) : opts + QStringLiteral(" ") + baseCmd;
 
         proc->start(QStringLiteral("/bin/sh"), {QStringLiteral("-c"), fullCmd});
     } else {
@@ -65,7 +70,8 @@ void Launcher::launch(const QString &binary, const QStringList &baseArgs,
     }
 }
 
-void Launcher::launchEntry(const QVariantMap &app) {
+void Launcher::launchEntry(const QVariantMap &app)
+{
     QString exePath = app[QStringLiteral("exePath")].toString();
     QString opts = app[QStringLiteral("launchOptions")].toString();
     bool logging = app[QStringLiteral("enableLogging")].toBool();
@@ -79,26 +85,84 @@ void Launcher::launchEntry(const QVariantMap &app) {
             QDir().mkpath(prefix);
         env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
         env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
-        launch(app[QStringLiteral("protonPath")].toString() + QStringLiteral("/proton"), {QStringLiteral("run")},
-               exePath, env, opts, logging, name);
+        launch(app[QStringLiteral("protonPath")].toString() + QStringLiteral("/proton"), {QStringLiteral("run")}, exePath, env, opts, logging, name);
     } else {
         QString prefix = app[QStringLiteral("winePrefix")].toString();
         if (!prefix.isEmpty()) {
             QDir().mkpath(prefix);
             env.insert(QStringLiteral("WINEPREFIX"), prefix);
         }
-        launch(app[QStringLiteral("wineBinary")].toString(), {},
-               exePath, env, opts, logging, name);
+        launch(app[QStringLiteral("wineBinary")].toString(), {}, exePath, env, opts, logging, name);
     }
 }
 
-void Launcher::runInPrefix(const QVariantMap &app, const QString &exePath) {
+void Launcher::runInPrefix(const QVariantMap &app, const QString &exePath)
+{
     QVariantMap copy = app;
     copy[QStringLiteral("exePath")] = exePath;
     launchEntry(copy);
 }
 
-void Launcher::setupLogging(QProcess *proc, const QString &name) {
+void Launcher::runWinecfg(const QVariantMap &app)
+{
+    QVariantMap copy = app;
+    copy[QStringLiteral("launchOptions")] = QString();
+    copy[QStringLiteral("enableLogging")] = false;
+    copy[QStringLiteral("exePath")] = QStringLiteral("winecfg");
+    launchEntry(copy);
+}
+
+void Launcher::runRegedit(const QVariantMap &app)
+{
+    QVariantMap copy = app;
+    copy[QStringLiteral("launchOptions")] = QString();
+    copy[QStringLiteral("enableLogging")] = false;
+    copy[QStringLiteral("exePath")] = QStringLiteral("regedit");
+    launchEntry(copy);
+}
+
+void Launcher::runWinetricks(const QVariantMap &app)
+{
+    auto *proc = new QProcess(this);
+    connect(proc, &QProcess::finished, proc, &QProcess::deleteLater);
+
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    QString prefix;
+
+    if (app[QStringLiteral("runtimeType")].toString() == QStringLiteral("proton")) {
+        prefix = app[QStringLiteral("protonPrefix")].toString();
+        QString pfxDir = prefix + QStringLiteral("/pfx");
+        if (!QFileInfo::exists(pfxDir + QStringLiteral("/pfx.lock"))) {
+            Q_EMIT prefixNotReady(app[QStringLiteral("name")].toString());
+            proc->deleteLater();
+            return;
+        }
+        QString protonPath = app[QStringLiteral("protonPath")].toString();
+        env.insert(QStringLiteral("WINEPREFIX"), pfxDir);
+        env.insert(QStringLiteral("WINE"), protonPath + QStringLiteral("/files/bin/wine64"));
+        env.insert(QStringLiteral("WINESERVER"), protonPath + QStringLiteral("/files/bin/wineserver"));
+    } else {
+        prefix = app[QStringLiteral("winePrefix")].toString();
+        env.insert(QStringLiteral("WINEPREFIX"), prefix);
+    }
+
+    proc->setProcessEnvironment(env);
+
+    proc->start(QStringLiteral("winetricks"), {QStringLiteral("--gui")});
+
+    if (!proc->waitForStarted(3000)) {
+        Q_EMIT launchError(QStringLiteral("winetricks"), proc->errorString());
+        proc->deleteLater();
+    }
+}
+
+bool Launcher::isWinetricksAvailable() const
+{
+    return !QStandardPaths::findExecutable(QStringLiteral("winetricks")).isEmpty();
+}
+
+void Launcher::setupLogging(QProcess *proc, const QString &name)
+{
     QString safeName = name;
     safeName.replace(QRegularExpression(QStringLiteral("[^a-zA-Z0-9_-]")), QStringLiteral("_"));
     QString timestamp = QDateTime::currentDateTime().toString(QStringLiteral("yyyy-MM-dd_HH-mm-ss"));
@@ -111,8 +175,7 @@ void Launcher::setupLogging(QProcess *proc, const QString &name) {
     }
 
     logFile->write(QStringLiteral("=== Vermouth log: %1 ===\n").arg(name).toUtf8());
-    logFile->write(QStringLiteral("=== Started: %1 ===\n\n")
-                       .arg(QDateTime::currentDateTime().toString()).toUtf8());
+    logFile->write(QStringLiteral("=== Started: %1 ===\n\n").arg(QDateTime::currentDateTime().toString()).toUtf8());
 
     connect(proc, &QProcess::readyReadStandardOutput, proc, [proc, logFile]() {
         logFile->write(proc->readAllStandardOutput());

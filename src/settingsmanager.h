@@ -4,7 +4,8 @@
 #include <QSettings>
 #include <QStringList>
 
-class SettingsManager : public QObject {
+class SettingsManager : public QObject
+{
     Q_OBJECT
     Q_PROPERTY(QString defaultPrefixDir READ defaultPrefixDir WRITE setDefaultPrefixDir NOTIFY defaultPrefixDirChanged)
     Q_PROPERTY(QStringList extraProtonPaths READ extraProtonPaths WRITE setExtraProtonPaths NOTIFY extraProtonPathsChanged)

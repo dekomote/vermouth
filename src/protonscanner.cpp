@@ -12,7 +12,8 @@ ProtonScanner::ProtonScanner(QObject *parent)
     QDir().mkpath(localProtonPath());
 }
 
-QStringList ProtonScanner::steamPaths() const {
+QStringList ProtonScanner::steamPaths() const
+{
     QStringList paths;
     QString home = QDir::homePath();
 
@@ -65,7 +66,8 @@ QStringList ProtonScanner::steamPaths() const {
     return paths;
 }
 
-QStringList ProtonScanner::findProtonVersions() const {
+QStringList ProtonScanner::findProtonVersions() const
+{
     QStringList result;
 
     for (const auto &steamRoot : steamPaths()) {
@@ -115,34 +117,41 @@ QStringList ProtonScanner::findProtonVersions() const {
     return result;
 }
 
-QString ProtonScanner::homePath() const {
+QString ProtonScanner::homePath() const
+{
     return QDir::homePath();
 }
 
-void ProtonScanner::setCustomPrefixBasePath(const QString &path) {
+void ProtonScanner::setCustomPrefixBasePath(const QString &path)
+{
     m_customPrefixBasePath = path;
 }
 
-QString ProtonScanner::prefixBasePath() const {
+QString ProtonScanner::prefixBasePath() const
+{
     if (!m_customPrefixBasePath.isEmpty())
         return m_customPrefixBasePath;
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/prefixes");
 }
 
-QString ProtonScanner::localProtonPath() const {
+QString ProtonScanner::localProtonPath() const
+{
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/protons");
 }
 
-void ProtonScanner::setExtraProtonPaths(const QStringList &paths) {
+void ProtonScanner::setExtraProtonPaths(const QStringList &paths)
+{
     m_extraProtonPaths = paths;
 }
 
-QStringList ProtonScanner::findExistingPrefixes() const {
+QStringList ProtonScanner::findExistingPrefixes() const
+{
     QStringList result;
 
     for (const auto &steamRoot : steamPaths()) {
         QDir prefixDir(steamRoot + QStringLiteral("/steamapps/compatdata"));
-        if (!prefixDir.exists()) continue;
+        if (!prefixDir.exists())
+            continue;
 
         for (const auto &entry : prefixDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
             QString path = prefixDir.absoluteFilePath(entry);

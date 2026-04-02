@@ -108,6 +108,14 @@ Kirigami.ApplicationWindow {
         id: settingsDialog
     }
 
+    Kirigami.PromptDialog {
+        id: prefixNotReadyDialog
+        property string appName
+        title: i18n("Prefix not ready")
+        subtitle: i18n("The prefix for \"%1\" has not been created yet. Please launch the game at least once first.", appName)
+        standardButtons: Kirigami.Dialog.Ok
+    }
+
     Component {
         id: aboutPage
         Kirigami.AboutPage {
@@ -122,6 +130,10 @@ Kirigami.ApplicationWindow {
         }
         function onLaunchError(name, error) {
             showPassiveNotification(i18n("Error: %1", error), 5000);
+        }
+        function onPrefixNotReady(name) {
+            prefixNotReadyDialog.appName = name;
+            prefixNotReadyDialog.open();
         }
     }
 }

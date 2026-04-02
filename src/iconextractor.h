@@ -3,7 +3,8 @@
 #include <QObject>
 #include <QString>
 
-class IconExtractor : public QObject {
+class IconExtractor : public QObject
+{
     Q_OBJECT
 
 public:

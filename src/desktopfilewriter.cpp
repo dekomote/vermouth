@@ -1,36 +1,30 @@
 #include "desktopfilewriter.h"
+#include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QRegularExpression>
-#include <QTextStream>
-#include <QCoreApplication>
 #include <QStandardPaths>
+#include <QTextStream>
 
 DesktopFileWriter::DesktopFileWriter(QObject *parent)
     : QObject(parent)
-{}
+{
+}
 
-QString DesktopFileWriter::safeName(const QString &name) const {
+QString DesktopFileWriter::safeName(const QString &name) const
+{
     QString safe = name;
     safe.replace(QRegularExpression(QStringLiteral("[^a-zA-Z0-9_-]")), QStringLiteral("_"));
     return safe;
 }
 
-bool DesktopFileWriter::writeDesktopFile(const QString &filePath, const QVariantMap &app) {
+bool DesktopFileWriter::writeDesktopFile(const QString &filePath, const QVariantMap &app)
+{
     QString name = app[QStringLiteral("name")].toString();
     QString vermouthBin = QCoreApplication::applicationFilePath();
-    QString runtimeType = app[QStringLiteral("runtimeType")].toString();
+    QString id = app[QStringLiteral("id")].toString();
 
-    QString exec;
-    if (runtimeType == QStringLiteral("proton")) {
-        exec = QStringLiteral("%1 --launch-proton \"%2\" --proton \"%3\" --prefix \"%4\"")
-            .arg(vermouthBin, app[QStringLiteral("exePath")].toString(),
-                 app[QStringLiteral("protonPath")].toString(), app[QStringLiteral("protonPrefix")].toString());
-    } else {
-        exec = QStringLiteral("%1 --launch-wine \"%2\" --wine \"%3\" --prefix \"%4\"")
-            .arg(vermouthBin, app[QStringLiteral("exePath")].toString(),
-                 app[QStringLiteral("wineBinary")].toString(), app[QStringLiteral("winePrefix")].toString());
-    }
+    QString exec = QStringLiteral("%1 --launch-id \"%2\"").arg(vermouthBin, id);
 
     QFile f(filePath);
     if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -52,14 +46,16 @@ bool DesktopFileWriter::writeDesktopFile(const QString &filePath, const QVariant
     return true;
 }
 
-bool DesktopFileWriter::createStartMenuEntry(const QVariantMap &app) {
+bool DesktopFileWriter::createStartMenuEntry(const QVariantMap &app)
+{
     QString dir = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
     QDir().mkpath(dir);
     QString filePath = dir + QStringLiteral("/vermouth-") + safeName(app[QStringLiteral("name")].toString()) + QStringLiteral(".desktop");
     return writeDesktopFile(filePath, app);
 }
 
-bool DesktopFileWriter::createDesktopShortcut(const QVariantMap &app) {
+bool DesktopFileWriter::createDesktopShortcut(const QVariantMap &app)
+{
     QString dir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
     if (dir.isEmpty())
         dir = QDir::homePath() + QStringLiteral("/Desktop");
@@ -68,7 +64,8 @@ bool DesktopFileWriter::createDesktopShortcut(const QVariantMap &app) {
     return writeDesktopFile(filePath, app);
 }
 
-bool DesktopFileWriter::removeStartMenuEntry(const QString &name) {
+bool DesktopFileWriter::removeStartMenuEntry(const QString &name)
+{
     QString dir = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
     return QFile::remove(dir + QStringLiteral("/vermouth-") + safeName(name) + QStringLiteral(".desktop"));
 }
