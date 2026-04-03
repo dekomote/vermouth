@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/icons">
-        <file alias="vermouth.svg">assets/vermouth.svg</file>
+        <file alias="vermouth.svg">assets/com.dekomote.vermouth.svg</file>
     </qresource>
     <qresource prefix="/">
         <file>qml/AddAppDialog.qml</file>

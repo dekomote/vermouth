@@ -62,8 +62,8 @@ jobs:
         run: |
           export VERSION="${{ env.VERSION }}"
           ./linuxdeploy-extracted/AppRun --appdir AppDir \
-            --desktop-file AppDir/usr/share/applications/vermouth.desktop \
-            --icon-file AppDir/usr/share/icons/hicolor/scalable/apps/vermouth.svg \
+            --desktop-file AppDir/usr/share/applications/com.dekomote.vermouth.desktop \
+            --icon-file AppDir/usr/share/icons/hicolor/scalable/apps/com.dekomote.vermouth.svg \
             --plugin qt \
             --output appimage
 

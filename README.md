@@ -7,7 +7,7 @@
 
 
 <p align="center">
-  <img src="assets/vermouth.svg" width="128" height="128" alt="Vermouth logo">
+  <img src="assets/com.dekomote.vermouth.svg" width="128" height="128" alt="Vermouth logo">
 </p>
 
 <h1 align="center">Vermouth</h1>
@@ -98,6 +98,10 @@ In the app's settings you can set the default prefix folder to your liking and a
 ## FLATPAK NOTES
 
 When running Vermouth as a Flatpak, it is sandboxed and cannot access your filesystem by default. You need to grant it access to the folder(s) containing your games. You can do this using [Flatseal](https://flathub.org/apps/com.github.tchx84.Flatseal) or through your desktop environment's application permissions settings. Add the relevant paths (e.g. your games folder) under "Filesystem" permissions.
+
+If you want Vermouth to detect Proton versions from your Steam installation, add `~/.steam:ro` and `~/.local/share/Steam:ro` to the filesystem permissions.
+
+If you want to create desktop shortcuts for your games, add `xdg-desktop` to the filesystem permissions.
 
 ## How it works
 

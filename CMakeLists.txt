@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(vermouth VERSION 1.0.0 LANGUAGES CXX)
+project(vermouth VERSION 1.0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -88,8 +88,8 @@ target_compile_definitions(vermouth PRIVATE
 )
 
 install(TARGETS vermouth ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
-install(FILES assets/vermouth.desktop DESTINATION ${KDE_INSTALL_APPDIR})
-install(FILES assets/vermouth.svg DESTINATION ${KDE_INSTALL_FULL_ICONDIR}/hicolor/scalable/apps)
+install(FILES assets/${APP_ID}.desktop DESTINATION ${KDE_INSTALL_APPDIR})
+install(FILES assets/${APP_ID}.svg DESTINATION ${KDE_INSTALL_FULL_ICONDIR}/hicolor/scalable/apps)
 configure_file(assets/${APP_ID}.metainfo.xml.in ${CMAKE_CURRENT_BINARY_DIR}/${APP_ID}.metainfo.xml @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${APP_ID}.metainfo.xml DESTINATION ${KDE_INSTALL_METAINFODIR})
 
