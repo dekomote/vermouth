@@ -53,6 +53,6 @@ Kirigami.Dialog {
         title: i18n("Select Executable")
         currentFolder: "file://" + protonScanner.homePath()
         nameFilters: [i18n("Executables (*.exe)"), i18n("All files (*)")]
-        onAccepted: exeField.text = selectedFile.toString().replace("file://", "")
+        onAccepted: exeField.text = decodeURIComponent(selectedFile.toString().replace("file://", ""))
     }
 }

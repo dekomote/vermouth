@@ -46,3 +46,42 @@ void SettingsManager::removeExtraProtonPath(int index)
         setExtraProtonPaths(paths);
     }
 }
+
+QString SettingsManager::defaultRuntimeType() const
+{
+    return m_settings.value(QStringLiteral("defaultRuntimeType")).toString();
+}
+
+void SettingsManager::setDefaultRuntimeType(const QString &type)
+{
+    if (defaultRuntimeType() == type)
+        return;
+    m_settings.setValue(QStringLiteral("defaultRuntimeType"), type);
+    Q_EMIT defaultRuntimeChanged();
+}
+
+QString SettingsManager::defaultProtonPath() const
+{
+    return m_settings.value(QStringLiteral("defaultProtonPath")).toString();
+}
+
+void SettingsManager::setDefaultProtonPath(const QString &path)
+{
+    if (defaultProtonPath() == path)
+        return;
+    m_settings.setValue(QStringLiteral("defaultProtonPath"), path);
+    Q_EMIT defaultRuntimeChanged();
+}
+
+QString SettingsManager::defaultWineBinary() const
+{
+    return m_settings.value(QStringLiteral("defaultWineBinary")).toString();
+}
+
+void SettingsManager::setDefaultWineBinary(const QString &path)
+{
+    if (defaultWineBinary() == path)
+        return;
+    m_settings.setValue(QStringLiteral("defaultWineBinary"), path);
+    Q_EMIT defaultRuntimeChanged();
+}

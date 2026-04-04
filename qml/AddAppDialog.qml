@@ -39,15 +39,12 @@ Kirigami.Dialog {
         editIndex = -1;
         nameField.text = "";
         exeField.text = "";
-        runtimeCombo.currentIndex = 0;
-        protonCombo.currentIndex = -1;
         protonPrefixField.text = "";
-        wineBinaryField.text = "";
         winePrefixField.text = "";
         launchOptionsField.text = "";
         enableLoggingCheck.checked = false;
         iconField.text = "";
-        refreshProton();
+        runtimePicker.reset();
         prefixBasePath = protonScanner.prefixBasePath();
         dialog.open();
     }
@@ -58,37 +55,14 @@ Kirigami.Dialog {
         var app = appModel.getApp(index);
         nameField.text = app.name;
         exeField.text = app.exePath;
-        runtimeCombo.currentIndex = app.runtimeType === "proton" ? 0 : 1;
         protonPrefixField.text = app.protonPrefix;
-        wineBinaryField.text = app.wineBinary;
         winePrefixField.text = app.winePrefix;
         launchOptionsField.text = app.launchOptions;
         enableLoggingCheck.checked = app.enableLogging;
         iconField.text = app.iconPath;
         prefixBasePath = protonScanner.prefixBasePath();
-        refreshProton();
-
-        if (app.runtimeType === "proton") {
-            for (var i = 0; i < protonModel.count; i++) {
-                if (protonModel.get(i).path === app.protonPath) {
-                    protonCombo.currentIndex = i;
-                    break;
-                }
-            }
-        }
+        runtimePicker.loadFromApp(app);
         dialog.open();
-    }
-
-    function refreshProton() {
-        protonModel.clear();
-        var versions = protonScanner.findProtonVersions();
-        for (var i = 0; i < versions.length; i++) {
-            var parts = versions[i].split("/");
-            protonModel.append({
-                "label": parts[parts.length - 1],
-                "path": versions[i]
-            });
-        }
     }
 
     property string validationError: ""
@@ -102,41 +76,24 @@ Kirigami.Dialog {
             validationError = i18n("Executable path is required.");
             return false;
         }
-        if (runtimeCombo.currentIndex === 0) {
-            if (protonCombo.currentIndex < 0 || protonCombo.currentIndex >= protonModel.count) {
-                validationError = i18n("Please select a Proton version.");
-                return false;
-            }
-        } else {
-            if (wineBinaryField.text.trim() === "") {
-                validationError = i18n("Wine binary path is required.");
-                return false;
-            }
+        var rtError = runtimePicker.validate();
+        if (rtError !== "") {
+            validationError = rtError;
+            return false;
         }
         validationError = "";
         return true;
     }
 
     function doSave() {
-        var rt = runtimeCombo.currentIndex === 0 ? "proton" : "wine";
-        var protonPath = "";
-        if (protonCombo.currentIndex >= 0 && protonCombo.currentIndex < protonModel.count)
-            protonPath = protonModel.get(protonCombo.currentIndex).path;
+        var rt = runtimePicker.runtimeType;
+        var protonPath = runtimePicker.protonPath;
 
         if (editMode) {
-            appModel.editApp(editIndex, nameField.text, exeField.text, rt, protonPath, protonPrefixField.text, wineBinaryField.text, winePrefixField.text, iconField.text, launchOptionsField.text, enableLoggingCheck.checked);
+            appModel.editApp(editIndex, nameField.text, exeField.text, rt, protonPath, protonPrefixField.text, runtimePicker.wineBinary, winePrefixField.text, iconField.text, launchOptionsField.text, enableLoggingCheck.checked);
         } else {
-            appModel.addApp(nameField.text, exeField.text, rt, protonPath, protonPrefixField.text, wineBinaryField.text, winePrefixField.text, iconField.text, launchOptionsField.text, enableLoggingCheck.checked);
+            appModel.addApp(nameField.text, exeField.text, rt, protonPath, protonPrefixField.text, runtimePicker.wineBinary, winePrefixField.text, iconField.text, launchOptionsField.text, enableLoggingCheck.checked);
         }
-    }
-
-    ListModel {
-        id: protonModel
-    }
-
-    Connections {
-        target: protonDownloader
-        function onFinished() { dialog.refreshProton() }
     }
 
     ColumnLayout {
@@ -188,58 +145,22 @@ Kirigami.Dialog {
                     onClicked: iconFileDialog.open()
                 }
             }
+        }
 
-            Kirigami.Separator {
-                Kirigami.FormData.isSection: true
-                Kirigami.FormData.label: i18n("Runtime")
-            }
+        RuntimePicker {
+            id: runtimePicker
+            Layout.fillWidth: true
+        }
 
-            QQC2.ComboBox {
-                id: runtimeCombo
-                Kirigami.FormData.label: i18n("Runtime:")
-                model: ["Proton", "Wine"]
-            }
+        Kirigami.FormLayout {
 
             RowLayout {
-                visible: runtimeCombo.currentIndex === 0
-                Kirigami.FormData.label: i18n("Proton Version:")
-                QQC2.ComboBox {
-                    id: protonCombo
-                    Layout.fillWidth: true
-                    model: protonModel
-                    textRole: "label"
-                    displayText: protonModel.count === 0 ? i18n("No Proton versions found. Download GE Proton to get started - no Steam or manual setup needed.") : currentText
-                    QQC2.ToolTip.visible: hovered && protonModel.count === 0
-                    QQC2.ToolTip.text: protonModel.count === 0 ? i18n("No Proton versions found. Download GE Proton to get started - no Steam or manual setup needed.") : ""
-                }
-                QQC2.Button {
-                    icon.name: "folder-open"
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: i18n("Open Vermouth Proton folder (%1)", protonScanner.localProtonPath())
-                    onClicked: Qt.openUrlExternally("file://" + protonScanner.localProtonPath())
-                }
-                QQC2.Button {
-                    icon.name: "view-refresh"
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: i18n("Refresh Proton versions")
-                    onClicked: dialog.refreshProton()
-                }
-                QQC2.Button {
-                    icon.name: "download"
-                    enabled: !protonDownloader.busy
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: protonDownloader.statusText ? protonDownloader.statusText : i18n("Download latest GE Proton")
-                    onClicked: protonDownloader.downloadLatest()
-                }
-            }
-
-            RowLayout {
-                visible: runtimeCombo.currentIndex === 0
+                visible: runtimePicker.runtimeType === "proton"
                 Kirigami.FormData.label: i18n("Proton Prefix (optional):")
                 QQC2.TextField {
                     id: protonPrefixField
                     Layout.fillWidth: true
-                    placeholderText: prefixBasePath + "/mygame"
+                    placeholderText: dialog.prefixBasePath + "/mygame"
                 }
                 QQC2.Button {
                     icon.name: "document-open"
@@ -248,21 +169,7 @@ Kirigami.Dialog {
             }
 
             RowLayout {
-                visible: runtimeCombo.currentIndex === 1
-                Kirigami.FormData.label: i18n("Wine Binary:")
-                QQC2.TextField {
-                    id: wineBinaryField
-                    Layout.fillWidth: true
-                    placeholderText: "/usr/bin/wine"
-                }
-                QQC2.Button {
-                    icon.name: "document-open"
-                    onClicked: wineBinaryDialog.open()
-                }
-            }
-
-            RowLayout {
-                visible: runtimeCombo.currentIndex === 1
+                visible: runtimePicker.runtimeType === "wine"
                 Kirigami.FormData.label: i18n("Wine Prefix (WINEPREFIX):")
                 QQC2.TextField {
                     id: winePrefixField
@@ -299,7 +206,7 @@ Kirigami.Dialog {
         currentFolder: "file://" + protonScanner.homePath()
         nameFilters: [i18n("Executables (*.exe)"), i18n("All files (*)")]
         onAccepted: {
-            var path = selectedFile.toString().replace("file://", "");
+            var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
             exeField.text = path;
             if (iconField.text === "") {
                 var extracted = iconExtractor.extractIcon(path);
@@ -312,7 +219,7 @@ Kirigami.Dialog {
                 nameField.text = filename.replace(/\.exe$/i, "");
             }
             var safeName = nameField.text.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
-            var prefixBase = prefixBasePath + "/" + safeName;
+            var prefixBase = dialog.prefixBasePath + "/" + safeName;
             if (protonPrefixField.text === "")
                 protonPrefixField.text = prefixBase;
             if (winePrefixField.text === "")
@@ -321,31 +228,24 @@ Kirigami.Dialog {
     }
 
     FileDialog {
-        id: wineBinaryDialog
-        title: i18n("Select Wine Binary")
-        currentFolder: "file://" + protonScanner.homePath()
-        onAccepted: wineBinaryField.text = selectedFile.toString().replace("file://", "")
-    }
-
-    FileDialog {
         id: iconFileDialog
         title: i18n("Select Icon")
         currentFolder: "file://" + protonScanner.homePath()
         nameFilters: [i18n("Images (*.png *.svg *.ico *.jpg)"), i18n("All files (*)")]
-        onAccepted: iconField.text = selectedFile.toString().replace("file://", "")
+        onAccepted: iconField.text = decodeURIComponent(selectedFile.toString().replace("file://", ""))
     }
 
     FolderDialog {
         id: prefixFolderDialog
         title: i18n("Select Proton Prefix Folder")
         currentFolder: "file://" + protonScanner.homePath()
-        onAccepted: protonPrefixField.text = selectedFolder.toString().replace("file://", "")
+        onAccepted: protonPrefixField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
     }
 
     FolderDialog {
         id: winePrefixFolderDialog
         title: i18n("Select Wine Prefix Folder")
         currentFolder: "file://" + protonScanner.homePath()
-        onAccepted: winePrefixField.text = selectedFolder.toString().replace("file://", "")
+        onAccepted: winePrefixField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
     }
 }

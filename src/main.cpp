@@ -135,6 +135,18 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("settingsManager"), &settingsManager);
     engine.rootContext()->setContextProperty(QStringLiteral("protonDownloader"), &protonDownloader);
 
+    // Check for positional args (file association: vermouth /path/to/game.exe)
+    QStringList positionalArgs = parser.positionalArguments();
+    QString openExePath;
+    if (!positionalArgs.isEmpty()) {
+        QString arg = positionalArgs.first();
+        // Strip file:// URI scheme if present
+        if (arg.startsWith(QStringLiteral("file://")))
+            arg = QUrl(arg).toLocalFile();
+        openExePath = arg;
+    }
+    engine.rootContext()->setContextProperty(QStringLiteral("openExePath"), openExePath);
+
     engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));
 
     if (engine.rootObjects().isEmpty())

@@ -6,9 +6,9 @@ import com.dekomote.vermouth 1.0
 
 Kirigami.ApplicationWindow {
     width: 600
-    height: 700
+    height: 750
     minimumWidth: 600
-    minimumHeight: 700
+    minimumHeight: 750
 
     globalDrawer: Kirigami.GlobalDrawer {
         actions: [
@@ -16,6 +16,11 @@ Kirigami.ApplicationWindow {
                 text: i18n("Add &App/Game")
                 icon.name: "list-add"
                 onTriggered: addDialog.openForNew()
+            },
+            Kirigami.Action {
+                text: i18n("Run &Standalone EXE")
+                icon.name: "system-run"
+                onTriggered: runExeStandaloneDialog.openDialog()
             },
             Kirigami.Action {
                 text: i18n("&Settings")
@@ -104,6 +109,10 @@ Kirigami.ApplicationWindow {
         id: runExeDialog
     }
 
+    RunExeStandaloneDialog {
+        id: runExeStandaloneDialog
+    }
+
     SettingsDialog {
         id: settingsDialog
     }
@@ -120,6 +129,26 @@ Kirigami.ApplicationWindow {
         id: aboutPage
         Kirigami.AboutPage {
             aboutData: About
+        }
+    }
+
+    DropArea {
+        anchors.fill: parent
+        onDropped: function (drop) {
+            var path = "";
+            if (drop.hasUrls) {
+                path = decodeURIComponent(drop.urls[0].toString().replace("file://", ""));
+            } else if (drop.hasText) {
+                path = decodeURIComponent(drop.text.trim().replace("file://", ""));
+            }
+            if (path !== "")
+                runExeStandaloneDialog.openDialog(path);
+        }
+    }
+
+    Component.onCompleted: {
+        if (typeof openExePath !== "undefined" && openExePath !== "") {
+            runExeStandaloneDialog.openDialog(openExePath);
         }
     }
 
