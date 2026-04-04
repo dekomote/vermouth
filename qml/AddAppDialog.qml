@@ -7,7 +7,7 @@ import org.kde.kirigami as Kirigami
 Kirigami.Dialog {
     id: dialog
     title: editMode ? i18n("Edit App/Game") : i18n("Add App/Game")
-    preferredWidth: Kirigami.Units.gridUnit * 30
+    preferredWidth: Kirigami.Units.gridUnit * 35
     padding: Kirigami.Units.largeSpacing
     bottomPadding: 30
     standardButtons: Kirigami.Dialog.NoButton
@@ -107,6 +107,8 @@ Kirigami.Dialog {
         }
 
         Kirigami.FormLayout {
+            id: topForm
+            twinFormLayouts: runtimePicker.formLayout
 
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
@@ -150,9 +152,11 @@ Kirigami.Dialog {
         RuntimePicker {
             id: runtimePicker
             Layout.fillWidth: true
+            twinFormLayouts: topForm
         }
 
         Kirigami.FormLayout {
+            twinFormLayouts: runtimePicker.formLayout
 
             RowLayout {
                 visible: runtimePicker.runtimeType === "proton"

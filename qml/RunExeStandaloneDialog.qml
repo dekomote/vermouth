@@ -85,6 +85,8 @@ Kirigami.Dialog {
         }
 
         Kirigami.FormLayout {
+            id: topForm
+            twinFormLayouts: runtimePicker.formLayout
 
             RowLayout {
                 Kirigami.FormData.label: i18n("Executable (.exe):")
@@ -103,9 +105,11 @@ Kirigami.Dialog {
         RuntimePicker {
             id: runtimePicker
             Layout.fillWidth: true
+            twinFormLayouts: topForm
         }
 
         Kirigami.FormLayout {
+            twinFormLayouts: runtimePicker.formLayout
 
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true

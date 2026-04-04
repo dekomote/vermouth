@@ -8,7 +8,6 @@ Kirigami.PromptDialog {
     id: dialog
     title: i18n("Settings")
     preferredWidth: Kirigami.Units.gridUnit * 30
-    padding: Kirigami.Units.largeSpacing
     bottomPadding: 30
     standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
     onAccepted: {
@@ -34,7 +33,7 @@ Kirigami.PromptDialog {
     }
 
     ColumnLayout {
-        spacing: Kirigami.Units.mediumSpacing
+        spacing: Kirigami.Units.smallSpacing
 
         RuntimePicker {
             id: defaultRuntimePicker
@@ -43,6 +42,7 @@ Kirigami.PromptDialog {
         }
 
         Kirigami.FormLayout {
+            twinFormLayouts: defaultRuntimePicker.formLayout
 
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true

@@ -5,10 +5,10 @@ import org.kde.kirigami as Kirigami
 import com.dekomote.vermouth 1.0
 
 Kirigami.ApplicationWindow {
-    width: 600
-    height: 750
-    minimumWidth: 600
-    minimumHeight: 750
+    width: 700
+    height: 800
+    minimumWidth: 700
+    minimumHeight: 800
 
     globalDrawer: Kirigami.GlobalDrawer {
         actions: [
@@ -55,6 +55,14 @@ Kirigami.ApplicationWindow {
                 text: i18n("Add &App/Game")
                 icon.name: "list-add"
                 onClicked: addDialog.openForNew()
+            }
+            QQC2.Button {
+                icon.name: "media-playback-start"
+                enabled: gridView.selectedIndex >= 0
+                onClicked: {
+                    var app = appModel.getApp(gridView.selectedIndex);
+                    launcher.launchEntry(app);
+                }
             }
         }
 

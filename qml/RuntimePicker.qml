@@ -12,6 +12,8 @@ ColumnLayout {
     readonly property string protonPath: protonCombo.currentIndex >= 0 && protonCombo.currentIndex < protonModel.count ? protonModel.get(protonCombo.currentIndex).path : ""
     readonly property alias wineBinary: wineBinaryField.text
     property string sectionLabel: i18n("Runtime")
+    property alias formLayout: formLayout
+    property var twinFormLayouts
 
     function reset() {
         refreshProton();
@@ -91,6 +93,8 @@ ColumnLayout {
     }
 
     Kirigami.FormLayout {
+        id: formLayout
+        twinFormLayouts: root.twinFormLayouts
 
         Kirigami.Separator {
             Kirigami.FormData.isSection: true
