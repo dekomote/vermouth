@@ -23,7 +23,7 @@ jobs:
           apt-get install -y \
             build-essential cmake extra-cmake-modules dpkg-dev nodejs \
             qt6-base-dev qt6-declarative-dev qt6-tools-dev-tools \
-            libkirigami-dev libkf6coreaddons-dev libkf6i18n-dev libkf6qqc2desktopstyle-dev
+            libkirigami-dev libkf6coreaddons-dev libkf6i18n-dev libkf6qqc2desktopstyle-dev file
 
       - name: Build and package
         run: |

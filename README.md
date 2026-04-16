@@ -53,7 +53,7 @@ If `umu-run` is found in your `PATH` or configured in Settings, Vermouth will us
 
 Download the latest package from the [releases page](https://github.com/dekomote/vermouth/releases/latest).
 
-### Fedora
+### Fedora and Nobara
 
 ```bash
 sudo dnf install ./vermouth-*.rpm
@@ -64,6 +64,28 @@ Vermouth is also available on [COPR](https://copr.fedorainfracloud.org/coprs/dek
 ```bash
 sudo dnf copr enable dekomote/vermouth
 sudo dnf install vermouth
+```
+
+### Bazzite
+
+```bash
+sudo dnf5 copr enable dekomote/vermouth
+sudo rpm-ostree -y install vermouth
+```
+
+### OpenSUSE Tumbleweed
+
+Install via COPR:
+
+```bash
+sudo zypper addrepo https://copr.fedorainfracloud.org/coprs/dekomote/Vermouth/repo/opensuse-tumbleweed/dekomote-Vermouth-opensuse-tumbleweed.repo
+sudo zypper install vermouth
+```
+
+Or install the RPM from the [releases page](https://github.com/dekomote/vermouth/releases/latest):
+
+```bash
+sudo zypper install ./vermouth-opensuse-*.rpm
 ```
 
 ### Ubuntu / Debian
