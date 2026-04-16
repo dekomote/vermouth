@@ -24,12 +24,17 @@ public:
     Q_INVOKABLE void toggleSleepInhibit();
     bool sleepInhibited() const;
 
+    Q_PROPERTY(bool hdrEnabled READ hdrEnabled NOTIFY hdrEnabledChanged)
+    Q_INVOKABLE void toggleHdr();
+    bool hdrEnabled() const;
+
 Q_SIGNALS:
     void launched(const QString &name);
     void launchError(const QString &name, const QString &error);
     void prefixNotReady(const QString &name);
     void processFinished(int exitCode);
     void sleepInhibitedChanged();
+    void hdrEnabledChanged();
 
 private:
     void launch(const QString &binary,
@@ -42,4 +47,5 @@ private:
     void setupLogging(QProcess *proc, const QString &name);
     QString m_logDir;
     int m_inhibitFd = -1;
+    bool m_hdrEnabled = false;
 };

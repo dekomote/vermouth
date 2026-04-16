@@ -14,6 +14,8 @@ BuildRequires:  qt6-qtquickcontrols2-devel
 BuildRequires:  kf6-kirigami-devel
 BuildRequires:  kf6-kcoreaddons-devel
 BuildRequires:  kf6-ki18n-devel
+BuildRequires:  kf6-qqc2-desktop-style
+BuildRequires:  icoutils
 
 Requires:       qt6-qtbase
 Requires:       qt6-qtdeclarative

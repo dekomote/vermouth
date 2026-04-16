@@ -7,15 +7,47 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QRegularExpression>
 #include <QStandardPaths>
 #include <unistd.h>
+
+static bool isInsideFlatpak()
+{
+    return QFileInfo::exists(QStringLiteral("/.flatpak-info"));
+}
+
+static QStringList kscreenDoctorArgs(const QStringList &args)
+{
+    if (isInsideFlatpak())
+        return QStringList{QStringLiteral("--host"), QStringLiteral("kscreen-doctor")} + args;
+    return args;
+}
+
+static QString kscreenDoctorBin()
+{
+    return isInsideFlatpak() ? QStringLiteral("flatpak-spawn") : QStringLiteral("kscreen-doctor");
+}
 
 Launcher::Launcher(QObject *parent)
     : QObject(parent)
 {
     m_logDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/logs");
     QDir().mkpath(m_logDir);
+
+    QProcess listProc;
+    listProc.start(kscreenDoctorBin(), kscreenDoctorArgs({QStringLiteral("-j")}));
+    listProc.waitForFinished(3000);
+    QJsonDocument doc = QJsonDocument::fromJson(listProc.readAllStandardOutput());
+    for (const QJsonValue &val : doc.object()[QStringLiteral("outputs")].toArray()) {
+        QJsonObject out = val.toObject();
+        if (out[QStringLiteral("connected")].toBool() && out[QStringLiteral("hdr")].toBool()) {
+            m_hdrEnabled = true;
+            break;
+        }
+    }
 }
 
 QString Launcher::logDir() const
@@ -83,6 +115,11 @@ void Launcher::launchEntry(const QVariantMap &app)
     QString name = app[QStringLiteral("name")].toString();
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+
+    if (m_hdrEnabled) {
+        env.insert(QStringLiteral("PROTON_ENABLE_HDR"), QStringLiteral("1"));
+        env.insert(QStringLiteral("PROTON_ENABLE_WAYLAND"), QStringLiteral("1"));
+    }
 
     if (app[QStringLiteral("runtimeType")].toString() == QStringLiteral("proton")) {
         QString prefix = app[QStringLiteral("protonPrefix")].toString();
@@ -195,6 +232,34 @@ void Launcher::toggleSleepInhibit()
         m_inhibitFd = ::dup(reply.value().fileDescriptor());
         Q_EMIT sleepInhibitedChanged();
     }
+}
+
+bool Launcher::hdrEnabled() const
+{
+    return m_hdrEnabled;
+}
+
+void Launcher::toggleHdr()
+{
+    bool enable = !m_hdrEnabled;
+
+    // Find connected outputs via kscreen-doctor JSON output
+    QProcess listProc;
+    listProc.start(kscreenDoctorBin(), kscreenDoctorArgs({QStringLiteral("-j")}));
+    listProc.waitForFinished(3000);
+    QJsonDocument doc = QJsonDocument::fromJson(listProc.readAllStandardOutput());
+
+    QString action = enable ? QStringLiteral("hdr.enable") : QStringLiteral("hdr.disable");
+    for (const QJsonValue &val : doc.object()[QStringLiteral("outputs")].toArray()) {
+        QJsonObject out = val.toObject();
+        if (out[QStringLiteral("connected")].toBool()) {
+            QString name = out[QStringLiteral("name")].toString();
+            QProcess::execute(kscreenDoctorBin(), kscreenDoctorArgs({QStringLiteral("output.") + name + QLatin1Char('.') + action}));
+        }
+    }
+
+    m_hdrEnabled = enable;
+    Q_EMIT hdrEnabledChanged();
 }
 
 void Launcher::setupLogging(QProcess *proc, const QString &name)

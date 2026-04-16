@@ -30,6 +30,13 @@ Kirigami.ApplicationWindow {
                 onTriggered: launcher.toggleSleepInhibit()
             },
             Kirigami.Action {
+                text: launcher.hdrEnabled ? i18n("Disable HDR") : i18n("Enable HDR")
+                icon.name: "contrast"
+                checkable: true
+                checked: launcher.hdrEnabled
+                onTriggered: launcher.toggleHdr()
+            },
+            Kirigami.Action {
                 text: i18n("&Settings")
                 icon.name: "configure"
                 onTriggered: settingsDialog.openDialog()
@@ -91,6 +98,24 @@ Kirigami.ApplicationWindow {
                     }
                     elide: Text.ElideMiddle
                     Layout.fillWidth: true
+                }
+                QQC2.ToolButton {
+                    icon.name: "system-suspend-inhibited"
+                    checkable: true
+                    checked: launcher.sleepInhibited
+                    onClicked: launcher.toggleSleepInhibit()
+                    QQC2.ToolTip.text: launcher.sleepInhibited ? i18n("Allow Sleep") : i18n("Prevent Sleep")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                }
+                QQC2.ToolButton {
+                    icon.name: "contrast"
+                    checkable: true
+                    checked: launcher.hdrEnabled
+                    onClicked: launcher.toggleHdr()
+                    QQC2.ToolTip.text: launcher.hdrEnabled ? i18n("Disable HDR") : i18n("Enable HDR")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
                 QQC2.Button {
                     icon.name: "zoom-out"
