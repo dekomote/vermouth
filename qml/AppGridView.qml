@@ -213,7 +213,7 @@ GridView {
                 cursorShape: Qt.PointingHandCursor
 
                 onDoubleClicked: function (mouse) {
-                    if (mouse.button === Qt.LeftButton) {
+                    if (mouse.button === Qt.LeftButton && !Qt.styleHints.singleClickActivation) {
                         launchAnim.start();
                         flashAnim.start();
                         var app = appModel.getApp(delegateRoot.index);
@@ -224,7 +224,12 @@ GridView {
                 onClicked: function (mouse) {
                     gridView.currentIndex = delegateRoot.index;
                     gridView.forceActiveFocus();
-                    if (mouse.button === Qt.RightButton) {
+                    if (mouse.button === Qt.LeftButton && Qt.styleHints.singleClickActivation) {
+                        launchAnim.start();
+                        flashAnim.start();
+                        var app = appModel.getApp(delegateRoot.index);
+                        launcher.launchEntry(app);
+                    } else if (mouse.button === Qt.RightButton) {
                         contextMenu.popup();
                     }
                 }
