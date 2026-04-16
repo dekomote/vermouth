@@ -5,27 +5,26 @@ import org.kde.kirigami as Kirigami
 import com.dekomote.vermouth 1.0
 
 Kirigami.ApplicationWindow {
-    width: 700
+    width: 800
     height: 800
-    minimumWidth: 700
+    minimumWidth: settingsManager.drawerPinned ? 900 : 700
     minimumHeight: 800
 
     globalDrawer: Kirigami.GlobalDrawer {
         id: globalDrawer
-        modal: !pinned
-        property bool pinned: false
+        modal: !settingsManager.drawerPinned
 
-        header: RowLayout {
+        footer: RowLayout {
             Item {
                 Layout.fillWidth: true
             }
             QQC2.ToolButton {
                 icon.name: "pin"
                 checkable: true
-                checked: globalDrawer.pinned
+                checked: settingsManager.drawerPinned
                 flat: true
-                onClicked: globalDrawer.pinned = !globalDrawer.pinned
-                QQC2.ToolTip.text: globalDrawer.pinned ? i18n("Unpin sidebar") : i18n("Pin sidebar")
+                onClicked: settingsManager.setDrawerPinned(!settingsManager.drawerPinned)
+                QQC2.ToolTip.text: settingsManager.drawerPinned ? i18n("Unpin sidebar") : i18n("Pin sidebar")
                 QQC2.ToolTip.visible: hovered
                 QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
             }
