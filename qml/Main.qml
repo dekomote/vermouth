@@ -11,6 +11,26 @@ Kirigami.ApplicationWindow {
     minimumHeight: 800
 
     globalDrawer: Kirigami.GlobalDrawer {
+        id: globalDrawer
+        modal: !pinned
+        property bool pinned: false
+
+        header: RowLayout {
+            Item {
+                Layout.fillWidth: true
+            }
+            QQC2.ToolButton {
+                icon.name: "pin"
+                checkable: true
+                checked: globalDrawer.pinned
+                flat: true
+                onClicked: globalDrawer.pinned = !globalDrawer.pinned
+                QQC2.ToolTip.text: globalDrawer.pinned ? i18n("Unpin sidebar") : i18n("Pin sidebar")
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+            }
+        }
+
         actions: [
             Kirigami.Action {
                 text: i18n("Add &App/Game")
