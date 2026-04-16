@@ -45,6 +45,7 @@ qt_add_executable(vermouth
     src/iconextractor.cpp
     src/settingsmanager.cpp
     src/protondownloader.cpp
+    src/umudownloader.cpp
     resources.qrc
 )
 

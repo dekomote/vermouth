@@ -56,6 +56,11 @@ Launcher::Launcher(QObject *parent)
     refreshHdrState();
 }
 
+void Launcher::setUmuPath(const QString &path)
+{
+    m_umuPath = path;
+}
+
 QString Launcher::logDir() const
 {
     return m_logDir;
@@ -128,12 +133,25 @@ void Launcher::launchEntry(const QVariantMap &app)
     }
 
     if (app[QStringLiteral("runtimeType")].toString() == QStringLiteral("proton")) {
+        QString protonPath = app[QStringLiteral("protonPath")].toString();
         QString prefix = app[QStringLiteral("protonPrefix")].toString();
         if (!prefix.isEmpty())
             QDir().mkpath(prefix);
-        env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
-        env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
-        launch(app[QStringLiteral("protonPath")].toString() + QStringLiteral("/proton"), {QStringLiteral("run")}, exePath, env, opts, logging, name);
+
+        QString umoBin = m_umuPath;
+        if (umoBin.isEmpty())
+            umoBin = QStandardPaths::findExecutable(QStringLiteral("umu-run"));
+
+        if (!umoBin.isEmpty()) {
+            env.insert(QStringLiteral("PROTONPATH"), protonPath);
+            env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
+            env.insert(QStringLiteral("GAMEID"), QStringLiteral("0"));
+            launch(umoBin, {}, exePath, env, opts, logging, name);
+        } else {
+            env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
+            env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
+            launch(protonPath + QStringLiteral("/proton"), {QStringLiteral("run")}, exePath, env, opts, logging, name);
+        }
     } else {
         QString prefix = app[QStringLiteral("winePrefix")].toString();
         if (!prefix.isEmpty()) {

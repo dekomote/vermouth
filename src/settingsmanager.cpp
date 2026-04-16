@@ -86,6 +86,19 @@ void SettingsManager::setDefaultWineBinary(const QString &path)
     Q_EMIT defaultRuntimeChanged();
 }
 
+QString SettingsManager::umuPath() const
+{
+    return m_settings.value(QStringLiteral("umuPath")).toString();
+}
+
+void SettingsManager::setUmuPath(const QString &path)
+{
+    if (umuPath() == path)
+        return;
+    m_settings.setValue(QStringLiteral("umuPath"), path);
+    Q_EMIT umuPathChanged();
+}
+
 bool SettingsManager::drawerPinned() const
 {
     return m_settings.value(QStringLiteral("drawerPinned"), false).toBool();
