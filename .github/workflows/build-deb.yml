@@ -31,8 +31,16 @@ jobs:
           cmake --build build
           cpack --config build/CPackConfig.cmake -G DEB
 
+      - name: Rename package
+        run: for f in *.deb; do mv "$f" "${f%.deb}-ubuntu.deb"; done
+
+      - name: Install and verify
+        run: |
+          apt-get install -y ./*.deb
+          test -x "$(command -v vermouth)"
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: deb-package
+          name: deb-ubuntu
           path: "*.deb"

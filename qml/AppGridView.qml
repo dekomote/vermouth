@@ -248,6 +248,18 @@ GridView {
                     launcher.launchEntry(app);
                 }
             }
+            QQC2.MenuItem {
+                text: i18n("Launch with logging")
+                icon.name: "text-x-log"
+                onTriggered: {
+                    launchAnim.start();
+                    flashAnim.start();
+                    var app = appModel.getApp(delegateRoot.index);
+                    app.enableLogging = true;
+                    launcher.launchEntry(app);
+                    Qt.openUrlExternally("file://" + launcher.logDir());
+                }
+            }
             QQC2.MenuSeparator {}
             QQC2.MenuItem {
                 text: i18n("Run another EXE in this prefix")

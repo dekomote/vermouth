@@ -65,3 +65,4 @@ _CPack_Packages
 *.rpm
 
 artifacts
+dist

@@ -96,18 +96,24 @@ Requires Ubuntu 25.04 / Debian Trixie or newer (Qt 6.8+ and KF6 are required).
 sudo apt install ./vermouth-*.deb
 ```
 
-### Arch Linux
+### Arch Linux / CachyOS
 
-An Arch package is available in the releases. Install it with:
+Install from the [AUR](https://aur.archlinux.org/packages/vermouth):
 
 ```bash
-sudo pacman -U vermouth-*.pkg.tar.zst
+yay -S vermouth
+```
+
+Or install the package from the [releases page](https://github.com/dekomote/vermouth/releases/latest):
+
+```bash
+sudo pacman -U vermouth-*-arch.pkg.tar.zst
 ```
 
 Or build from the included PKGBUILD:
 
 ```bash
-makepkg -si
+cd packaging && makepkg -si
 ```
 
 ### Flatpak
