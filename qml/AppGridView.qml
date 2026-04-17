@@ -213,7 +213,7 @@ GridView {
                 cursorShape: Qt.PointingHandCursor
 
                 onDoubleClicked: function (mouse) {
-                    if (mouse.button === Qt.LeftButton) {
+                    if (mouse.button === Qt.LeftButton && !Qt.styleHints.singleClickActivation) {
                         launchAnim.start();
                         flashAnim.start();
                         var app = appModel.getApp(delegateRoot.index);
@@ -224,7 +224,12 @@ GridView {
                 onClicked: function (mouse) {
                     gridView.currentIndex = delegateRoot.index;
                     gridView.forceActiveFocus();
-                    if (mouse.button === Qt.RightButton) {
+                    if (mouse.button === Qt.LeftButton && Qt.styleHints.singleClickActivation) {
+                        launchAnim.start();
+                        flashAnim.start();
+                        var app = appModel.getApp(delegateRoot.index);
+                        launcher.launchEntry(app);
+                    } else if (mouse.button === Qt.RightButton) {
                         contextMenu.popup();
                     }
                 }
@@ -241,6 +246,18 @@ GridView {
                     flashAnim.start();
                     var app = appModel.getApp(delegateRoot.index);
                     launcher.launchEntry(app);
+                }
+            }
+            QQC2.MenuItem {
+                text: i18n("Launch with logging")
+                icon.name: "text-x-log"
+                onTriggered: {
+                    launchAnim.start();
+                    flashAnim.start();
+                    var app = appModel.getApp(delegateRoot.index);
+                    app.enableLogging = true;
+                    launcher.launchEntry(app);
+                    Qt.openUrlExternally("file://" + launcher.logDir());
                 }
             }
             QQC2.MenuSeparator {}

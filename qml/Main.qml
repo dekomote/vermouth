@@ -5,12 +5,31 @@ import org.kde.kirigami as Kirigami
 import com.dekomote.vermouth 1.0
 
 Kirigami.ApplicationWindow {
-    width: 700
+    width: 800
     height: 800
-    minimumWidth: 700
+    minimumWidth: settingsManager.drawerPinned ? 900 : 700
     minimumHeight: 800
 
     globalDrawer: Kirigami.GlobalDrawer {
+        id: globalDrawer
+        modal: !settingsManager.drawerPinned
+
+        footer: RowLayout {
+            Item {
+                Layout.fillWidth: true
+            }
+            QQC2.ToolButton {
+                icon.name: "pin"
+                checkable: true
+                checked: settingsManager.drawerPinned
+                flat: true
+                onClicked: settingsManager.setDrawerPinned(!settingsManager.drawerPinned)
+                QQC2.ToolTip.text: settingsManager.drawerPinned ? i18n("Unpin sidebar") : i18n("Pin sidebar")
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+            }
+        }
+
         actions: [
             Kirigami.Action {
                 text: i18n("Add &App/Game")
@@ -28,6 +47,14 @@ Kirigami.ApplicationWindow {
                 checkable: true
                 checked: launcher.sleepInhibited
                 onTriggered: launcher.toggleSleepInhibit()
+            },
+            Kirigami.Action {
+                text: launcher.hdrEnabled ? i18n("Disable HDR") : i18n("Enable HDR")
+                icon.name: "contrast"
+                checkable: true
+                checked: launcher.hdrEnabled
+                enabled: launcher.hdrSupported
+                onTriggered: launcher.toggleHdr()
             },
             Kirigami.Action {
                 text: i18n("&Settings")
@@ -91,6 +118,25 @@ Kirigami.ApplicationWindow {
                     }
                     elide: Text.ElideMiddle
                     Layout.fillWidth: true
+                }
+                QQC2.ToolButton {
+                    icon.name: "system-suspend-inhibited"
+                    checkable: true
+                    checked: launcher.sleepInhibited
+                    onClicked: launcher.toggleSleepInhibit()
+                    QQC2.ToolTip.text: launcher.sleepInhibited ? i18n("Allow Sleep") : i18n("Prevent Sleep")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                }
+                QQC2.ToolButton {
+                    icon.name: "contrast"
+                    checkable: true
+                    checked: launcher.hdrEnabled
+                    enabled: launcher.hdrSupported
+                    onClicked: launcher.toggleHdr()
+                    QQC2.ToolTip.text: launcher.hdrEnabled ? i18n("Disable HDR") : i18n("Enable HDR")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
                 QQC2.Button {
                     icon.name: "zoom-out"

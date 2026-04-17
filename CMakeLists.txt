@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(vermouth VERSION 1.2.1 LANGUAGES CXX)
+project(vermouth VERSION 1.3.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -45,6 +45,7 @@ qt_add_executable(vermouth
     src/iconextractor.cpp
     src/settingsmanager.cpp
     src/protondownloader.cpp
+    src/umudownloader.cpp
     resources.qrc
 )
 
@@ -102,9 +103,20 @@ set(CPACK_PACKAGE_RELEASE 1)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${APP_DESCRIPTION}")
 set(CPACK_RPM_PACKAGE_LICENSE "${APP_LICENSE}")
 set(CPACK_RPM_PACKAGE_URL "${APP_HOMEPAGE}")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "qt6-base, qt6-declarative, qt6-quickcontrols2, kirigami2")
-set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "x86_64")
-set(CPACK_RPM_PACKAGE_REQUIRES "qt6-qtbase, qt6-qtdeclarative, qt6-qtquickcontrols2, kf6-kirigami")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+if(EXISTS "/etc/os-release")
+    file(READ "/etc/os-release" OS_RELEASE_CONTENT)
+    if(OS_RELEASE_CONTENT MATCHES "ID(_LIKE)?=.*opensuse")
+        set(IS_OPENSUSE TRUE)
+    endif()
+endif()
+
+if(IS_OPENSUSE)
+    set(CPACK_RPM_PACKAGE_REQUIRES "libQt6Core6, libQt6Gui6, libQt6Network6, libQt6DBus6, libQt6Widgets6, libQt6Qml6, libQt6Quick6, libQt6QuickControls2-6, kf6-kirigami")
+else()
+    set(CPACK_RPM_PACKAGE_REQUIRES "qt6-qtbase, qt6-qtdeclarative, qt6-qtquickcontrols2, kf6-kirigami")
+endif()
 set(CPACK_RPM_PACKAGE_RECOMMENDS "icoutils")
 set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
 set(CPACK_GENERATOR "DEB;RPM")

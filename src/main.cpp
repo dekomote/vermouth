@@ -5,6 +5,7 @@
 #include "protondownloader.h"
 #include "protonscanner.h"
 #include "settingsmanager.h"
+#include "umudownloader.h"
 #include <KAboutData>
 #include <KLocalizedContext>
 #include <KLocalizedString>
@@ -116,6 +117,17 @@ int main(int argc, char *argv[])
     ProtonDownloader protonDownloader;
     protonDownloader.setLocalProtonPath(protonScanner.localProtonPath());
 
+    UmuDownloader umuDownloader;
+    umuDownloader.setInstallPath(protonScanner.localProtonPath() + QStringLiteral("/umu"));
+
+    launcher.setUmuPath(settingsManager.umuPath());
+    QObject::connect(&settingsManager, &SettingsManager::umuPathChanged, [&]() {
+        launcher.setUmuPath(settingsManager.umuPath());
+    });
+    QObject::connect(&umuDownloader, &UmuDownloader::finished, [&](const QString &binPath) {
+        settingsManager.setUmuPath(binPath);
+    });
+
     protonScanner.setExtraProtonPaths(settingsManager.extraProtonPaths());
     protonScanner.setCustomPrefixBasePath(settingsManager.defaultPrefixDir());
     QObject::connect(&settingsManager, &SettingsManager::extraProtonPathsChanged, [&]() {
@@ -134,6 +146,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("iconExtractor"), &iconExtractor);
     engine.rootContext()->setContextProperty(QStringLiteral("settingsManager"), &settingsManager);
     engine.rootContext()->setContextProperty(QStringLiteral("protonDownloader"), &protonDownloader);
+    engine.rootContext()->setContextProperty(QStringLiteral("umuDownloader"), &umuDownloader);
 
     // Check for positional args (file association: vermouth /path/to/game.exe)
     QStringList positionalArgs = parser.positionalArguments();

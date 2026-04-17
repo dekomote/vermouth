@@ -1,4 +1,5 @@
 #include "launcher.h"
+#include <QCursor>
 #include <QDBusConnection>
 #include <QDBusInterface>
 #include <QDBusReply>
@@ -7,15 +8,57 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QGuiApplication>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QRegularExpression>
+#include <QScreen>
 #include <QStandardPaths>
 #include <unistd.h>
+
+static bool isKde()
+{
+    return qEnvironmentVariable("XDG_CURRENT_DESKTOP").contains(QLatin1String("KDE"), Qt::CaseInsensitive);
+}
+
+static bool isInsideFlatpak()
+{
+    return QFileInfo::exists(QStringLiteral("/.flatpak-info"));
+}
+
+static QStringList kscreenDoctorArgs(const QStringList &args)
+{
+    if (isInsideFlatpak())
+        return QStringList{QStringLiteral("--host"), QStringLiteral("kscreen-doctor")} + args;
+    return args;
+}
+
+static QString kscreenDoctorBin()
+{
+    return isInsideFlatpak() ? QStringLiteral("flatpak-spawn") : QStringLiteral("kscreen-doctor");
+}
+
+static QString currentScreenName()
+{
+    QScreen *screen = QGuiApplication::screenAt(QCursor::pos());
+    if (!screen)
+        screen = QGuiApplication::primaryScreen();
+    return screen ? screen->name() : QString();
+}
 
 Launcher::Launcher(QObject *parent)
     : QObject(parent)
 {
     m_logDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/logs");
     QDir().mkpath(m_logDir);
+
+    refreshHdrState();
+}
+
+void Launcher::setUmuPath(const QString &path)
+{
+    m_umuPath = path;
 }
 
 QString Launcher::logDir() const
@@ -84,13 +127,31 @@ void Launcher::launchEntry(const QVariantMap &app)
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
 
+    if (m_hdrEnabled) {
+        env.insert(QStringLiteral("PROTON_ENABLE_HDR"), QStringLiteral("1"));
+        env.insert(QStringLiteral("PROTON_ENABLE_WAYLAND"), QStringLiteral("1"));
+    }
+
     if (app[QStringLiteral("runtimeType")].toString() == QStringLiteral("proton")) {
+        QString protonPath = app[QStringLiteral("protonPath")].toString();
         QString prefix = app[QStringLiteral("protonPrefix")].toString();
         if (!prefix.isEmpty())
             QDir().mkpath(prefix);
-        env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
-        env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
-        launch(app[QStringLiteral("protonPath")].toString() + QStringLiteral("/proton"), {QStringLiteral("run")}, exePath, env, opts, logging, name);
+
+        QString umoBin = m_umuPath;
+        if (umoBin.isEmpty())
+            umoBin = QStandardPaths::findExecutable(QStringLiteral("umu-run"));
+
+        if (!umoBin.isEmpty()) {
+            env.insert(QStringLiteral("PROTONPATH"), protonPath);
+            env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
+            env.insert(QStringLiteral("GAMEID"), QStringLiteral("0"));
+            launch(umoBin, {}, exePath, env, opts, logging, name);
+        } else {
+            env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
+            env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
+            launch(protonPath + QStringLiteral("/proton"), {QStringLiteral("run")}, exePath, env, opts, logging, name);
+        }
     } else {
         QString prefix = app[QStringLiteral("winePrefix")].toString();
         if (!prefix.isEmpty()) {
@@ -195,6 +256,56 @@ void Launcher::toggleSleepInhibit()
         m_inhibitFd = ::dup(reply.value().fileDescriptor());
         Q_EMIT sleepInhibitedChanged();
     }
+}
+
+bool Launcher::hdrSupported() const
+{
+    return m_hdrSupported;
+}
+
+bool Launcher::hdrEnabled() const
+{
+    return m_hdrEnabled;
+}
+
+void Launcher::refreshHdrState()
+{
+    bool supported = false;
+    bool enabled = false;
+
+    if (isKde()) {
+        QString screenName = currentScreenName();
+        QProcess listProc;
+        listProc.start(kscreenDoctorBin(), kscreenDoctorArgs({QStringLiteral("-j")}));
+        listProc.waitForFinished(3000);
+        QJsonDocument doc = QJsonDocument::fromJson(listProc.readAllStandardOutput());
+        for (const QJsonValue &val : doc.object()[QStringLiteral("outputs")].toArray()) {
+            QJsonObject out = val.toObject();
+            if (out[QStringLiteral("name")].toString() == screenName && out[QStringLiteral("connected")].toBool() && out.contains(QStringLiteral("hdr"))) {
+                supported = true;
+                enabled = out[QStringLiteral("hdr")].toBool();
+                break;
+            }
+        }
+    }
+
+    if (m_hdrSupported != supported) {
+        m_hdrSupported = supported;
+        Q_EMIT hdrSupportedChanged();
+    }
+    if (m_hdrEnabled != enabled) {
+        m_hdrEnabled = enabled;
+        Q_EMIT hdrEnabledChanged();
+    }
+}
+
+void Launcher::toggleHdr()
+{
+    bool enable = !m_hdrEnabled;
+    QString screenName = currentScreenName();
+    QString action = enable ? QStringLiteral("hdr.enable") : QStringLiteral("hdr.disable");
+    QProcess::execute(kscreenDoctorBin(), kscreenDoctorArgs({QStringLiteral("output.") + screenName + QLatin1Char('.') + action}));
+    refreshHdrState();
 }
 
 void Launcher::setupLogging(QProcess *proc, const QString &name)

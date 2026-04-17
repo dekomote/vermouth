@@ -12,6 +12,8 @@ class SettingsManager : public QObject
     Q_PROPERTY(QString defaultRuntimeType READ defaultRuntimeType WRITE setDefaultRuntimeType NOTIFY defaultRuntimeChanged)
     Q_PROPERTY(QString defaultProtonPath READ defaultProtonPath WRITE setDefaultProtonPath NOTIFY defaultRuntimeChanged)
     Q_PROPERTY(QString defaultWineBinary READ defaultWineBinary WRITE setDefaultWineBinary NOTIFY defaultRuntimeChanged)
+    Q_PROPERTY(bool drawerPinned READ drawerPinned WRITE setDrawerPinned NOTIFY drawerPinnedChanged)
+    Q_PROPERTY(QString umuPath READ umuPath WRITE setUmuPath NOTIFY umuPathChanged)
 
 public:
     explicit SettingsManager(QObject *parent = nullptr);
@@ -34,10 +36,18 @@ public:
     QString defaultWineBinary() const;
     Q_INVOKABLE void setDefaultWineBinary(const QString &path);
 
+    bool drawerPinned() const;
+    Q_INVOKABLE void setDrawerPinned(bool pinned);
+
+    QString umuPath() const;
+    Q_INVOKABLE void setUmuPath(const QString &path);
+
 Q_SIGNALS:
     void defaultPrefixDirChanged();
     void extraProtonPathsChanged();
     void defaultRuntimeChanged();
+    void drawerPinnedChanged();
+    void umuPathChanged();
 
 private:
     QSettings m_settings;

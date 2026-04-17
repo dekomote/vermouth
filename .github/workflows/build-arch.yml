@@ -32,6 +32,7 @@ jobs:
           PKGLICENSE=$(grep -oP 'set\(APP_LICENSE "\K[^"]+' CMakeLists.txt)
 
           cat > PKGBUILD <<EOF
+          # Maintainer: Dejan Noveski <deko@duck.com>
           pkgname=vermouth
           pkgver=${PKGVER}
           pkgrel=1
@@ -77,8 +78,16 @@ jobs:
           chown -R builder:builder .
           su builder -c "makepkg -sf --noconfirm"
 
+      - name: Rename package
+        run: for f in *.pkg.tar.zst; do mv "$f" "${f%.pkg.tar.zst}-arch.pkg.tar.zst"; done
+
+      - name: Install and verify
+        run: |
+          pacman -U --noconfirm ./*.pkg.tar.zst
+          test -x "$(command -v vermouth)"
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: arch-package
+          name: pkg-arch
           path: "*.pkg.tar.zst"

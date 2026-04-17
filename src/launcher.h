@@ -12,6 +12,8 @@ class Launcher : public QObject
 public:
     explicit Launcher(QObject *parent = nullptr);
 
+    void setUmuPath(const QString &path);
+
     Q_INVOKABLE void launchEntry(const QVariantMap &app);
     Q_INVOKABLE void runInPrefix(const QVariantMap &app, const QString &exePath);
     Q_INVOKABLE void runWinecfg(const QVariantMap &app);
@@ -24,12 +26,20 @@ public:
     Q_INVOKABLE void toggleSleepInhibit();
     bool sleepInhibited() const;
 
+    Q_PROPERTY(bool hdrEnabled READ hdrEnabled NOTIFY hdrEnabledChanged)
+    Q_PROPERTY(bool hdrSupported READ hdrSupported NOTIFY hdrSupportedChanged)
+    Q_INVOKABLE void toggleHdr();
+    bool hdrEnabled() const;
+    bool hdrSupported() const;
+
 Q_SIGNALS:
     void launched(const QString &name);
     void launchError(const QString &name, const QString &error);
     void prefixNotReady(const QString &name);
     void processFinished(int exitCode);
     void sleepInhibitedChanged();
+    void hdrEnabledChanged();
+    void hdrSupportedChanged();
 
 private:
     void launch(const QString &binary,
@@ -40,6 +50,10 @@ private:
                 bool enableLogging,
                 const QString &logName);
     void setupLogging(QProcess *proc, const QString &name);
+    void refreshHdrState();
     QString m_logDir;
+    QString m_umuPath;
     int m_inhibitFd = -1;
+    bool m_hdrEnabled = false;
+    bool m_hdrSupported = false;
 };
