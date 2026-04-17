@@ -1,5 +1,5 @@
 Name:           vermouth
-Version:        1.2.1
+Version:        1.3.1
 Release:        1%{?dist}
 Summary:        A no-frills Wine/Proton game launcher for KDE
 License:        MIT
@@ -69,5 +69,7 @@ lets you run Windows executables through Proton or Wine on KDE.
 %{_datadir}/metainfo/com.dekomote.vermouth.metainfo.xml
 
 %changelog
+* Fri Apr 17 2026 Dejan Noveski <deko@duck.com> - 1.3.1-1
+- Update to 1.3.1 - HDR and UMU
 * Tue Apr 14 2026 Dejan Noveski <deko@duck.com> - 1.2.1-1
 - Initial COPR package
