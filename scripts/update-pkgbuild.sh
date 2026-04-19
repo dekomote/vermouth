@@ -21,8 +21,11 @@ echo "Updating PKGBUILD sha256sums and generating .SRCINFO..."
         pacman -Syu --noconfirm --quiet
         pacman -S --noconfirm --needed --quiet pacman-contrib
         useradd -m builder
-        chown -R builder:builder /pkg
-        su builder -c 'cd /pkg && updpkgsums && makepkg --printsrcinfo > .SRCINFO'
+        cp -r /pkg /tmp/pkg
+        chown -R builder:builder /tmp/pkg
+        su builder -c 'cd /tmp/pkg && updpkgsums && makepkg --printsrcinfo > .SRCINFO'
+        cp /tmp/pkg/PKGBUILD /pkg/PKGBUILD
+        cp /tmp/pkg/.SRCINFO /pkg/.SRCINFO
     "
 
 echo "Done."
