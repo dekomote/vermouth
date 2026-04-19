@@ -87,8 +87,14 @@ void Launcher::launch(const QString &binary,
                       const QString &logName)
 {
     auto *proc = new QProcess(this);
-    connect(proc, &QProcess::finished, proc, &QProcess::deleteLater);
-    connect(proc, &QProcess::finished, this, &Launcher::processFinished);
+    m_runningProcesses.insert(exePath, proc);
+    Q_EMIT runningExePathsChanged();
+    connect(proc, &QProcess::finished, this, [this, exePath, proc](int exitCode) {
+        m_runningProcesses.remove(exePath);
+        Q_EMIT runningExePathsChanged();
+        Q_EMIT processFinished(exitCode);
+        proc->deleteLater();
+    });
 
     proc->setProcessEnvironment(env);
     proc->setWorkingDirectory(QFileInfo(exePath).absolutePath());
@@ -116,6 +122,8 @@ void Launcher::launch(const QString &binary,
     }
 
     if (!proc->waitForStarted(5000)) {
+        m_runningProcesses.remove(exePath);
+        Q_EMIT runningExePathsChanged();
         Q_EMIT launchError(exePath, proc->errorString());
         proc->deleteLater();
     } else {
@@ -172,6 +180,13 @@ void Launcher::launchEntry(const QVariantMap &app)
         }
         launch(app[QStringLiteral("wineBinary")].toString(), {}, exePath, env, opts, logging, name);
     }
+}
+
+void Launcher::stopEntry(const QVariantMap &app)
+{
+    QProcess *proc = m_runningProcesses.value(app[QStringLiteral("exePath")].toString(), nullptr);
+    if (proc)
+        proc->terminate();
 }
 
 void Launcher::runInPrefix(const QVariantMap &app, const QString &exePath)
@@ -317,7 +332,19 @@ void Launcher::toggleHdr()
     QString screenName = currentScreenName();
     QString action = enable ? QStringLiteral("hdr.enable") : QStringLiteral("hdr.disable");
     QProcess::execute(kscreenDoctorBin(), kscreenDoctorArgs({QStringLiteral("output.") + screenName + QLatin1Char('.') + action}));
+    if (enable)
+        m_hdrEnabledByUs = true;
+    else
+        m_hdrEnabledByUs = false;
     refreshHdrState();
+}
+
+void Launcher::restoreHdrState()
+{
+    if (!m_hdrEnabledByUs)
+        return;
+    QString screenName = currentScreenName();
+    QProcess::execute(kscreenDoctorBin(), kscreenDoctorArgs({QStringLiteral("output.") + screenName + QStringLiteral(".hdr.disable")}));
 }
 
 void Launcher::setupLogging(QProcess *proc, const QString &name)

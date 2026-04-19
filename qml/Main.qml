@@ -92,11 +92,15 @@ Kirigami.ApplicationWindow {
                 onClicked: addDialog.openForNew()
             }
             QQC2.Button {
-                icon.name: "media-playback-start"
+                property bool isRunning: gridView.selectedIndex >= 0 && launcher.runningExePaths.indexOf(appModel.getApp(gridView.selectedIndex).exePath) >= 0
+                icon.name: isRunning ? "media-playback-stop" : "media-playback-start"
                 enabled: gridView.selectedIndex >= 0
                 onClicked: {
                     var app = appModel.getApp(gridView.selectedIndex);
-                    launcher.launchEntry(app);
+                    if (isRunning)
+                        launcher.stopEntry(app);
+                    else
+                        launcher.launchEntry(app);
                 }
             }
         }

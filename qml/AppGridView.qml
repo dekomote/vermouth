@@ -222,13 +222,18 @@ GridView {
         QQC2.Menu {
             id: contextMenu
             QQC2.MenuItem {
-                text: i18n("Launch")
-                icon.name: "media-playback-start"
+                property bool isRunning: launcher.runningExePaths.indexOf(delegateRoot.exePath) >= 0
+                text: isRunning ? i18n("Stop") : i18n("Launch")
+                icon.name: isRunning ? "media-playback-stop" : "media-playback-start"
                 onTriggered: {
-                    launchAnim.start();
-                    flashAnim.start();
                     var app = appModel.getApp(delegateRoot.index);
-                    launcher.launchEntry(app);
+                    if (isRunning) {
+                        launcher.stopEntry(app);
+                    } else {
+                        launchAnim.start();
+                        flashAnim.start();
+                        launcher.launchEntry(app);
+                    }
                 }
             }
             QQC2.MenuItem {
