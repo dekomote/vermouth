@@ -5,6 +5,7 @@ import org.kde.kirigami as Kirigami
 import com.dekomote.vermouth 1.0
 
 Kirigami.ApplicationWindow {
+    id: root
     width: 800
     height: 800
     minimumWidth: settingsManager.drawerPinned ? 900 : 700
@@ -174,6 +175,32 @@ Kirigami.ApplicationWindow {
         id: runExeStandaloneDialog
     }
 
+    Kirigami.PromptDialog {
+        id: openExeChoiceDialog
+        property string exePath: ""
+        title: i18n("Open Executable")
+        subtitle: exePath
+        standardButtons: Kirigami.Dialog.NoButton
+        customFooterActions: [
+            Kirigami.Action {
+                text: i18n("Run Standalone")
+                icon.name: "media-playback-start"
+                onTriggered: {
+                    openExeChoiceDialog.close();
+                    runExeStandaloneDialog.openDialog(openExeChoiceDialog.exePath);
+                }
+            },
+            Kirigami.Action {
+                text: i18n("Add to Library")
+                icon.name: "list-add"
+                onTriggered: {
+                    openExeChoiceDialog.close();
+                    addDialog.openForNewWithExe(openExeChoiceDialog.exePath);
+                }
+            }
+        ]
+    }
+
     SettingsDialog {
         id: settingsDialog
     }
@@ -202,14 +229,29 @@ Kirigami.ApplicationWindow {
             } else if (drop.hasText) {
                 path = decodeURIComponent(drop.text.trim().replace("file://", ""));
             }
-            if (path !== "")
-                runExeStandaloneDialog.openDialog(path);
+            if (path !== "") {
+                openExeChoiceDialog.exePath = path;
+                openExeChoiceDialog.open();
+            }
         }
     }
 
     Component.onCompleted: {
         if (typeof openExePath !== "undefined" && openExePath !== "") {
-            runExeStandaloneDialog.openDialog(openExePath);
+            openExeChoiceDialog.exePath = openExePath;
+            openExeChoiceDialog.open();
+        }
+    }
+
+    Connections {
+        target: singleInstance
+        function onOpenExeRequested(path) {
+            openExeChoiceDialog.exePath = path;
+            openExeChoiceDialog.open();
+        }
+        function onRaiseRequested() {
+            root.raise();
+            root.requestActivate();
         }
     }
 

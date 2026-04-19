@@ -146,6 +146,7 @@ void Launcher::launchEntry(const QVariantMap &app)
             env.insert(QStringLiteral("PROTONPATH"), protonPath);
             env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
             env.insert(QStringLiteral("GAMEID"), QStringLiteral("0"));
+            env.insert(QStringLiteral("WINEPREFIX"), prefix);
             launch(umoBin, {}, exePath, env, opts, logging, name);
         } else {
             env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));

@@ -5,6 +5,7 @@
 #include "protondownloader.h"
 #include "protonscanner.h"
 #include "settingsmanager.h"
+#include "singleinstance.h"
 #include "umudownloader.h"
 #include <KAboutData>
 #include <KLocalizedContext>
@@ -109,6 +110,22 @@ int main(int argc, char *argv[])
         return app.exec();
     }
 
+    // Check for positional args early so we can forward them if already running.
+    QStringList positionalArgs = parser.positionalArguments();
+    QString openExePath;
+    if (!positionalArgs.isEmpty()) {
+        QString arg = positionalArgs.first();
+        if (arg.startsWith(QStringLiteral("file://")))
+            arg = QUrl(arg).toLocalFile();
+        openExePath = arg;
+    }
+
+    SingleInstance singleInstance;
+    if (!singleInstance.tryRegister()) {
+        singleInstance.forwardToRunning(openExePath);
+        return 0;
+    }
+
     AppModel appModel;
     ProtonScanner protonScanner;
     DesktopFileWriter desktopWriter;
@@ -147,17 +164,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("settingsManager"), &settingsManager);
     engine.rootContext()->setContextProperty(QStringLiteral("protonDownloader"), &protonDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("umuDownloader"), &umuDownloader);
-
-    // Check for positional args (file association: vermouth /path/to/game.exe)
-    QStringList positionalArgs = parser.positionalArguments();
-    QString openExePath;
-    if (!positionalArgs.isEmpty()) {
-        QString arg = positionalArgs.first();
-        // Strip file:// URI scheme if present
-        if (arg.startsWith(QStringLiteral("file://")))
-            arg = QUrl(arg).toLocalFile();
-        openExePath = arg;
-    }
+    engine.rootContext()->setContextProperty(QStringLiteral("singleInstance"), &singleInstance);
     engine.rootContext()->setContextProperty(QStringLiteral("openExePath"), openExePath);
 
     engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));

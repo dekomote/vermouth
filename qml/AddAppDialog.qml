@@ -49,6 +49,31 @@ Kirigami.Dialog {
         dialog.open();
     }
 
+    function applyExePath(path) {
+        exeField.text = path;
+        if (iconField.text === "") {
+            var extracted = iconExtractor.extractIcon(path);
+            if (extracted !== "")
+                iconField.text = extracted;
+        }
+        if (nameField.text === "") {
+            var parts = path.split("/");
+            var filename = parts[parts.length - 1];
+            nameField.text = filename.replace(/\.exe$/i, "");
+        }
+        var safeName = nameField.text.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
+        var prefixBase = dialog.prefixBasePath + "/" + safeName;
+        if (protonPrefixField.text === "")
+            protonPrefixField.text = prefixBase;
+        if (winePrefixField.text === "")
+            winePrefixField.text = prefixBase;
+    }
+
+    function openForNewWithExe(exePath) {
+        openForNew();
+        applyExePath(exePath);
+    }
+
     function openForEdit(index) {
         editMode = true;
         editIndex = index;
@@ -211,23 +236,7 @@ Kirigami.Dialog {
         nameFilters: [i18n("Executables (*.exe)"), i18n("All files (*)")]
         onAccepted: {
             var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
-            exeField.text = path;
-            if (iconField.text === "") {
-                var extracted = iconExtractor.extractIcon(path);
-                if (extracted !== "")
-                    iconField.text = extracted;
-            }
-            if (nameField.text === "") {
-                var parts = path.split("/");
-                var filename = parts[parts.length - 1];
-                nameField.text = filename.replace(/\.exe$/i, "");
-            }
-            var safeName = nameField.text.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
-            var prefixBase = dialog.prefixBasePath + "/" + safeName;
-            if (protonPrefixField.text === "")
-                protonPrefixField.text = prefixBase;
-            if (winePrefixField.text === "")
-                winePrefixField.text = prefixBase;
+            dialog.applyExePath(path);
         }
     }
 
