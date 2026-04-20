@@ -67,6 +67,7 @@ lets you run Windows executables through Proton or Wine on KDE.
 %{_datadir}/applications/com.dekomote.vermouth.desktop
 %{_datadir}/icons/hicolor/scalable/apps/com.dekomote.vermouth.svg
 %{_datadir}/metainfo/com.dekomote.vermouth.metainfo.xml
+%{_datadir}/locale/*/LC_MESSAGES/vermouth.mo
 
 %changelog
 * Mon Apr 20 2026 Dejan Noveski <deko@duck.com> - 1.3.3-1
