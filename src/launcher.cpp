@@ -298,7 +298,8 @@ bool Launcher::hdrEnabled() const
 void Launcher::refreshHdrState()
 {
     bool supported = false;
-    bool enabled = false;
+    bool hdrEnabled = false;
+    bool wcgEnabled = false;
 
     if (isKde()) {
         QString screenName = currentScreenName();
@@ -310,7 +311,8 @@ void Launcher::refreshHdrState()
             QJsonObject out = val.toObject();
             if (out[QStringLiteral("name")].toString() == screenName && out[QStringLiteral("connected")].toBool() && out.contains(QStringLiteral("hdr"))) {
                 supported = true;
-                enabled = out[QStringLiteral("hdr")].toBool();
+                hdrEnabled = out[QStringLiteral("hdr")].toBool();
+                wcgEnabled = out[QStringLiteral("wcg")].toBool();
                 break;
             }
         }
@@ -320,22 +322,30 @@ void Launcher::refreshHdrState()
         m_hdrSupported = supported;
         Q_EMIT hdrSupportedChanged();
     }
-    if (m_hdrEnabled != enabled) {
-        m_hdrEnabled = enabled;
+    if (m_hdrEnabled != hdrEnabled) {
+        m_hdrEnabled = hdrEnabled;
         Q_EMIT hdrEnabledChanged();
     }
+    m_wcgEnabled = wcgEnabled;
 }
 
 void Launcher::toggleHdr()
 {
     bool enable = !m_hdrEnabled;
     QString screenName = currentScreenName();
-    QString action = enable ? QStringLiteral("hdr.enable") : QStringLiteral("hdr.disable");
-    QProcess::execute(kscreenDoctorBin(), kscreenDoctorArgs({QStringLiteral("output.") + screenName + QLatin1Char('.') + action}));
-    if (enable)
+
+    if (enable) {
+        m_wcgEnabledBeforeHdr = m_wcgEnabled;
+        QProcess::execute(kscreenDoctorBin(), kscreenDoctorArgs({QStringLiteral("output.") + screenName + QStringLiteral(".hdr.enable")}));
+        QProcess::execute(kscreenDoctorBin(), kscreenDoctorArgs({QStringLiteral("output.") + screenName + QStringLiteral(".wcg.enable")}));
         m_hdrEnabledByUs = true;
-    else
+    } else {
+        QProcess::execute(kscreenDoctorBin(), kscreenDoctorArgs({QStringLiteral("output.") + screenName + QStringLiteral(".hdr.disable")}));
+        QString wcgAction = m_wcgEnabledBeforeHdr ? QStringLiteral("wcg.enable") : QStringLiteral("wcg.disable");
+        QProcess::execute(kscreenDoctorBin(), kscreenDoctorArgs({QStringLiteral("output.") + screenName + QLatin1Char('.') + wcgAction}));
         m_hdrEnabledByUs = false;
+    }
+
     refreshHdrState();
 }
 
@@ -345,6 +355,8 @@ void Launcher::restoreHdrState()
         return;
     QString screenName = currentScreenName();
     QProcess::execute(kscreenDoctorBin(), kscreenDoctorArgs({QStringLiteral("output.") + screenName + QStringLiteral(".hdr.disable")}));
+    QString wcgAction = m_wcgEnabledBeforeHdr ? QStringLiteral("wcg.enable") : QStringLiteral("wcg.disable");
+    QProcess::execute(kscreenDoctorBin(), kscreenDoctorArgs({QStringLiteral("output.") + screenName + QLatin1Char('.') + wcgAction}));
 }
 
 void Launcher::setupLogging(QProcess *proc, const QString &name)

@@ -71,4 +71,6 @@ private:
     bool m_hdrEnabled = false;
     bool m_hdrSupported = false;
     bool m_hdrEnabledByUs = false;
+    bool m_wcgEnabled = false;
+    bool m_wcgEnabledBeforeHdr = false;
 };
