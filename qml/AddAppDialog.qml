@@ -110,14 +110,21 @@ Kirigami.Dialog {
         return true;
     }
 
+    function resolvePrefix() {
+        var defaultPrefix = settingsManager.defaultGamePrefix;
+        return defaultPrefix !== "" ? defaultPrefix : dialog.prefixBasePath + "/" + nameField.text.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
+    }
+
     function doSave() {
         var rt = runtimePicker.runtimeType;
         var protonPath = runtimePicker.protonPath;
+        var protonPrefix = protonPrefixField.text.trim() !== "" ? protonPrefixField.text : resolvePrefix();
+        var winePrefix = winePrefixField.text.trim() !== "" ? winePrefixField.text : resolvePrefix();
 
         if (editMode) {
-            appModel.editApp(editIndex, nameField.text, exeField.text, rt, protonPath, protonPrefixField.text, runtimePicker.wineBinary, winePrefixField.text, iconField.text, launchOptionsField.text, enableLoggingCheck.checked);
+            appModel.editApp(editIndex, nameField.text, exeField.text, rt, protonPath, protonPrefix, runtimePicker.wineBinary, winePrefix, iconField.text, launchOptionsField.text, enableLoggingCheck.checked);
         } else {
-            appModel.addApp(nameField.text, exeField.text, rt, protonPath, protonPrefixField.text, runtimePicker.wineBinary, winePrefixField.text, iconField.text, launchOptionsField.text, enableLoggingCheck.checked);
+            appModel.addApp(nameField.text, exeField.text, rt, protonPath, protonPrefix, runtimePicker.wineBinary, winePrefix, iconField.text, launchOptionsField.text, enableLoggingCheck.checked);
         }
     }
 
