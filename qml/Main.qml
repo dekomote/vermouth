@@ -15,6 +15,7 @@ Kirigami.ApplicationWindow {
     readonly property bool lightsOut: settingsManager.lightsOut
     readonly property color loBase: Qt.color(settingsManager.lightsOutColor)
     readonly property color loDark: Qt.darker(loBase, 1.5)
+    readonly property color loDarkest: Qt.darker(loBase, 2)
     readonly property color loMid: Qt.darker(loBase, 1.2)
     readonly property color loHighlight: Qt.lighter(loBase, 1.8)
     readonly property color loText: "#ffffff"
@@ -23,29 +24,13 @@ Kirigami.ApplicationWindow {
 
     background: Rectangle {
         color: root.lightsOut ? "transparent" : Kirigami.Theme.backgroundColor
-
-        Rectangle {
-            visible: root.lightsOut
-            anchors.fill: parent
-            gradient: Gradient {
-                orientation: Gradient.Vertical
-                GradientStop {
-                    position: 0.0
-                    color: root.loMid
-                }
-                GradientStop {
-                    position: 1.0
-                    color: root.loDark
-                }
-            }
-        }
     }
 
     globalDrawer: Kirigami.GlobalDrawer {
         id: globalDrawer
         modal: !settingsManager.drawerPinned
         Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
-
+        handle.visible: false
         background: Rectangle {
             color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
         }
@@ -124,31 +109,16 @@ Kirigami.ApplicationWindow {
         id: mainPage
 
         background: Rectangle {
-            color: root.lightsOut ? "transparent" : Kirigami.Theme.backgroundColor
-
-            Rectangle {
-                visible: root.lightsOut
-                anchors.fill: parent
-                gradient: Gradient {
-                    orientation: Gradient.Vertical
-                    GradientStop {
-                        position: 0.0
-                        color: root.loMid
-                    }
-                    GradientStop {
-                        position: 1.0
-                        color: root.loDark
-                    }
-                }
-            }
+            color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
         }
 
         header: QQC2.ToolBar {
-            // Kirigami.Theme.inherit: !root.lightsOut
             Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
+            topPadding: Kirigami.Units.largeSpacing
+            bottomPadding: Kirigami.Units.largeSpacing
 
             background: Rectangle {
-                color: root.lightsOut ? "transparent" : Kirigami.Theme.backgroundColor
+                color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
             }
 
             contentItem: RowLayout {
@@ -165,15 +135,23 @@ Kirigami.ApplicationWindow {
                     id: searchField
                     Layout.fillWidth: true
                     onTextChanged: appModel.setFilterString(text)
+                    color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                    background: Rectangle {
+                        color: root.lightsOut ? "transparent" : Kirigami.Theme.backgroundColor
+                        border.color: root.lightsOut ? root.loHighlight : Kirigami.Theme.disabledTextColor
+                        radius: 4
+                    }
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     text: i18n("Add &App/Game")
                     icon.name: "list-add"
+                    icon.color: root.lightsOut ? root.loText : "transparent"
                     onClicked: addDialog.openForNew()
                 }
-                QQC2.Button {
+                QQC2.ToolButton {
                     property bool isRunning: gridView.selectedIndex >= 0 && launcher.runningExePaths.indexOf(appModel.getApp(gridView.selectedIndex).exePath) >= 0
                     icon.name: isRunning ? "media-playback-stop" : "media-playback-start"
+                    icon.color: root.lightsOut ? root.loText : "transparent"
                     enabled: gridView.selectedIndex >= 0
                     onClicked: {
                         var app = appModel.getApp(gridView.selectedIndex);
@@ -193,13 +171,13 @@ Kirigami.ApplicationWindow {
         }
 
         footer: QQC2.ToolBar {
-            Kirigami.Theme.inherit: !root.lightsOut
-            Kirigami.Theme.colorSet: Kirigami.Theme.Complementary
-
+            Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
             position: QQC2.ToolBar.Footer
+            topPadding: Kirigami.Units.largeSpacing
+            bottomPadding: Kirigami.Units.largeSpacing
 
             background: Rectangle {
-                color: root.lightsOut ? root.loDark : Kirigami.Theme.backgroundColor
+                color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
             }
 
             contentItem: RowLayout {
