@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(vermouth VERSION 1.3.4 LANGUAGES CXX)
+project(vermouth VERSION 1.3.5 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -135,7 +135,8 @@ if(IS_OPENSUSE)
 else()
     set(CPACK_RPM_PACKAGE_REQUIRES "qt6-qtbase, qt6-qtdeclarative, qt6-qtquickcontrols2, kf6-kirigami")
 endif()
-set(CPACK_RPM_PACKAGE_RECOMMENDS "icoutils")
+set(CPACK_RPM_PACKAGE_RECOMMENDS "icoutils, SDL2")
+set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "libsdl2-2.0-0")
 set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
 set(CPACK_GENERATOR "DEB;RPM")
 

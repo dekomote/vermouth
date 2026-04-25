@@ -1,5 +1,5 @@
 Name:           vermouth
-Version:        1.3.4
+Version:        1.3.5
 Release:        1%{?dist}
 Summary:        A no-frills Wine/Proton game launcher for KDE
 License:        MIT
@@ -18,6 +18,7 @@ BuildRequires:  kf6-kcoreaddons-devel
 BuildRequires:  kf6-ki18n-devel
 BuildRequires:  kf6-qqc2-desktop-style-devel
 BuildRequires:  icoutils
+BuildRequires:  SDL2-devel
 %else
 BuildRequires:  qt6-qtbase-devel
 BuildRequires:  qt6-qtdeclarative-devel
@@ -27,6 +28,7 @@ BuildRequires:  kf6-kcoreaddons-devel
 BuildRequires:  kf6-ki18n-devel
 BuildRequires:  kf6-qqc2-desktop-style
 BuildRequires:  icoutils
+BuildRequires:  SDL2-devel
 %endif
 
 %if 0%{?suse_version}
@@ -46,6 +48,7 @@ Requires:       qt6-qtquickcontrols2
 Requires:       kf6-kirigami
 %endif
 Recommends:     icoutils
+Recommends:     SDL2
 
 %description
 Vermouth is a no-frills lightweight game and application launcher that
@@ -70,6 +73,8 @@ lets you run Windows executables through Proton or Wine on KDE.
 %{_datadir}/locale/*/LC_MESSAGES/vermouth.mo
 
 %changelog
+* Sat Apr 25 2026 Dejan Noveski <deko@duck.com> - 1.3.5-1
+- Lights off mode, Big Picture mode
 * Tue Apr 21 2026 Dejan Noveski <deko@duck.com> - 1.3.4-1
 - Single prefix fix, HDR Enable fix for full gamut monitors
 * Mon Apr 20 2026 Dejan Noveski <deko@duck.com> - 1.3.3-1

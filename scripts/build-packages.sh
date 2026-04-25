@@ -122,7 +122,7 @@ build_rpm_fedora() {
         "dnf install -y --quiet cmake gcc-c++ extra-cmake-modules \
             qt6-qtbase-devel qt6-qtdeclarative-devel qt6-qtquickcontrols2-devel \
             kf6-kirigami-devel kf6-kcoreaddons-devel kf6-ki18n-devel \
-            kf6-qqc2-desktop-style icoutils rpm-build" \
+            kf6-qqc2-desktop-style icoutils rpm-build SDL2-devel" \
         "cmake -S . -B _build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
          cmake --build _build --parallel \$(nproc)
          cpack --config _build/CPackConfig.cmake -G RPM" \
@@ -144,7 +144,7 @@ build_rpm_opensuse() {
             cmake gcc-c++ extra-cmake-modules \
             qt6-base-devel qt6-declarative-devel \
             kf6-kirigami-devel kf6-kcoreaddons-devel kf6-ki18n-devel \
-            kf6-qqc2-desktop-style-devel icoutils rpm-build" \
+            kf6-qqc2-desktop-style-devel icoutils rpm-build SDL2-devel" \
         "cmake -S . -B _build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
          cmake --build _build --parallel \$(nproc)
          cpack --config _build/CPackConfig.cmake -G RPM" \
@@ -167,7 +167,7 @@ build_deb() {
          apt-get install -y -qq build-essential cmake extra-cmake-modules dpkg-dev \
             qt6-base-dev qt6-declarative-dev qt6-tools-dev-tools \
             libkirigami-dev libkf6coreaddons-dev libkf6i18n-dev \
-            libkf6qqc2desktopstyle-dev file" \
+            libkf6qqc2desktopstyle-dev libsdl2-dev file" \
         "cmake -S . -B _build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
          cmake --build _build --parallel \$(nproc)
          cpack --config _build/CPackConfig.cmake -G DEB" \
@@ -202,7 +202,7 @@ build_arch() {
             pacman -S --noconfirm --needed --quiet \
                 base-devel cmake ninja extra-cmake-modules \
                 qt6-base qt6-declarative \
-                kirigami ki18n kcoreaddons qqc2-desktop-style icoutils
+                kirigami ki18n kcoreaddons qqc2-desktop-style icoutils sdl2
             useradd -m builder
 
             PKGVER=\$(grep -oP 'project\(vermouth VERSION \K[0-9.]+' /src/CMakeLists.txt)
@@ -333,7 +333,7 @@ build_appimage() {
                 libkirigami-dev libkf6coreaddons-dev libkf6i18n-dev libkf6qqc2desktopstyle-dev \
                 qml6-module-org-kde-kirigami qml6-module-org-kde-desktop \
                 qml6-module-org-kde-iconthemes qml6-module-org-kde-sonnet \
-                qt6-wayland breeze
+                qt6-wayland breeze libsdl2-dev
 
             cp -r /src /build
             cd /build

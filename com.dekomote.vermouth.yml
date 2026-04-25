@@ -10,9 +10,24 @@ finish-args:
   - --socket=fallback-x11
   - --socket=wayland
   - --device=dri
+  - --device=input
   - --socket=pulseaudio
 
 modules:
+  - name: SDL2
+    buildsystem: cmake-ninja
+    builddir: true
+    config-opts:
+      - -DSDL_STATIC=OFF
+      - -DSDL_TEST=OFF
+      - -DSDL_AUDIO=OFF
+      - -DSDL_VIDEO=OFF
+      - -DSDL_RENDER=OFF
+    sources:
+      - type: git
+        url: https://github.com/libsdl-org/SDL
+        tag: release-2.30.9
+
   - name: vermouth
     buildsystem: cmake-ninja
     config-opts:
