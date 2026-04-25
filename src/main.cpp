@@ -1,5 +1,6 @@
 #include "appmodel.h"
 #include "desktopfilewriter.h"
+#include "gamepadhandler.h"
 #include "iconextractor.h"
 #include "launcher.h"
 #include "protondownloader.h"
@@ -52,6 +53,7 @@ int main(int argc, char *argv[])
     QCommandLineOption prefixOpt(QStringLiteral("prefix"), i18n("Prefix path"), QStringLiteral("path"));
     QCommandLineOption launchOptsOpt(QStringLiteral("launch-options"), i18n("Launch options (use %command% as placeholder)"), QStringLiteral("options"));
     QCommandLineOption loggingOpt(QStringLiteral("enable-logging"), i18n("Enable logging to file"));
+    QCommandLineOption bigPictureOpt(QStringLiteral("big-picture"), i18n("Start in Big Picture mode"));
 
     parser.addOption(launchIdOpt);
     parser.addOption(launchProtonOpt);
@@ -61,6 +63,7 @@ int main(int argc, char *argv[])
     parser.addOption(prefixOpt);
     parser.addOption(launchOptsOpt);
     parser.addOption(loggingOpt);
+    parser.addOption(bigPictureOpt);
     parser.addPositionalArgument(QStringLiteral("uri"), i18n("File or URI to open"), QStringLiteral("[uri...]"));
     parser.process(app);
     aboutData.processCommandLine(&parser);
@@ -126,6 +129,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
+    GamepadHandler gamepadHandler;
     AppModel appModel;
     ProtonScanner protonScanner;
     DesktopFileWriter desktopWriter;
@@ -174,7 +178,9 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("protonDownloader"), &protonDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("umuDownloader"), &umuDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("singleInstance"), &singleInstance);
+    engine.rootContext()->setContextProperty(QStringLiteral("gamepadHandler"), &gamepadHandler);
     engine.rootContext()->setContextProperty(QStringLiteral("openExePath"), openExePath);
+    engine.rootContext()->setContextProperty(QStringLiteral("launchBigPicture"), parser.isSet(bigPictureOpt));
 
     engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));
 

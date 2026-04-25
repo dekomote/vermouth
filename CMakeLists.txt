@@ -31,6 +31,7 @@ include(ECMFindQmlModule)
 include(ECMQmlModule)
 
 find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core Quick Gui Widgets QuickControls2 Network DBus)
+find_package(SDL2 QUIET)
 find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Kirigami CoreAddons I18n QQC2DesktopStyle)
 
 ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
@@ -47,6 +48,7 @@ qt_add_executable(vermouth
     src/protondownloader.cpp
     src/umudownloader.cpp
     src/singleinstance.cpp
+    src/gamepadhandler.cpp
     resources.qrc
 )
 
@@ -75,6 +77,19 @@ target_link_libraries(vermouth PRIVATE
     KF6::CoreAddons
     KF6::I18n
 )
+
+if(TARGET SDL2::SDL2)
+    target_compile_definitions(vermouth PRIVATE HAVE_SDL2)
+    get_target_property(_sdl2_inc SDL2::SDL2 INTERFACE_INCLUDE_DIRECTORIES)
+    target_include_directories(vermouth PRIVATE ${_sdl2_inc})
+    message(STATUS "SDL2 found — gamepad support enabled (loaded at runtime)")
+elseif(SDL2_FOUND)
+    target_compile_definitions(vermouth PRIVATE HAVE_SDL2)
+    target_include_directories(vermouth PRIVATE ${SDL2_INCLUDE_DIRS})
+    message(STATUS "SDL2 found — gamepad support enabled (loaded at runtime)")
+else()
+    message(STATUS "SDL2 not found — gamepad support disabled")
+endif()
 
 target_compile_definitions(vermouth PRIVATE
     APP_VERSION_STRING="${PROJECT_VERSION}"

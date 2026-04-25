@@ -34,6 +34,7 @@ Kirigami.ApplicationWindow {
     globalDrawer: Kirigami.GlobalDrawer {
         id: globalDrawer
         modal: !settingsManager.drawerPinned
+        focus: modal
         Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
         handle.visible: false
         background: Rectangle {
@@ -42,6 +43,7 @@ Kirigami.ApplicationWindow {
 
         actions: [
             Kirigami.Action {
+                id: firstDrawerAction
                 text: i18n("Add &App/Game")
                 icon.name: "list-add"
                 onTriggered: addDialog.openForNew()
@@ -72,6 +74,7 @@ Kirigami.ApplicationWindow {
                 onTriggered: settingsManager.setLightsOut(!root.lightsOut)
             },
             Kirigami.Action {
+                id: bigPictureAction
                 text: root.bigPicture ? i18n("Exit Big Picture") : i18n("Big Picture")
                 icon.name: root.bigPicture ? "view-restore" : "view-fullscreen"
                 shortcut: "F11"
@@ -330,6 +333,25 @@ Kirigami.ApplicationWindow {
         }
     }
 
+    function focusFirstDrawerItem() {
+        function findFocusable(item) {
+            if (!item)
+                return null;
+            if (item.activeFocusOnTab && item.visible && item.enabled)
+                return item;
+            var kids = item.children;
+            for (var i = 0; i < kids.length; i++) {
+                var found = findFocusable(kids[i]);
+                if (found)
+                    return found;
+            }
+            return null;
+        }
+        var target = findFocusable(globalDrawer.contentItem);
+        if (target)
+            target.forceActiveFocus();
+    }
+
     function openExe(path) {
         var existing = appModel.getAppByExePath(path);
         if (existing && existing.exePath !== undefined) {
@@ -355,6 +377,8 @@ Kirigami.ApplicationWindow {
     }
 
     Component.onCompleted: {
+        if (typeof launchBigPicture !== "undefined" && launchBigPicture && !root.bigPicture)
+            bigPictureAction.trigger();
         if (typeof openExePath !== "undefined" && openExePath !== "")
             root.openExe(openExePath);
     }
@@ -368,6 +392,80 @@ Kirigami.ApplicationWindow {
             root.raise();
             root.requestActivate();
         }
+    }
+
+    Connections {
+        target: gamepadHandler
+
+        function onSelectPressed() {
+            if (!globalDrawer.modal)
+                return;
+            if (globalDrawer.drawerOpen) {
+                globalDrawer.close();
+                gridView.forceActiveFocus();
+            } else {
+                globalDrawer.open();
+            }
+        }
+
+        function onYPressed() {
+            if (globalDrawer.drawerOpen)
+                globalDrawer.close();
+            searchField.forceActiveFocus();
+            gridView.selectedIndex = -1;
+            gridView.currentIndex = -1;
+            Qt.inputMethod.show();
+        }
+
+        function onBPressed() {
+            if (globalDrawer.drawerOpen) {
+                globalDrawer.close();
+                gridView.forceActiveFocus();
+            } else {
+                gridView.currentIndex = -1;
+                gridView.forceActiveFocus();
+            }
+        }
+
+        function onAPressed() {
+            gamepadHandler.sendKey(Qt.Key_Return);
+        }
+
+        function onStartPressed() {
+            bigPictureAction.trigger();
+        }
+
+        function onDpadUp() {
+            gamepadHandler.sendKey(Qt.Key_Up);
+        }
+
+        function onDpadDown() {
+            gamepadHandler.sendKey(Qt.Key_Down);
+        }
+
+        function onDpadLeft() {
+            gamepadHandler.sendKey(Qt.Key_Left);
+        }
+
+        function onDpadRight() {
+            gamepadHandler.sendKey(Qt.Key_Right);
+        }
+    }
+
+    Connections {
+        target: globalDrawer
+        function onDrawerOpenChanged() {
+            if (globalDrawer.drawerOpen && globalDrawer.modal)
+                drawerFocusTimer.start();
+            else
+                drawerFocusTimer.stop();
+        }
+    }
+
+    Timer {
+        id: drawerFocusTimer
+        interval: 50
+        onTriggered: root.focusFirstDrawerItem()
     }
 
     Connections {
