@@ -47,56 +47,38 @@ Kirigami.Dialog {
 
     function doImport() {
         importing = true;
-        var scheduled = [];
-        var collectedAppIds = [];
         for (var i = 0; i < steamModel.count; i++) {
             if (checkStates[i]) {
                 var g = steamModel.getGame(i);
                 if (appModel.hasSteamApp(g.steamId))
                     continue;
                 var appId = generateUUID();
-                collectedAppIds.push(appId);
                 var missingArt = g.gridPath === "" || g.heroPath === "" || g.logoPath === "";
-                scheduled.push({
+                appModel.addApp({
                     "appId": appId,
-                    "steamId": g.steamId,
                     "name": g.name,
+                    "exePath": "",
+                    "runtimeType": "steam",
+                    "steamAppId": g.steamId,
+                    "protonPath": "",
+                    "protonPrefix": "",
+                    "wineBinary": "",
+                    "winePrefix": "",
+                    "iconPath": g.iconPath,
                     "gridPath": g.gridPath,
                     "heroPath": g.heroPath,
-                    "iconPath": g.iconPath,
                     "logoPath": g.logoPath,
-                    "missingArt": missingArt
+                    "launchOptions": "",
+                    "enableLogging": false,
+                    "steamGridDbId": 0
                 });
+                if (missingArt && settingsManager.autoDownloadArt && settingsManager.steamGridDbApiKey !== "")
+                    downloadQueue.push({
+                        "appId": appId,
+                        "name": g.name
+                    });
             }
         }
-        for (var j = 0; j < scheduled.length; j++) {
-            var s = scheduled[j];
-            appModel.addApp({
-                "appId": s.appId,
-                "name": s.name,
-                "exePath": "",
-                "runtimeType": "steam",
-                "steamAppId": s.steamId,
-                "protonPath": "",
-                "protonPrefix": "",
-                "wineBinary": "",
-                "winePrefix": "",
-                "iconPath": s.iconPath,
-                "gridPath": s.gridPath,
-                "heroPath": s.heroPath,
-                "logoPath": s.logoPath,
-                "launchOptions": "",
-                "enableLogging": false,
-                "steamGridDbId": 0
-            });
-
-            if (s.missingArt && settingsManager.autoDownloadArt && settingsManager.steamGridDbApiKey !== "")
-                downloadQueue.push({
-                    "appId": s.appId,
-                    "name": s.name
-                });
-        }
-
         if (downloadQueue.length > 0) {
             autoDownloadStatus = i18n("Downloading artwork…");
             startNextDownload();
@@ -153,88 +135,83 @@ Kirigami.Dialog {
         QQC2.ScrollView {
             Layout.fillWidth: true
             Layout.fillHeight: true
+            clip: true
 
-            ColumnLayout {
-                id: listColumn
-                width: parent ? parent.width : 0
+            ListView {
+                id: gameList
+                width: parent.width
+                height: parent.height
+                model: steamModel
                 spacing: 0
 
-                Repeater {
-                    id: repeater
-                    model: steamModel
+                delegate: Item {
+                    id: rowItem
+                    width: gameList.width
+                    height: visible ? Math.max(54, rowContent.implicitHeight) : 0
 
-                    delegate: Item {
-                        id: rowItem
-                        width: listColumn.width
-                        height: Math.max(54, rowLayout.implicitHeight)
-                        visible: rowLayout.visible
+                    required property int index
+                    required property int steamId
+                    required property string name
+                    required property string gridPath
+                    required property string heroPath
+                    required property string iconPath
+                    required property string logoPath
+                    required property string installDir
 
-                        required property int index
-                        required property int steamId
-                        required property string name
-                        required property string gridPath
-                        required property string heroPath
-                        required property string iconPath
-                        required property string logoPath
-                        required property string installDir
+                    property bool matchesFilter: searchField.text === "" || name.toLowerCase().includes(searchField.text.toLowerCase())
+                    visible: matchesFilter
 
-                        property int rowIndex: index
+                    Rectangle {
+                        anchors.fill: rowContent
+                        color: index % 2 === 0 ? "transparent" : Kirigami.Theme.alternateBackgroundColor
+                        opacity: 0.4
+                    }
 
-                        Rectangle {
-                            anchors.fill: parent
-                            color: index % 2 === 0 ? "transparent" : Kirigami.Theme.alternateBackgroundColor
-                            opacity: 0.4
-                        }
+                    RowLayout {
+                        id: rowContent
+                        width: parent.width
+                        spacing: Kirigami.Units.smallSpacing
 
-                        RowLayout {
-                            id: rowLayout
-                            width: parent.width
-                            spacing: Kirigami.Units.smallSpacing
-
-                            property bool matchesFilter: searchField.text === "" || name.toLowerCase().includes(searchField.text.toLowerCase())
-                            visible: matchesFilter
-
-                            QQC2.CheckBox {
-                                id: cb
-                                checked: dialog.checkStates[index] === true
-                                enabled: appModel ? !appModel.hasSteamApp(steamId) : true
-                                onCheckedChanged: {
-                                    dialog.checkStates[index] = checked;
-                                    dialog.selectedCount = Object.values(dialog.checkStates).filter(function (v) {
-                                        return v;
-                                    }).length;
-                                }
-                            }
-
-                            Image {
-                                Layout.preferredWidth: 38
-                                Layout.preferredHeight: 54
-                                fillMode: Image.PreserveAspectCrop
-                                asynchronous: true
-                                source: iconPath !== "" ? "file://" + iconPath : (gridPath !== "" ? "file://" + gridPath : "")
-                                visible: source !== ""
-                                sourceSize: Qt.size(76, 108)
-                            }
-
-                            Kirigami.Heading {
-                                text: name
-                                level: 5
-                                Layout.fillWidth: true
-                                elide: Text.ElideRight
+                        QQC2.CheckBox {
+                            id: cb
+                            checked: dialog.checkStates[index] === true
+                            enabled: appModel ? !appModel.hasSteamApp(steamId) : true
+                            onCheckedChanged: {
+                                dialog.checkStates[index] = checked;
+                                dialog.selectedCount = Object.values(dialog.checkStates).filter(function (v) {
+                                    return v;
+                                }).length;
                             }
                         }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            acceptedButtons: Qt.LeftButton
-                            onClicked: {
-                                if (cb.enabled) {
-                                    cb.checked = !cb.checked;
-                                    dialog.checkStates[index] = cb.checked;
-                                    dialog.selectedCount = Object.values(dialog.checkStates).filter(function (v) {
-                                        return v;
-                                    }).length;
-                                }
+                        Image {
+                            Layout.preferredWidth: 38
+                            Layout.preferredHeight: 54
+                            fillMode: Image.PreserveAspectCrop
+                            asynchronous: true
+                            source: iconPath !== "" ? "file://" + iconPath : (gridPath !== "" ? "file://" + gridPath : "")
+                            visible: source !== ""
+                            sourceSize: Qt.size(76, 108)
+                        }
+
+                        Kirigami.Heading {
+                            text: name
+                            level: 5
+                            Layout.fillWidth: true
+                            elide: Text.ElideRight
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.LeftButton
+                        onClicked: {
+                            if (cb.enabled) {
+                                cb.checked = !cb.checked;
+                                dialog.checkStates[index] = cb.checked;
+                                dialog.selectedCount = Object.values(dialog.checkStates).filter(function (v) {
+                                    return v;
+                                }).length;
                             }
                         }
                     }
