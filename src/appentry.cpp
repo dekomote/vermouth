@@ -7,6 +7,7 @@ const RuntimeTypeEntry AppEntry::runtimeTypeTable[] = {
     {"steam", "Steam"},
 };
 const int AppEntry::runtimeTypeCount = sizeof(runtimeTypeTable) / sizeof(runtimeTypeTable[0]);
+static_assert(AppEntry::runtimeTypeCount == AppEntry::Count, "runtimeTypeTable and RuntimeType enum are out of sync");
 
 const char *AppEntry::runtimeTypeString(RuntimeType rt)
 {

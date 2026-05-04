@@ -6,9 +6,9 @@ import org.kde.kirigami as Kirigami
 Kirigami.Dialog {
     id: dialog
     title: i18n("Import from Steam")
-    preferredWidth: Kirigami.Units.gridUnit * 35
+    preferredWidth: Kirigami.Units.gridUnit * 30
     padding: Kirigami.Units.largeSpacing
-    bottomPadding: 30
+    bottomPadding: Kirigami.Units.largeSpacing
     standardButtons: Kirigami.Dialog.NoButton
 
     customFooterActions: [
@@ -118,7 +118,7 @@ Kirigami.Dialog {
 
     ColumnLayout {
         spacing: Kirigami.Units.mediumSpacing
-        anchors.fill: parent
+        Layout.fillWidth: true
 
         Kirigami.SearchField {
             id: searchField
@@ -147,7 +147,6 @@ Kirigami.Dialog {
                 delegate: Item {
                     id: rowItem
                     width: gameList.width
-                    height: visible ? Math.max(54, rowContent.implicitHeight) : 0
 
                     required property int index
                     required property int steamId
@@ -184,16 +183,6 @@ Kirigami.Dialog {
                             }
                         }
 
-                        Image {
-                            Layout.preferredWidth: 38
-                            Layout.preferredHeight: 54
-                            fillMode: Image.PreserveAspectCrop
-                            asynchronous: true
-                            source: iconPath !== "" ? "file://" + iconPath : (gridPath !== "" ? "file://" + gridPath : "")
-                            visible: source !== ""
-                            sourceSize: Qt.size(76, 108)
-                        }
-
                         Kirigami.Heading {
                             text: name
                             level: 5
@@ -206,13 +195,8 @@ Kirigami.Dialog {
                         anchors.fill: parent
                         acceptedButtons: Qt.LeftButton
                         onClicked: {
-                            if (cb.enabled) {
+                            if (cb.enabled)
                                 cb.checked = !cb.checked;
-                                dialog.checkStates[index] = cb.checked;
-                                dialog.selectedCount = Object.values(dialog.checkStates).filter(function (v) {
-                                    return v;
-                                }).length;
-                            }
                         }
                     }
                 }
