@@ -83,6 +83,10 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.steamGridDbId;
     case SteamAppIdRole:
         return e.steamAppId;
+    case PlatformSlugRole:
+        return e.platformSlug;
+    case CustomCorePathRole:
+        return e.customCorePath;
     case LaunchOptionsRole:
         return e.launchOptions;
     case EnableLoggingRole:
@@ -108,6 +112,8 @@ QHash<int, QByteArray> AppModel::roleNames() const
         {LogoPathRole, "logoPath"},
         {SteamGridDbIdRole, "steamGridDbId"},
         {SteamAppIdRole, "steamAppId"},
+        {PlatformSlugRole, "platformSlug"},
+        {CustomCorePathRole, "customCorePath"},
         {LaunchOptionsRole, "launchOptions"},
         {EnableLoggingRole, "enableLogging"},
     };

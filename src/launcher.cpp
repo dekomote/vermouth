@@ -166,7 +166,9 @@ QString Launcher::buildRomLaunchCommand(const QVariantMap &rom) const
     int romId = rom[QStringLiteral("romId")].toInt();
     QString romPath = rom[QStringLiteral("localRomPath")].toString();
 
-    QString corePath = m_rommGameCoreMap.value(QString::number(romId)).toString();
+    QString corePath = rom[QStringLiteral("customCorePath")].toString();
+    if (corePath.isEmpty())
+        corePath = m_rommGameCoreMap.value(QString::number(romId)).toString();
     if (corePath.isEmpty())
         corePath = m_rommCoreMap.value(platformSlug).toString();
     if (corePath.isEmpty())
@@ -213,7 +215,9 @@ void Launcher::launchRom(const QVariantMap &rom, bool enableLogging)
     }
 
     int romId = rom[QStringLiteral("romId")].toInt();
-    QString corePath = m_rommGameCoreMap.value(QString::number(romId)).toString();
+    QString corePath = rom[QStringLiteral("customCorePath")].toString();
+    if (corePath.isEmpty())
+        corePath = m_rommGameCoreMap.value(QString::number(romId)).toString();
     if (corePath.isEmpty())
         corePath = m_rommCoreMap.value(platformSlug).toString();
     if (corePath.isEmpty()) {
@@ -362,6 +366,19 @@ void Launcher::launchEntry(const QVariantMap &app)
         return;
     }
 
+    if (runtimeType == QStringLiteral("retroarch")) {
+        QString platformSlug = app[QStringLiteral("platformSlug")].toString();
+        QString customCore = app[QStringLiteral("customCorePath")].toString();
+        QVariantMap rom;
+        rom[QStringLiteral("localRomPath")] = exePath;
+        rom[QStringLiteral("name")] = name;
+        rom[QStringLiteral("platformSlug")] = platformSlug;
+        rom[QStringLiteral("customCorePath")] = customCore;
+        rom[QStringLiteral("romId")] = 0;
+        launchRom(rom, logging);
+        return;
+    }
+
     if (runtimeType == QStringLiteral("proton")) {
         QString protonPath = app[QStringLiteral("protonPath")].toString();
         QString prefix = app[QStringLiteral("protonPrefix")].toString();
@@ -491,6 +508,13 @@ void Launcher::runWinetricks(const QVariantMap &app)
 bool Launcher::isWinetricksAvailable() const
 {
     return !QStandardPaths::findExecutable(QStringLiteral("winetricks")).isEmpty();
+}
+
+QStringList Launcher::platformSlugs() const
+{
+    QStringList slugs = platformCoreMap().keys();
+    slugs.sort();
+    return slugs;
 }
 
 bool Launcher::sleepInhibited() const

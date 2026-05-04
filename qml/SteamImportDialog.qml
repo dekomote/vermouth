@@ -147,6 +147,7 @@ Kirigami.Dialog {
                 delegate: Item {
                     id: rowItem
                     width: gameList.width
+                    height: visible ? Math.max(54, rowContent.implicitHeight) : 0
 
                     required property int index
                     required property int steamId

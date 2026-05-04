@@ -25,6 +25,8 @@ public:
         LogoPathRole,
         SteamGridDbIdRole,
         SteamAppIdRole,
+        PlatformSlugRole,
+        CustomCorePathRole,
         LaunchOptionsRole,
         EnableLoggingRole,
     };

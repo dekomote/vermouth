@@ -39,6 +39,7 @@ public:
     Q_INVOKABLE void runWinetricks(const QVariantMap &app);
     Q_INVOKABLE bool isWinetricksAvailable() const;
     Q_INVOKABLE QString logDir() const;
+    Q_INVOKABLE QStringList platformSlugs() const;
 
     Q_PROPERTY(bool sleepInhibited READ sleepInhibited NOTIFY sleepInhibitedChanged)
     Q_INVOKABLE void toggleSleepInhibit();

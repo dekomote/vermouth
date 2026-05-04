@@ -5,6 +5,7 @@ const RuntimeTypeEntry AppEntry::runtimeTypeTable[] = {
     {"wine", "Wine"},
     {"native", "Native"},
     {"steam", "Steam"},
+    {"retroarch", "Retroarch"},
 };
 const int AppEntry::runtimeTypeCount = sizeof(runtimeTypeTable) / sizeof(runtimeTypeTable[0]);
 static_assert(AppEntry::runtimeTypeCount == AppEntry::Count, "runtimeTypeTable and RuntimeType enum are out of sync");
@@ -42,6 +43,8 @@ QJsonObject AppEntry::toJson() const
     obj[QStringLiteral("logoPath")] = logoPath;
     obj[QStringLiteral("steamGridDbId")] = steamGridDbId;
     obj[QStringLiteral("steamAppId")] = steamAppId;
+    obj[QStringLiteral("platformSlug")] = platformSlug;
+    obj[QStringLiteral("customCorePath")] = customCorePath;
     obj[QStringLiteral("launchOptions")] = launchOptions;
     obj[QStringLiteral("enableLogging")] = enableLogging;
     return obj;
@@ -64,6 +67,8 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("logoPath"), logoPath},
         {QStringLiteral("steamGridDbId"), steamGridDbId},
         {QStringLiteral("steamAppId"), steamAppId},
+        {QStringLiteral("platformSlug"), platformSlug},
+        {QStringLiteral("customCorePath"), customCorePath},
         {QStringLiteral("launchOptions"), launchOptions},
         {QStringLiteral("enableLogging"), enableLogging},
     };
@@ -89,6 +94,8 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     e.logoPath = obj[QStringLiteral("logoPath")].toString();
     e.steamGridDbId = obj[QStringLiteral("steamGridDbId")].toInt(0);
     e.steamAppId = obj[QStringLiteral("steamAppId")].toInt(0);
+    e.platformSlug = obj[QStringLiteral("platformSlug")].toString();
+    e.customCorePath = obj[QStringLiteral("customCorePath")].toString();
     e.launchOptions = obj[QStringLiteral("launchOptions")].toString();
     e.enableLogging = obj[QStringLiteral("enableLogging")].toBool(false);
     return e;
@@ -112,6 +119,8 @@ void AppEntry::updateFromVariantMap(const QVariantMap &app)
     logoPath = app[QStringLiteral("logoPath")].toString();
     steamGridDbId = app.value(QStringLiteral("steamGridDbId"), 0).toInt();
     steamAppId = app.value(QStringLiteral("steamAppId"), 0).toInt();
+    platformSlug = app[QStringLiteral("platformSlug")].toString();
+    customCorePath = app[QStringLiteral("customCorePath")].toString();
     launchOptions = app[QStringLiteral("launchOptions")].toString();
     enableLogging = app.value(QStringLiteral("enableLogging"), false).toBool();
 }

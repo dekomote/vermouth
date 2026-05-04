@@ -58,10 +58,11 @@ FocusScope {
     Connections {
         target: launcher
         function onRomCoreMissing(platformSlug, rom) {
-            corePickerDialog.platformSlug = platformSlug;
-            corePickerDialog.pendingRom = rom;
-            corePickerDialog.launchAfterPick = true;
-            corePickerDialog.open();
+            mainCorePicker.platformSlug = platformSlug;
+            mainCorePicker.pendingRom = rom;
+            mainCorePicker.appIndex = -1;
+            mainCorePicker.launchAfterPick = true;
+            mainCorePicker.open();
         }
     }
 
@@ -477,10 +478,11 @@ FocusScope {
                         icon.name: "media-record"
                         onTriggered: {
                             var rom = rommModel.getRom(delegateRoot.index);
-                            corePickerDialog.platformSlug = delegateRoot.platformSlug;
-                            corePickerDialog.pendingRom = rom;
-                            corePickerDialog.launchAfterPick = false;
-                            corePickerDialog.open();
+                            mainCorePicker.platformSlug = delegateRoot.platformSlug;
+                            mainCorePicker.pendingRom = rom;
+                            mainCorePicker.appIndex = -1;
+                            mainCorePicker.launchAfterPick = false;
+                            mainCorePicker.open();
                         }
                     }
                     QQC2.MenuItem {
@@ -532,101 +534,6 @@ FocusScope {
                 font.italic: true
                 horizontalAlignment: Text.AlignHCenter
             }
-        }
-    }
-
-    // ── RetroArch core picker dialog ────────────────────────────────────────
-    Kirigami.PromptDialog {
-        id: corePickerDialog
-        property string platformSlug: ""
-        property var pendingRom: null
-        property bool launchAfterPick: true
-        property var availableCores: []
-        property string customCorePath: ""
-
-        function resolvedPath() {
-            if (customCorePath !== "")
-                return customCorePath;
-            if (availableCores.length > 0 && coreCombo.currentIndex >= 0)
-                return availableCores[coreCombo.currentIndex];
-            return "";
-        }
-
-        title: pendingRom ? i18n("Select core for \"%1\"", pendingRom.name) : i18n("Select RetroArch core")
-        subtitle: i18n("Platform: %1", platformSlug)
-        standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
-
-        onOpened: {
-            availableCores = launcher.availableCoresForPlatform(platformSlug);
-            customCorePath = "";
-            customCoreField.text = "";
-            coreCombo.currentIndex = availableCores.length > 0 ? 0 : -1;
-        }
-        onClosed: {
-            customCorePath = "";
-            availableCores = [];
-        }
-        onAccepted: {
-            var path = resolvedPath();
-            if (path !== "" && pendingRom !== null) {
-                settingsManager.setRommGameCore(pendingRom.romId, path);
-                if (launchAfterPick)
-                    launcher.launchRom(pendingRom);
-            }
-        }
-
-        ColumnLayout {
-            spacing: Kirigami.Units.smallSpacing
-
-            QQC2.ComboBox {
-                id: coreCombo
-                Layout.fillWidth: true
-                visible: corePickerDialog.availableCores.length > 0
-                model: corePickerDialog.availableCores.map(function (p) {
-                    return p.split("/").pop();
-                })
-                onActivated: {
-                    corePickerDialog.customCorePath = "";
-                    customCoreField.text = "";
-                }
-            }
-
-            Kirigami.InlineMessage {
-                Layout.fillWidth: true
-                visible: corePickerDialog.availableCores.length === 0
-                type: Kirigami.MessageType.Warning
-                text: i18n("No cores found automatically for this platform.")
-            }
-
-            QQC2.Label {
-                text: corePickerDialog.availableCores.length > 0 ? i18n("Or use a custom core:") : i18n("Browse for a core file:")
-                opacity: 0.7
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                QQC2.TextField {
-                    id: customCoreField
-                    Layout.fillWidth: true
-                    placeholderText: i18n("Path to .so core file")
-                    onTextEdited: corePickerDialog.customCorePath = text.trim()
-                }
-                QQC2.Button {
-                    icon.name: "document-open"
-                    onClicked: coreFilePicker.open()
-                }
-            }
-        }
-    }
-
-    FileDialog {
-        id: coreFilePicker
-        title: i18n("Select RetroArch core")
-        nameFilters: [i18n("RetroArch cores (*.so)"), i18n("All files (*)")]
-        onAccepted: {
-            var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
-            corePickerDialog.customCorePath = path;
-            customCoreField.text = path;
         }
     }
 

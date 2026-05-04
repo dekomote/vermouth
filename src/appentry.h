@@ -20,6 +20,7 @@ public:
         Wine,
         Native,
         Steam,
+        Retroarch,
         Count
     };
     Q_ENUM(RuntimeType)
@@ -47,6 +48,8 @@ public:
     QString logoPath;
     int steamGridDbId = 0;
     int steamAppId = 0;
+    QString platformSlug;
+    QString customCorePath;
     QString launchOptions;
     bool enableLogging = false;
 

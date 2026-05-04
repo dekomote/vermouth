@@ -76,6 +76,7 @@ qt_add_qml_module(vermouth
         qml/SettingsDialog.qml
         qml/SteamGridDBPickerDialog.qml
         qml/SteamImportDialog.qml
+        qml/CorePickerDialog.qml
         qml/RommView.qml
     NO_RESOURCE_TARGET_PATH
 )

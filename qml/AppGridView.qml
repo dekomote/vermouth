@@ -39,6 +39,18 @@ GridView {
             currentIndex = -1;
     }
 
+    Connections {
+        target: launcher
+        function onRomCoreMissing(platformSlug, rom) {
+            if (gridView.active) {
+                mainCorePicker.platformSlug = platformSlug;
+                mainCorePicker.pendingRom = rom;
+                mainCorePicker.appIndex = -1;
+                mainCorePicker.open();
+            }
+        }
+    }
+
     TapHandler {
         onTapped: {
             gridView.currentIndex = -1;
@@ -93,9 +105,11 @@ GridView {
         required property string launchOptions
         required property bool enableLogging
         required property int steamAppId
+        required property string platformSlug
+        required property string customCorePath
 
         property bool isSelected: gridView.currentIndex === delegateRoot.index
-        readonly property bool hasPrefix: runtimeType !== "native" && runtimeType !== "steam"
+        readonly property bool hasPrefix: runtimeType === "proton" || runtimeType === "wine"
 
         Rectangle {
             id: cardBg
@@ -122,6 +136,18 @@ GridView {
                 height: 14 * gridView.scaleFactor
                 source: "steam"
                 visible: delegateRoot.runtimeType === "steam"
+                z: 10
+            }
+
+            // ── Retroarch badge ─────────────────────────────────────
+            Kirigami.Icon {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.margins: Kirigami.Units.smallSpacing
+                width: 14 * gridView.scaleFactor
+                height: 14 * gridView.scaleFactor
+                source: "input-gaming"
+                visible: delegateRoot.runtimeType === "retroarch"
                 z: 10
             }
 
@@ -405,6 +431,36 @@ GridView {
                 onTriggered: Qt.openUrlExternally("steam://nav/games/details/" + delegateRoot.steamAppId)
             }
             QQC2.MenuItem {
+                visible: delegateRoot.runtimeType === "retroarch"
+                text: i18n("Change Core…")
+                icon.name: "media-record"
+                onTriggered: {
+                    mainCorePicker.platformSlug = delegateRoot.platformSlug;
+                    mainCorePicker.pendingRom = null;
+                    mainCorePicker.appIndex = delegateRoot.index;
+                    mainCorePicker.launchAfterPick = false;
+                    mainCorePicker.open();
+                }
+            }
+            QQC2.MenuItem {
+                visible: delegateRoot.runtimeType === "retroarch"
+                text: i18n("Copy Launch Command")
+                icon.name: "edit-copy"
+                onTriggered: {
+                    var app = appModel.getApp(delegateRoot.index);
+                    var rom = {
+                        "localRomPath": app.exePath,
+                        "platformSlug": app.platformSlug,
+                        "name": app.name,
+                        "romId": 0,
+                        "customCorePath": app.customCorePath
+                    };
+                    var cmd = launcher.buildRomLaunchCommand(rom);
+                    if (cmd !== "")
+                        launcher.copyToClipboard(cmd);
+                }
+            }
+            QQC2.MenuItem {
                 visible: delegateRoot.runtimeType !== "steam"
                 text: i18n("Launch with logging")
                 icon.name: "text-x-log"
@@ -538,7 +594,7 @@ GridView {
         property var payload
         property string runtimeType: ""
         title: i18n("Delete the app?")
-        subtitle: runtimeType === "native" ? i18n("This will delete the app from the library.") : i18n("This will delete the app but preserve the prefix folder.")
+        subtitle: runtimeType === "native" || runtimeType === "retroarch" || runtimeType === "steam" ? i18n("This will delete the app from the library.") : i18n("This will delete the app but preserve the prefix folder.")
         onAccepted: appModel.removeApp(payload)
         standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
     }

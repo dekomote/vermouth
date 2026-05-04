@@ -32,8 +32,11 @@ const QHash<QString, QStringList> &platformCoreMap()
         {QStringLiteral("genesis"), {QStringLiteral("genesis_plus_gx_libretro.so"), QStringLiteral("picodrive_libretro.so")}},
         {QStringLiteral("mastersystem"),
          {QStringLiteral("genesis_plus_gx_libretro.so"), QStringLiteral("picodrive_libretro.so"), QStringLiteral("smsplus_libretro.so")}},
+        {QStringLiteral("sms"),
+         {QStringLiteral("genesis_plus_gx_libretro.so"), QStringLiteral("picodrive_libretro.so"), QStringLiteral("smsplus_libretro.so")}},
         {QStringLiteral("gamegear"), {QStringLiteral("genesis_plus_gx_libretro.so"), QStringLiteral("smsplus_libretro.so")}},
         {QStringLiteral("sega32x"), {QStringLiteral("picodrive_libretro.so")}},
+        {QStringLiteral("sega32"), {QStringLiteral("picodrive_libretro.so")}},
         {QStringLiteral("segacd"), {QStringLiteral("genesis_plus_gx_libretro.so"), QStringLiteral("picodrive_libretro.so")}},
         {QStringLiteral("sega-saturn"),
          {QStringLiteral("mednafen_saturn_libretro.so"), QStringLiteral("yabause_libretro.so"), QStringLiteral("kronos_libretro.so")}},
@@ -53,6 +56,7 @@ const QHash<QString, QStringList> &platformCoreMap()
         {QStringLiteral("cps3"), {QStringLiteral("fbneo_libretro.so"), QStringLiteral("fbalpha2012_cps3_libretro.so")}},
         {QStringLiteral("neogeo"), {QStringLiteral("fbneo_libretro.so"), QStringLiteral("fbalpha2012_neogeo_libretro.so")}},
         {QStringLiteral("neogeocd"), {QStringLiteral("neocd_libretro.so")}},
+        {QStringLiteral("neogeoaes"), {QStringLiteral("fbneo_libretro.so"), QStringLiteral("geolith_libretro.so")}},
 
         // NEC PC Engine
         {QStringLiteral("pcengine"), {QStringLiteral("beetle_pce_libretro.so"), QStringLiteral("beetle_supergrafx_libretro.so")}},
