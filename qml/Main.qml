@@ -77,6 +77,11 @@ Kirigami.ApplicationWindow {
                 onTriggered: runExeStandaloneDialog.openDialog()
             },
             Kirigami.Action {
+                text: i18n("Import from Steam")
+                icon.name: "steam"
+                onTriggered: steamImportDialog.openDialog()
+            },
+            Kirigami.Action {
                 text: launcher.sleepInhibited ? i18n("Allow Sleep") : i18n("Prevent Sleep")
                 icon.name: launcher.sleepInhibited ? "media-playback-pause" : "system-suspend-inhibited"
                 checkable: true
@@ -233,6 +238,11 @@ Kirigami.ApplicationWindow {
                             text: i18n("Add Linux App/Game")
                             icon.name: "list-add"
                             onTriggered: addDialog.openForNewLinux()
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Import from Steam")
+                            icon.name: "steam"
+                            onTriggered: steamImportDialog.openDialog()
                         }
                     }
 
@@ -506,6 +516,10 @@ Kirigami.ApplicationWindow {
 
     RunExeStandaloneDialog {
         id: runExeStandaloneDialog
+    }
+
+    SteamImportDialog {
+        id: steamImportDialog
     }
 
     Kirigami.PromptDialog {

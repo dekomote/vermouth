@@ -62,9 +62,7 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
     case ExePathRole:
         return e.exePath;
     case RuntimeTypeRole:
-        return e.runtimeType == AppEntry::Proton ? QStringLiteral("proton")
-            : e.runtimeType == AppEntry::Wine    ? QStringLiteral("wine")
-                                                 : QStringLiteral("native");
+        return QString::fromLatin1(AppEntry::runtimeTypeString(e.runtimeType));
     case ProtonPathRole:
         return e.protonPath;
     case ProtonPrefixRole:
@@ -83,6 +81,8 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.logoPath;
     case SteamGridDbIdRole:
         return e.steamGridDbId;
+    case SteamAppIdRole:
+        return e.steamAppId;
     case LaunchOptionsRole:
         return e.launchOptions;
     case EnableLoggingRole:
@@ -107,6 +107,7 @@ QHash<int, QByteArray> AppModel::roleNames() const
         {HeroPathRole, "heroPath"},
         {LogoPathRole, "logoPath"},
         {SteamGridDbIdRole, "steamGridDbId"},
+        {SteamAppIdRole, "steamAppId"},
         {LaunchOptionsRole, "launchOptions"},
         {EnableLoggingRole, "enableLogging"},
     };
@@ -240,6 +241,15 @@ QVariantMap AppModel::getAppByExePath(const QString &exePath) const
         }
     }
     return {};
+}
+
+bool AppModel::hasSteamApp(int appId) const
+{
+    for (const auto &e : m_entries) {
+        if (e.steamAppId == appId && e.steamAppId > 0)
+            return true;
+    }
+    return false;
 }
 
 void AppModel::load()

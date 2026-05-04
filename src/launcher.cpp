@@ -7,6 +7,7 @@
 #include <QDBusReply>
 #include <QDBusUnixFileDescriptor>
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QDir>
 #include <QElapsedTimer>
 #include <QFile>
@@ -18,6 +19,7 @@
 #include <QRegularExpression>
 #include <QScreen>
 #include <QStandardPaths>
+#include <QUrl>
 #include <unistd.h>
 
 static bool isKde()
@@ -352,6 +354,13 @@ void Launcher::launchEntry(const QVariantMap &app)
     }
 
     QString runtimeType = app[QStringLiteral("runtimeType")].toString();
+
+    if (runtimeType == QStringLiteral("steam")) {
+        int steamId = app[QStringLiteral("steamAppId")].toInt();
+        if (steamId > 0)
+            QDesktopServices::openUrl(QUrl(QStringLiteral("steam://rungameid/") + QString::number(steamId)));
+        return;
+    }
 
     if (runtimeType == QStringLiteral("proton")) {
         QString protonPath = app[QStringLiteral("protonPath")].toString();

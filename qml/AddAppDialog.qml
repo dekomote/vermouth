@@ -52,6 +52,7 @@ Kirigami.Dialog {
         heroField.text = "";
         logoField.text = "";
         steamGridDbIdField.text = "";
+        steamIdField.text = "";
         artSection.expanded = false;
         pendingAutoDownload = false;
         autoDownloadingInDialog = false;
@@ -120,6 +121,7 @@ Kirigami.Dialog {
         heroField.text = app.heroPath || "";
         logoField.text = app.logoPath || "";
         steamGridDbIdField.text = app.steamGridDbId > 0 ? app.steamGridDbId.toString() : "";
+        steamIdField.text = app.steamAppId > 0 ? app.steamAppId.toString() : "";
         artSection.expanded = gridField.text !== "" || heroField.text !== "" || logoField.text !== "";
         prefixBasePath = protonScanner.prefixBasePath();
         pendingAutoDownload = false;
@@ -136,7 +138,7 @@ Kirigami.Dialog {
             validationError = i18n("Name is required.");
             return false;
         }
-        if (exeField.text.trim() === "") {
+        if (exeField.text.trim() === "" && runtimePicker.runtimeType !== "steam") {
             validationError = i18n("Executable path is required.");
             return false;
         }
@@ -167,6 +169,7 @@ Kirigami.Dialog {
             "name": nameField.text,
             "exePath": exeField.text,
             "runtimeType": rt,
+            "steamAppId": rt === "steam" ? (steamIdField.text !== "" ? parseInt(steamIdField.text) : 0) : 0,
             "protonPath": protonPath,
             "protonPrefix": protonPrefix,
             "wineBinary": runtimePicker.wineBinary,
@@ -222,6 +225,7 @@ Kirigami.Dialog {
             }
 
             RowLayout {
+                visible: runtimePicker.runtimeType !== "steam"
                 Kirigami.FormData.label: runtimePicker.runtimeType === "native" ? i18n("Executable / AppImage:") : i18n("Executable (.exe):")
                 QQC2.TextField {
                     id: exeField
@@ -231,6 +235,20 @@ Kirigami.Dialog {
                 QQC2.Button {
                     icon.name: "document-open"
                     onClicked: exeFileDialog.open()
+                }
+            }
+
+            RowLayout {
+                visible: runtimePicker.runtimeType === "steam"
+                Kirigami.FormData.label: i18n("Steam App ID:")
+                QQC2.TextField {
+                    id: steamIdField
+                    Layout.fillWidth: true
+                    placeholderText: "730"
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    validator: IntValidator {
+                        bottom: 1
+                    }
                 }
             }
 
@@ -450,12 +468,14 @@ Kirigami.Dialog {
 
             QQC2.TextField {
                 id: launchOptionsField
+                visible: runtimePicker.runtimeType !== "steam"
                 Kirigami.FormData.label: i18n("Launch Options (optional):")
                 placeholderText: i18n("e.g. mangohud %command%")
             }
 
             QQC2.CheckBox {
                 id: enableLoggingCheck
+                visible: runtimePicker.runtimeType !== "steam"
                 text: i18n("Write output to log file")
             }
 

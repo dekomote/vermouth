@@ -92,8 +92,10 @@ GridView {
         required property string logoPath
         required property string launchOptions
         required property bool enableLogging
+        required property int steamAppId
 
         property bool isSelected: gridView.currentIndex === delegateRoot.index
+        readonly property bool hasPrefix: runtimeType !== "native" && runtimeType !== "steam"
 
         Rectangle {
             id: cardBg
@@ -109,6 +111,18 @@ GridView {
                     duration: 120
                     easing.type: Easing.OutCubic
                 }
+            }
+
+            // ── Steam badge ─────────────────────────────────────────
+            Kirigami.Icon {
+                anchors.top: parent.top
+                anchors.left: parent.left
+                anchors.margins: Kirigami.Units.smallSpacing
+                width: 14 * gridView.scaleFactor
+                height: 14 * gridView.scaleFactor
+                source: "steam"
+                visible: delegateRoot.runtimeType === "steam"
+                z: 10
             }
 
             SequentialAnimation {
@@ -385,6 +399,13 @@ GridView {
                 }
             }
             QQC2.MenuItem {
+                visible: delegateRoot.runtimeType === "steam" && delegateRoot.steamAppId > 0
+                text: i18n("View in Steam")
+                icon.name: "steam"
+                onTriggered: Qt.openUrlExternally("steam://nav/games/details/" + delegateRoot.steamAppId)
+            }
+            QQC2.MenuItem {
+                visible: delegateRoot.runtimeType !== "steam"
                 text: i18n("Launch with logging")
                 icon.name: "text-x-log"
                 onTriggered: {
@@ -398,7 +419,7 @@ GridView {
             }
             QQC2.MenuSeparator {}
             QQC2.MenuItem {
-                visible: delegateRoot.runtimeType !== "native"
+                visible: delegateRoot.hasPrefix
                 text: i18n("Run another EXE in this prefix")
                 icon.name: "system-run"
                 onTriggered: {
@@ -407,7 +428,7 @@ GridView {
                 }
             }
             QQC2.MenuSeparator {
-                visible: delegateRoot.runtimeType !== "native"
+                visible: delegateRoot.hasPrefix
             }
             QQC2.MenuItem {
                 text: i18n("Create start menu entry")
@@ -426,7 +447,7 @@ GridView {
                 }
             }
             QQC2.Menu {
-                enabled: delegateRoot.runtimeType !== "native"
+                enabled: delegateRoot.hasPrefix
                 title: i18n("&Wine Utilities")
                 icon.name: "wine"
 
@@ -466,7 +487,7 @@ GridView {
                 onTriggered: Qt.openUrlExternally("file://" + launcher.logDir())
             }
             QQC2.MenuItem {
-                visible: delegateRoot.runtimeType !== "native"
+                visible: delegateRoot.hasPrefix
                 text: i18n("Open prefix folder")
                 icon.name: "folder-open"
                 onTriggered: {
@@ -492,7 +513,7 @@ GridView {
                 }
             }
             QQC2.MenuItem {
-                visible: delegateRoot.runtimeType !== "native"
+                visible: delegateRoot.hasPrefix
                 text: i18n("Remove and Delete Prefix")
                 icon.name: "edit-delete"
                 onTriggered: {

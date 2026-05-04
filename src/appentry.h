@@ -13,8 +13,13 @@ public:
     enum RuntimeType {
         Proton,
         Wine,
-        Native
+        Native,
+        Steam
     };
+    Q_ENUM(RuntimeType)
+
+    static const char *runtimeTypeString(RuntimeType rt);
+    static RuntimeType runtimeTypeFromString(const QString &s);
 
     QString id;
     QString name;
@@ -32,6 +37,7 @@ public:
     QString heroPath;
     QString logoPath;
     int steamGridDbId = 0;
+    int steamAppId = 0;
     QString launchOptions;
     bool enableLogging = false;
 

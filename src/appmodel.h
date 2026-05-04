@@ -24,6 +24,7 @@ public:
         HeroPathRole,
         LogoPathRole,
         SteamGridDbIdRole,
+        SteamAppIdRole,
         LaunchOptionsRole,
         EnableLoggingRole,
     };
@@ -46,6 +47,7 @@ public:
     Q_INVOKABLE QVariantMap getApp(int index) const;
     Q_INVOKABLE QVariantMap getAppById(const QString &id) const;
     Q_INVOKABLE QVariantMap getAppByExePath(const QString &exePath) const;
+    Q_INVOKABLE bool hasSteamApp(int appId) const;
     Q_INVOKABLE void setFilterString(const QString &filter);
     Q_INVOKABLE void
     updateAppArt(const QString &id, const QString &iconPath, const QString &gridPath, const QString &heroPath, const QString &logoPath, int steamGridDbId = 0);

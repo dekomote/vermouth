@@ -8,7 +8,7 @@ ColumnLayout {
     id: root
     spacing: Kirigami.Units.mediumSpacing
 
-    readonly property string runtimeType: runtimeCombo.currentIndex === 0 ? "proton" : runtimeCombo.currentIndex === 1 ? "wine" : "native"
+    readonly property string runtimeType: runtimeCombo.currentValue
     readonly property string protonPath: protonCombo.currentIndex >= 0 && protonCombo.currentIndex < protonModel.count ? protonModel.get(protonCombo.currentIndex).path : ""
     readonly property alias wineBinary: wineBinaryField.text
     property string sectionLabel: i18n("Runtime")
@@ -21,12 +21,11 @@ ColumnLayout {
     }
 
     function setRuntimeType(type) {
-        runtimeCombo.currentIndex = type === "proton" ? 0 : type === "wine" ? 1 : 2;
+        runtimeCombo.currentValue = type;
     }
 
     function loadFromSettings() {
-        var rt = settingsManager.defaultRuntimeType;
-        runtimeCombo.currentIndex = rt === "wine" ? 1 : rt === "native" ? 2 : 0;
+        runtimeCombo.currentValue = settingsManager.defaultRuntimeType;
         wineBinaryField.text = settingsManager.defaultWineBinary;
 
         var pp = settingsManager.defaultProtonPath;
@@ -48,7 +47,7 @@ ColumnLayout {
     }
 
     function loadFromApp(app) {
-        runtimeCombo.currentIndex = app.runtimeType === "proton" ? 0 : app.runtimeType === "wine" ? 1 : 2;
+        runtimeCombo.currentValue = app.runtimeType;
         wineBinaryField.text = app.wineBinary;
         refreshProton();
 
@@ -63,10 +62,10 @@ ColumnLayout {
     }
 
     function validate() {
-        if (runtimeCombo.currentIndex === 0) {
+        if (runtimeCombo.currentValue === "proton") {
             if (protonCombo.currentIndex < 0 || protonCombo.currentIndex >= protonModel.count)
                 return i18n("Please select a Proton version.");
-        } else if (runtimeCombo.currentIndex === 1) {
+        } else if (runtimeCombo.currentValue === "wine") {
             if (wineBinaryField.text.trim() === "")
                 return i18n("Wine binary path is required.");
         }
@@ -99,6 +98,26 @@ ColumnLayout {
         id: protonModel
     }
 
+    ListModel {
+        id: runtimeModel
+        ListElement {
+            key: "proton"
+            label: "Proton"
+        }
+        ListElement {
+            key: "wine"
+            label: "Wine"
+        }
+        ListElement {
+            key: "native"
+            label: "Native"
+        }
+        ListElement {
+            key: "steam"
+            label: "Steam"
+        }
+    }
+
     Connections {
         target: protonDownloader
         function onFinished() {
@@ -118,11 +137,13 @@ ColumnLayout {
         QQC2.ComboBox {
             id: runtimeCombo
             Kirigami.FormData.label: i18n("Runtime:")
-            model: ["Proton", "Wine", "Native"]
+            model: runtimeModel
+            textRole: "label"
+            valueRole: "key"
         }
 
         RowLayout {
-            visible: runtimeCombo.currentIndex === 0
+            visible: runtimeCombo.currentValue === "proton"
             Kirigami.FormData.label: i18n("Proton Version:")
             QQC2.ComboBox {
                 id: protonCombo
@@ -155,7 +176,7 @@ ColumnLayout {
         }
 
         RowLayout {
-            visible: runtimeCombo.currentIndex === 1
+            visible: runtimeCombo.currentValue === "wine"
             Kirigami.FormData.label: i18n("Wine Binary:")
             QQC2.TextField {
                 id: wineBinaryField
