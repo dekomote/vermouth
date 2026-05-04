@@ -1,28 +1,26 @@
 #include "appentry.h"
 
+const RuntimeTypeEntry AppEntry::runtimeTypeTable[] = {
+    {"proton", "Proton"},
+    {"wine", "Wine"},
+    {"native", "Native"},
+    {"steam", "Steam"},
+};
+const int AppEntry::runtimeTypeCount = sizeof(runtimeTypeTable) / sizeof(runtimeTypeTable[0]);
+
 const char *AppEntry::runtimeTypeString(RuntimeType rt)
 {
-    switch (rt) {
-    case Proton:
-        return "proton";
-    case Wine:
-        return "wine";
-    case Native:
-        return "native";
-    case Steam:
-        return "steam";
-    }
+    if (rt >= 0 && rt < Count)
+        return runtimeTypeTable[rt].key;
     return "native";
 }
 
 AppEntry::RuntimeType AppEntry::runtimeTypeFromString(const QString &s)
 {
-    if (s == QStringLiteral("proton"))
-        return Proton;
-    if (s == QStringLiteral("wine"))
-        return Wine;
-    if (s == QStringLiteral("steam"))
-        return Steam;
+    for (int i = 0; i < Count; ++i) {
+        if (s == QLatin1String(runtimeTypeTable[i].key))
+            return static_cast<RuntimeType>(i);
+    }
     return Native;
 }
 

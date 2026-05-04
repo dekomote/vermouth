@@ -98,26 +98,6 @@ ColumnLayout {
         id: protonModel
     }
 
-    ListModel {
-        id: runtimeModel
-        ListElement {
-            key: "proton"
-            label: "Proton"
-        }
-        ListElement {
-            key: "wine"
-            label: "Wine"
-        }
-        ListElement {
-            key: "native"
-            label: "Native"
-        }
-        ListElement {
-            key: "steam"
-            label: "Steam"
-        }
-    }
-
     Connections {
         target: protonDownloader
         function onFinished() {

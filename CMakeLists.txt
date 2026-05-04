@@ -53,6 +53,7 @@ qt_add_executable(vermouth
     src/steamgriddb.cpp
     src/steamlibrary.cpp
     src/steammodel.cpp
+    src/runtimetypemodel.cpp
     src/rommclient.cpp
     src/rommcovercache.cpp
     src/rommmodel.cpp

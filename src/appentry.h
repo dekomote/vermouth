@@ -6,6 +6,11 @@
 #include <QUuid>
 #include <QVariantMap>
 
+struct RuntimeTypeEntry {
+    const char *key;
+    const char *label;
+};
+
 class AppEntry
 {
     Q_GADGET
@@ -14,9 +19,13 @@ public:
         Proton,
         Wine,
         Native,
-        Steam
+        Steam,
+        Count
     };
     Q_ENUM(RuntimeType)
+
+    static const RuntimeTypeEntry runtimeTypeTable[];
+    static const int runtimeTypeCount;
 
     static const char *runtimeTypeString(RuntimeType rt);
     static RuntimeType runtimeTypeFromString(const QString &s);
