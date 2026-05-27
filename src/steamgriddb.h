@@ -23,6 +23,7 @@ public:
     }
 
     Q_INVOKABLE void searchGames(const QString &query, const QString &apiKey);
+    Q_INVOKABLE void autoDownloadFromBottles(const QString &gameName, const QString &assetsPath);
     Q_INVOKABLE void fetchGrids(int gameId, const QString &apiKey);
     Q_INVOKABLE void fetchHeroes(int gameId, const QString &apiKey);
     Q_INVOKABLE void fetchIcons(int gameId, const QString &apiKey);
@@ -51,6 +52,7 @@ private:
     void setBusy(bool busy);
     void setStatusText(const QString &text);
     void makeRequest(const QUrl &url, const QString &apiKey, const std::function<void(const QJsonArray &)> &callback);
+    void fetchBottlesArt(const QString &gameName, std::function<void(const QString &)> callback);
     void fetchArt(int gameId,
                   const QString &apiKey,
                   const QString &type,

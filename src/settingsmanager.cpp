@@ -219,7 +219,7 @@ void SettingsManager::setSteamGridDbApiKey(const QString &key)
 
 bool SettingsManager::autoDownloadArt() const
 {
-    return m_settings.value(QStringLiteral("autoDownloadArt"), false).toBool();
+    return m_settings.value(QStringLiteral("autoDownloadArt"), true).toBool();
 }
 
 void SettingsManager::setAutoDownloadArt(bool enabled)
