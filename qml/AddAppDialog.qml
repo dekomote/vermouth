@@ -36,7 +36,12 @@ Kirigami.Dialog {
     property string autoDownloadTargetId: ""
     property bool pendingAutoDownload: false
     property bool autoDownloadingInDialog: false
+    property bool pendingInstallerRun: false
     property string autoDownloadStatus: ""
+    property string installerExePath: ""
+    property bool installerRunning: false
+    property int installerPid: 0
+    property string installerPrefixPath: ""
 
     function openForNew() {
         editMode = false;
@@ -56,6 +61,7 @@ Kirigami.Dialog {
         platformCombo.currentIndex = -1;
         artSection.expanded = false;
         pendingAutoDownload = false;
+        dialog.pendingInstallerRun = false;
         autoDownloadingInDialog = false;
         autoDownloadStatus = "";
         runtimePicker.reset();
@@ -89,6 +95,39 @@ Kirigami.Dialog {
             winePrefixField.text = resolvePrefix("wine");
     }
 
+    function cleanupInstaller() {
+        dialog.pendingInstallerRun = false;
+        dialog.installerPrefixPath = "";
+        dialog.installerRunning = false;
+    }
+
+    function runInstallerInPrefix() {
+        if (!["proton", "wine"].includes(runtimePicker.runtimeType))
+            return;
+        dialog.pendingInstallerRun = true;
+        dialog.installerRunning = true;
+
+        let resolvedPrefix = resolvePrefix();
+        dialog.installerPrefixPath = resolvedPrefix;
+
+        dialog.installerPid = launcher.runInPrefix({
+            name: nameField.text,
+            runtimeType: runtimePicker.runtimeType,
+            protonPath: runtimePicker.protonPath,
+            protonPrefix: resolvedPrefix,
+            wineBinary: runtimePicker.wineBinary,
+            winePrefix: resolvedPrefix,
+            launchOptions: "",
+            enableLogging: false
+        }, dialog.installerExePath);
+
+        if (dialog.installerPid <= 0) {
+            dialog.validationError = i18n("Failed to start installer.");
+            dialog.cleanupInstaller();
+            return;
+        }
+    }
+
     function openForNewWithExe(exePath) {
         openForNew();
         if (!/\.exe$/i.test(exePath))
@@ -118,6 +157,7 @@ Kirigami.Dialog {
         pendingAutoDownload = false;
         autoDownloadingInDialog = false;
         autoDownloadStatus = "";
+        installerExePath = "";
         runtimePicker.loadFromApp(app);
         dialog.open();
     }
@@ -147,6 +187,7 @@ Kirigami.Dialog {
     }
 
     function resolvePrefix(runtimeType) {
+        runtimeType = typeof runtimeType !== "undefined" && runtimeType !== null ? runtimeType : runtimePicker.runtimeType;
         var defaultPrefix = runtimeType === "wine" ? settingsManager.defaultWinePrefix : settingsManager.defaultGamePrefix;
         var basePath = runtimeType === "wine" ? protonScanner.winePrefixBasePath() : dialog.prefixBasePath;
         return defaultPrefix !== "" ? defaultPrefix : basePath + "/" + nameField.text.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
@@ -233,6 +274,25 @@ Kirigami.Dialog {
                 QQC2.ToolButton {
                     icon.name: "document-open"
                     onClicked: runtimePicker.runtimeType === "retroarch" ? romFileDialog.open() : exeFileDialog.open()
+                }
+                QQC2.ToolButton {
+                    visible: runtimePicker.runtimeType === "wine" || runtimePicker.runtimeType === "proton"
+                    enabled: nameField.text.trim() !== "" && !dialog.installerRunning && runtimePicker.runtimeType !== "" && runtimePicker.protonPath !== ""
+                    icon.name: dialog.installerRunning ? "content-loading-symbolic" : "system-run"
+                    QQC2.ToolTip.text: {
+                        if (nameField.text.trim() === "")
+                            return i18n("Please enter the game name before running an installer");
+                        if (dialog.installerRunning)
+                            return i18n("Installing...");
+                        if (runtimePicker.runtimeType !== "proton")
+                            return i18n("Select Proton runtime first");
+                        if (runtimePicker.protonPath === "")
+                            return i18n("Select a Proton version first");
+                        return i18n("Run installer in prefix");
+                    }
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                    onClicked: installerFileDialog.open()
                 }
             }
 
@@ -529,6 +589,22 @@ Kirigami.Dialog {
     }
 
     FileDialog {
+        id: installerFileDialog
+        title: i18n("Select installer (exe)")
+        currentFolder: "file://" + protonScanner.homePath()
+        nameFilters: [i18n("Executables (*.exe)"), i18n("All files (*)")]
+
+        onAccepted: {
+            dialog.installerExePath = decodeURIComponent(selectedFile.toString().replace("file://", ""));
+            dialog.cleanupInstaller();
+            dialog.runInstallerInPrefix();
+        }
+        onRejected: {
+            dialog.cleanupInstaller();
+        }
+    }
+
+    FileDialog {
         id: romFileDialog
         title: i18n("Select ROM")
         currentFolder: "file://" + protonScanner.homePath()
@@ -641,6 +717,47 @@ Kirigami.Dialog {
         function onAutoDownloadProgress(step) {
             if (dialog.autoDownloadingInDialog)
                 dialog.autoDownloadStatus = step;
+        }
+    }
+
+    Connections {
+        target: launcher
+        function onRunningExePathsChanged() {
+            if (!dialog.installerRunning || dialog.installerExePath === "")
+                return;
+
+            let installerFinished = false;
+
+            if (dialog.installerPid && dialog.installerPid > 0) {
+                let currentPid = launcher.runningPidForExe(dialog.installerExePath);
+                if (currentPid !== dialog.installerPid)
+                    installerFinished = true;
+            } else {
+                let stillRunning = launcher.runningExePaths.indexOf(dialog.installerExePath) >= 0;
+                if (!stillRunning)
+                    installerFinished = true;
+            }
+
+            if (!installerFinished)
+                return;
+
+            dialog.installerRunning = false;
+            dialog.installerExePath = "";
+            dialog.installerPid = 0;
+
+            // Fill the prefix field with the prefix used for installation
+            if (dialog.installerPrefixPath !== "") {
+                if (runtimePicker.runtimeType === "proton")
+                    protonPrefixField.text = dialog.installerPrefixPath;
+                else if (runtimePicker.runtimeType === "wine")
+                    winePrefixField.text = dialog.installerPrefixPath;
+                
+                // Open exe picker starting in the prefix folder
+                exeFileDialog.currentFolder = "file://" + dialog.installerPrefixPath;
+                exeFileDialog.open();
+            }
+
+            dialog.cleanupInstaller();
         }
     }
 }

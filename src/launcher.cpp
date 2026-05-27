@@ -272,14 +272,14 @@ static QString shellQuote(const QString &s)
     return QLatin1Char('\'') + quoted + QLatin1Char('\'');
 }
 
-void Launcher::launch(const QString &binary,
-                      const QStringList &baseArgs,
-                      const QString &exePath,
-                      const QProcessEnvironment &env,
-                      const QString &launchOptions,
-                      bool enableLogging,
-                      const QString &logName,
-                      bool appendExe)
+qint64 Launcher::launch(const QString &binary,
+                        const QStringList &baseArgs,
+                        const QString &exePath,
+                        const QProcessEnvironment &env,
+                        const QString &launchOptions,
+                        bool enableLogging,
+                        const QString &logName,
+                        bool appendExe)
 {
     auto *proc = new QProcess(this);
     auto *timer = new QElapsedTimer();
@@ -339,12 +339,15 @@ void Launcher::launch(const QString &binary,
         Q_EMIT runningExePathsChanged();
         Q_EMIT launchError(exePath, proc->errorString());
         proc->deleteLater();
+        return -1;
     } else {
         Q_EMIT launched(exePath);
+        qint64 pid = static_cast<qint64>(proc->processId());
+        return pid;
     }
 }
 
-void Launcher::launchEntry(const QVariantMap &app)
+qint64 Launcher::launchEntry(const QVariantMap &app)
 {
     QString exePath = app[QStringLiteral("exePath")].toString();
     QString opts = app[QStringLiteral("launchOptions")].toString();
@@ -370,7 +373,7 @@ void Launcher::launchEntry(const QVariantMap &app)
         int steamId = app[QStringLiteral("steamAppId")].toInt();
         if (steamId > 0)
             QDesktopServices::openUrl(QUrl(QStringLiteral("steam://rungameid/") + QString::number(steamId)));
-        return;
+        return -1;
     }
 
     if (runtimeType == QStringLiteral("retroarch")) {
@@ -383,7 +386,7 @@ void Launcher::launchEntry(const QVariantMap &app)
         rom[QStringLiteral("customCorePath")] = customCore;
         rom[QStringLiteral("romId")] = 0;
         launchRom(rom, logging, opts);
-        return;
+        return -1;
     }
 
     if (runtimeType == QStringLiteral("proton")) {
@@ -401,11 +404,11 @@ void Launcher::launchEntry(const QVariantMap &app)
             env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
             env.insert(QStringLiteral("GAMEID"), QStringLiteral("0"));
             env.insert(QStringLiteral("WINEPREFIX"), prefix);
-            launch(umoBin, {}, exePath, env, opts, logging, name);
+            return launch(umoBin, {}, exePath, env, opts, logging, name);
         } else {
             env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
             env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
-            launch(protonPath + QStringLiteral("/proton"), {QStringLiteral("run")}, exePath, env, opts, logging, name);
+            return launch(protonPath + QStringLiteral("/proton"), {QStringLiteral("run")}, exePath, env, opts, logging, name);
         }
     } else if (runtimeType == QStringLiteral("native")) {
         QString binary = exePath;
@@ -434,15 +437,16 @@ void Launcher::launchEntry(const QVariantMap &app)
         if (!exePath.endsWith(QStringLiteral(".desktop"), Qt::CaseInsensitive) && !fi.isExecutable())
             QFile::setPermissions(binary, fi.permissions() | QFileDevice::ExeOwner | QFileDevice::ExeGroup | QFileDevice::ExeOther);
         env.insert(QStringLiteral("APPIMAGE"), exePath);
-        launch(binary, baseArgs, exePath, env, opts, logging, name, false);
+        return launch(binary, baseArgs, exePath, env, opts, logging, name, false);
     } else {
         QString prefix = app[QStringLiteral("winePrefix")].toString();
         if (!prefix.isEmpty()) {
             QDir().mkpath(prefix);
             env.insert(QStringLiteral("WINEPREFIX"), prefix);
         }
-        launch(app[QStringLiteral("wineBinary")].toString(), {}, exePath, env, opts, logging, name);
+        return launch(app[QStringLiteral("wineBinary")].toString(), {}, exePath, env, opts, logging, name);
     }
+    return -1;
 }
 
 void Launcher::stopEntry(const QVariantMap &app)
@@ -452,11 +456,11 @@ void Launcher::stopEntry(const QVariantMap &app)
         proc->terminate();
 }
 
-void Launcher::runInPrefix(const QVariantMap &app, const QString &exePath)
+qint64 Launcher::runInPrefix(const QVariantMap &app, const QString &exePath)
 {
     QVariantMap copy = app;
     copy[QStringLiteral("exePath")] = exePath;
-    launchEntry(copy);
+    return launchEntry(copy);
 }
 
 void Launcher::runWinecfg(const QVariantMap &app)
@@ -512,6 +516,14 @@ void Launcher::runWinetricks(const QVariantMap &app)
         Q_EMIT launchError(QStringLiteral("winetricks"), proc->errorString());
         proc->deleteLater();
     }
+}
+
+qint64 Launcher::runningPidForExe(const QString &exePath) const
+{
+    QProcess *proc = m_runningProcesses.value(exePath, nullptr);
+    if (!proc)
+        return -1;
+    return static_cast<qint64>(proc->processId());
 }
 
 bool Launcher::isWinetricksAvailable() const
