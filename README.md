@@ -244,13 +244,21 @@ cd packaging && makepkg -si
 
 ### Flatpak
 
+Install it from [flathub](https://flathub.org/en/apps/com.dekomote.vermouth)
+
+```bash
+flatpak install com.dekomote.vermouth
+```
+
+or
+
 Download the latest flatpak package from the [releases page](https://github.com/dekomote/vermouth/releases/latest).
 
 ```bash
 flatpak install ./vermouth-*.flatpak
 ```
 
-> **Note:** The Flatpak sandbox requires manual filesystem permissions to access your games and Steam installation. See [Flatpak Notes](#flatpak-notes).
+> **Note:** The Flatpak sandbox restricts filesystem access to your home directory. If your games or Steam live elsewhere, you'll need to grant additional permissions. See [Flatpak Notes](#flatpak-notes).
 
 ### AppImage
 
@@ -309,13 +317,11 @@ Games are stored in `~/.config/vermouth/apps.json`. When umu-launcher is availab
 
 ## Flatpak Notes
 
-When running Vermouth as a Flatpak, it is sandboxed and cannot access your filesystem by default. You need to grant it access to the folder(s) containing your games using [Flatseal](https://flathub.org/apps/com.github.tchx84.Flatseal) or your desktop environment's application permissions settings. Add the relevant paths under **Filesystem** permissions.
-
-To detect Proton versions from your Steam installation, add `~/.steam:ro` and `~/.local/share/Steam:ro`.
+When running Vermouth as a Flatpak, it is sandboxed and only has access to your home directory by default. If your games are stored outside your home folder, grant filesystem access using [Flatseal](https://flathub.org/apps/com.github.tchx84.Flatseal) or your desktop environment's application permissions settings. Add the relevant paths under **Filesystem** permissions.
 
 To create desktop shortcuts for your games, add `xdg-desktop` to filesystem permissions.
 
-HDR toggle doesn't work on flathub, as it requires very broad access to the operating system.
+HDR toggle is disabled on the flatpak version for now.
 
 ---
 
