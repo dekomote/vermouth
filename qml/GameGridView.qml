@@ -6,7 +6,7 @@ GridView {
     id: gridView
 
     property real scaleFactor: 1.0
-    property string viewType: "icon"
+    property string viewType: "grid"
     property bool showNames: true
     property bool active: true
     property bool lightsOut: false

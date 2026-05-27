@@ -280,6 +280,11 @@ void SteamGridDB::autoDownloadAll(const QString &gameName, const QString &assets
     if (m_autoBusy)
         return;
 
+    if (apiKey.isEmpty()) {
+        autoDownloadFromBottles(gameName, assetsPath);
+        return;
+    }
+
     initAutoDownload(gameName, assetsPath, apiKey);
     Q_EMIT autoDownloadProgress(tr("Searching…"));
 
@@ -298,6 +303,11 @@ void SteamGridDB::autoDownloadAllBySteamId(int steamId, const QString &gameName,
 {
     if (m_autoBusy || steamId <= 0)
         return;
+
+    if (apiKey.isEmpty()) {
+        autoDownloadFromBottles(gameName, assetsPath);
+        return;
+    }
 
     initAutoDownload(gameName, assetsPath, apiKey);
     Q_EMIT autoDownloadProgress(tr("Looking up game…"));
@@ -389,4 +399,65 @@ void SteamGridDB::autoFinish()
     m_autoBusy = false;
     Q_EMIT autoDownloadingChanged();
     Q_EMIT autoDownloadFinished(m_autoGameId, m_autoIconPath, m_autoGridPath, m_autoHeroPath, m_autoLogoPath);
+}
+
+void SteamGridDB::fetchBottlesArt(const QString &gameName, std::function<void(const QString &)> callback)
+{
+    QUrl url(QStringLiteral("https://steamgrid.usebottles.com/api/search/%1").arg(QString::fromUtf8(QUrl::toPercentEncoding(gameName))));
+
+    QNetworkRequest req(url);
+    req.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("Vermouth"));
+
+    auto *reply = m_nam.get(req);
+    connect(reply, &QNetworkReply::finished, this, [this, reply, callback]() {
+        reply->deleteLater();
+        if (reply->error() != QNetworkReply::NoError) {
+            setBusy(false);
+            callback(QString());
+            return;
+        }
+        auto raw = QString::fromUtf8(reply->readAll()).trimmed();
+        if (raw.size() >= 2 && raw.startsWith(QLatin1Char('"')) && raw.endsWith(QLatin1Char('"')))
+            raw = raw.mid(1, raw.size() - 2);
+        callback(raw);
+    });
+}
+
+void SteamGridDB::autoDownloadFromBottles(const QString &gameName, const QString &assetsPath)
+{
+    if (m_autoBusy)
+        return;
+
+    m_autoBusy = true;
+    Q_EMIT autoDownloadingChanged();
+    m_autoAssetsPath = assetsPath;
+    m_autoSafeName = QString(gameName).replace(QRegularExpression(QStringLiteral("[^a-zA-Z0-9_-]")), QStringLiteral("_")).toLower();
+    m_autoGameId = 0;
+    m_autoIconPath.clear();
+    m_autoGridPath.clear();
+    m_autoHeroPath.clear();
+    m_autoLogoPath.clear();
+
+    Q_EMIT autoDownloadProgress(tr("Searching cover art…"));
+
+    // Fetch grid only — use same image for both grid and hero
+    fetchBottlesArt(m_autoSafeName, [this](const QString &imgUrl) {
+        if (imgUrl.isEmpty()) {
+            m_autoBusy = false;
+            Q_EMIT autoDownloadingChanged();
+            Q_EMIT autoDownloadFinished(0, QString(), QString(), QString(), QString());
+            return;
+        }
+        autoDownloadFile(imgUrl, QStringLiteral("grid"), [this](const QString &gridPath) {
+            m_autoGridPath = gridPath;
+            // Copy grid as hero
+            QString ext = gridPath.section(QLatin1Char('.'), -1);
+            m_autoHeroPath = m_autoAssetsPath + QLatin1Char('/') + m_autoSafeName + QStringLiteral("_hero.") + ext;
+            QFile::copy(gridPath, m_autoHeroPath);
+
+            m_autoBusy = false;
+            Q_EMIT autoDownloadingChanged();
+            Q_EMIT autoDownloadFinished(0, QString(), m_autoGridPath, m_autoHeroPath, QString());
+        });
+    });
 }

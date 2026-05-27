@@ -227,7 +227,7 @@ Kirigami.Dialog {
             appModel.addApp(app);
         }
 
-        if (!editMode && settingsManager.autoDownloadArt && settingsManager.steamGridDbApiKey !== "") {
+        if (!editMode && settingsManager.autoDownloadArt) {
             var saved = appModel.getAppByExePath(exeField.text);
             if (saved.id) {
                 autoDownloadTargetId = saved.id;
@@ -751,7 +751,7 @@ Kirigami.Dialog {
                     protonPrefixField.text = dialog.installerPrefixPath;
                 else if (runtimePicker.runtimeType === "wine")
                     winePrefixField.text = dialog.installerPrefixPath;
-                
+
                 // Open exe picker starting in the prefix folder
                 exeFileDialog.currentFolder = "file://" + dialog.installerPrefixPath;
                 exeFileDialog.open();

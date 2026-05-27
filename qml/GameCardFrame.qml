@@ -172,27 +172,45 @@ Item {
 
             Rectangle {
                 anchors.fill: parent
-                visible: artImage.source === ""
-                color: Kirigami.Theme.alternateBackgroundColor
+                visible: frameRoot.artSource == ""
 
-                Image {
-                    anchors.centerIn: parent
-                    width: 48 * frameRoot.gv.scaleFactor
-                    height: 48 * frameRoot.gv.scaleFactor
-                    source: frameRoot.iconFallback
-                    fillMode: Image.PreserveAspectFit
-                    asynchronous: true
-                    mipmap: true
-                    visible: frameRoot.iconFallback !== ""
-                    sourceSize: Qt.size(96, 96)
+                gradient: Gradient {
+                    GradientStop {
+                        position: 0.0
+                        color: Qt.darker(Kirigami.Theme.alternateBackgroundColor, 1.1)
+                    }
+                    GradientStop {
+                        position: 1.0
+                        color: Kirigami.Theme.alternateBackgroundColor
+                    }
                 }
-                QQC2.Label {
+
+                ColumnLayout {
                     anchors.centerIn: parent
-                    visible: frameRoot.iconFallback === ""
-                    text: frameRoot.displayName.charAt(0).toUpperCase()
-                    font.pixelSize: 28 * frameRoot.gv.scaleFactor
-                    font.bold: true
-                    color: Kirigami.Theme.highlightColor
+                    anchors.margins: Kirigami.Units.largeSpacing
+                    spacing: Kirigami.Units.smallSpacing
+                    width: parent.width - Kirigami.Units.largeSpacing * 2
+
+                    Image {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.preferredWidth: 48 * frameRoot.gv.scaleFactor
+                        Layout.preferredHeight: 48 * frameRoot.gv.scaleFactor
+                        source: frameRoot.iconFallback
+                        fillMode: Image.PreserveAspectFit
+                        asynchronous: true
+                        mipmap: true
+                        visible: frameRoot.iconFallback !== ""
+                        sourceSize: Qt.size(96, 96)
+                    }
+                    QQC2.Label {
+                        Layout.alignment: Qt.AlignHCenter
+                        visible: frameRoot.iconFallback === ""
+                        text: frameRoot.displayName.charAt(0).toUpperCase()
+                        font.pixelSize: 36 * frameRoot.gv.scaleFactor
+                        font.bold: true
+                        color: Kirigami.Theme.highlightColor
+                        opacity: 0.4
+                    }
                 }
             }
 

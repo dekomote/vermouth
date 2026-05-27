@@ -70,6 +70,7 @@ qt_add_qml_module(vermouth
     RESOURCE_PREFIX /qt/qml
     QML_FILES
         qml/Main.qml
+        qml/WelcomeScreen.qml
         qml/AddAppDialog.qml
         qml/GameGridView.qml
         qml/AppGridView.qml
