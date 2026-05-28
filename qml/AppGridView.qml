@@ -165,20 +165,25 @@ GameGridView {
                 visible: cardFrame.hasPrefix
                 height: visible ? implicitHeight : 0
             }
-            QQC2.MenuItem {
-                text: i18n("Create start menu entry")
+            QQC2.Menu {
+                title: i18n("Create shortcut")
                 icon.name: "application-menu"
-                onTriggered: {
-                    var app = appModel.getApp(cardFrame.index);
-                    desktopWriter.createStartMenuEntry(app);
+
+                QQC2.MenuItem {
+                    text: i18n("Create start menu entry")
+                    icon.name: "application-menu"
+                    onTriggered: {
+                        var app = appModel.getApp(cardFrame.index);
+                        desktopWriter.createStartMenuEntry(app);
+                    }
                 }
-            }
-            QQC2.MenuItem {
-                text: i18n("Create desktop shortcut")
-                icon.name: "user-desktop"
-                onTriggered: {
-                    var app = appModel.getApp(cardFrame.index);
-                    desktopWriter.createDesktopShortcut(app);
+                QQC2.MenuItem {
+                    text: i18n("Create desktop shortcut")
+                    icon.name: "user-desktop"
+                    onTriggered: {
+                        var app = appModel.getApp(cardFrame.index);
+                        desktopWriter.createDesktopShortcut(app);
+                    }
                 }
             }
             QQC2.Menu {
@@ -216,22 +221,39 @@ GameGridView {
                 }
             }
             QQC2.MenuSeparator {}
-            QQC2.MenuItem {
-                text: i18n("Open log folder")
+            QQC2.Menu {
+                title: i18n("Folders")
                 icon.name: "folder-open"
-                onTriggered: Qt.openUrlExternally("file://" + launcher.logDir())
-            }
-            QQC2.MenuItem {
-                visible: cardFrame.hasPrefix
-                height: visible ? implicitHeight : 0
-                text: i18n("Open prefix folder")
-                icon.name: "folder-open"
-                onTriggered: {
-                    var prefix = cardFrame.runtimeType === "proton" ? cardFrame.protonPrefix : cardFrame.winePrefix;
-                    if (prefix !== "")
-                        Qt.openUrlExternally("file://" + prefix);
+
+                QQC2.MenuItem {
+                    visible: cardFrame.runtimeType !== "steam"
+                    height: visible ? implicitHeight : 0
+                    text: i18n("Open install folder")
+                    icon.name: "folder-open"
+                    onTriggered: {
+                        var exePath = cardFrame.exePath;
+                        var lastSlash = exePath.lastIndexOf('/');
+                        var dir = lastSlash > 0 ? exePath.substring(0, lastSlash) : exePath;
+                        Qt.openUrlExternally("file://" + dir);
+                    }
                 }
-                enabled: (cardFrame.runtimeType === "proton" ? cardFrame.protonPrefix : cardFrame.winePrefix) !== ""
+                QQC2.MenuItem {
+                    text: i18n("Open log folder")
+                    icon.name: "folder-open"
+                    onTriggered: Qt.openUrlExternally("file://" + launcher.logDir())
+                }
+                QQC2.MenuItem {
+                    visible: cardFrame.hasPrefix
+                    height: visible ? implicitHeight : 0
+                    text: i18n("Open prefix folder")
+                    icon.name: "folder-open"
+                    onTriggered: {
+                        var prefix = cardFrame.runtimeType === "proton" ? cardFrame.protonPrefix : cardFrame.winePrefix;
+                        if (prefix !== "")
+                            Qt.openUrlExternally("file://" + prefix);
+                    }
+                    enabled: (cardFrame.runtimeType === "proton" ? cardFrame.protonPrefix : cardFrame.winePrefix) !== ""
+                }
             }
             QQC2.MenuSeparator {}
             QQC2.MenuItem {
