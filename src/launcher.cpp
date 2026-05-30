@@ -286,6 +286,8 @@ void Launcher::launchRom(const QVariantMap &rom, bool enableLogging, const QStri
         return;
     }
 
+    if (m_retroarchBinary.isEmpty())
+        m_retroarchBinary = detectRetroarchPath();
     if (m_retroarchBinary.isEmpty()) {
         Q_EMIT launchError(name, QStringLiteral("RetroArch not found. Install it or set its path in Settings."));
         return;

@@ -296,7 +296,10 @@ GameGridView {
         property var payload
         title: i18n("Delete both app and prefix?")
         subtitle: i18n("This will delete both the app and the prefix?")
-        onAccepted: appModel.removeAndCleanApp(payload)
+        onAccepted: {
+            desktopWriter.removeShortcuts(appModel.getApp(payload));
+            appModel.removeAndCleanApp(payload);
+        }
         standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
     }
 
@@ -306,7 +309,10 @@ GameGridView {
         property string runtimeType: ""
         title: i18n("Delete the app?")
         subtitle: runtimeType === "native" || runtimeType === "retroarch" || runtimeType === "steam" ? i18n("This will delete the app from the library.") : i18n("This will delete the app but preserve the prefix folder.")
-        onAccepted: appModel.removeApp(payload)
+        onAccepted: {
+            desktopWriter.removeShortcuts(appModel.getApp(payload));
+            appModel.removeApp(payload);
+        }
         standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
     }
 
