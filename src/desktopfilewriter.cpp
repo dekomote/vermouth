@@ -39,8 +39,10 @@ bool DesktopFileWriter::writeDesktopFile(const QString &filePath, const QVariant
     out << QStringLiteral("Exec=") << exec << QStringLiteral("\n");
     out << QStringLiteral("Terminal=false\n");
     out << QStringLiteral("Categories=Game;\n");
-    if (!app[QStringLiteral("iconPath")].toString().isEmpty())
-        out << QStringLiteral("Icon=") << app[QStringLiteral("iconPath")].toString() << QStringLiteral("\n");
+    QString icon = app[QStringLiteral("iconPath")].toString();
+    if (icon.isEmpty())
+        icon = QStringLiteral("com.dekomote.vermouth");
+    out << QStringLiteral("Icon=") << icon << QStringLiteral("\n");
     out << QStringLiteral("Comment=Launched via Vermouth\n");
 
     f.close();
