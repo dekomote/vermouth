@@ -319,9 +319,8 @@ Games are stored in `~/.config/vermouth/apps.json`. When umu-launcher is availab
 
 When running Vermouth as a Flatpak, it is sandboxed and only has access to your home directory by default. If your games are stored outside your home folder, grant filesystem access using [Flatseal](https://flathub.org/apps/com.github.tchx84.Flatseal) or your desktop environment's application permissions settings. Add the relevant paths under **Filesystem** permissions.
 
-To create desktop shortcuts for your games, add `xdg-desktop` to filesystem permissions.
 
-HDR toggle is disabled on the flatpak version for now.
+HDR toggle on KDE requires the `org.freedesktop.Flatpak` talk permission — see [Flatpak RetroArch](#flatpak-retroarch) below for how to grant it.
 
 ### Flatpak RetroArch
 
