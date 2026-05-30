@@ -67,16 +67,15 @@ Q_SIGNALS:
 
 private:
     qint64 launch(const QString &binary,
-                const QStringList &baseArgs,
-                const QString &exePath,
-                const QProcessEnvironment &env,
-                const QString &launchOptions,
-                bool enableLogging,
-                const QString &logName,
-                bool appendExe = true);
+                  const QStringList &baseArgs,
+                  const QString &exePath,
+                  const QProcessEnvironment &env,
+                  const QString &launchOptions,
+                  bool enableLogging,
+                  const QString &logName,
+                  bool appendExe = true);
     void setupLogging(QProcess *proc, const QString &name);
     void refreshHdrState();
-    QString resolveRetroarchBinary() const;
     void cacheRetroarchBinary();
     QString autoDetectCore(const QString &platformSlug) const;
     QString m_logDir;

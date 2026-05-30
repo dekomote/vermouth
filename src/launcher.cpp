@@ -85,31 +85,38 @@ void Launcher::setRommGameCoreMap(const QVariantMap &map)
     m_rommGameCoreMap = map;
 }
 
-QString Launcher::resolveRetroarchBinary() const
-{
-    if (!m_retroarchPath.isEmpty() && QFileInfo::exists(m_retroarchPath))
-        return m_retroarchPath;
-
-    QString found = QStandardPaths::findExecutable(QStringLiteral("retroarch"));
-    if (!found.isEmpty())
-        return found;
-
-    // Check if RetroArch is installed as a flatpak
-    QProcess check;
-    check.start(QStringLiteral("flatpak"), {QStringLiteral("info"), QStringLiteral("org.libretro.RetroArch")});
-    check.waitForFinished(3000);
-    if (check.exitCode() == 0)
-        return QStringLiteral("flatpak:org.libretro.RetroArch");
-
-    return {};
-}
-
 void Launcher::cacheRetroarchBinary()
 {
     if (!m_retroarchPath.isEmpty() && QFileInfo::exists(m_retroarchPath)) {
         m_retroarchBinary = m_retroarchPath;
         return;
     }
+
+    if (isInsideFlatpak()) {
+        auto *which = new QProcess(this);
+        connect(which, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, which](int exitCode) {
+            if (exitCode == 0) {
+                const QString found = QString::fromUtf8(which->readAllStandardOutput()).trimmed();
+                if (!found.isEmpty()) {
+                    m_retroarchBinary = found;
+                    which->deleteLater();
+                    return;
+                }
+            }
+            auto *info = new QProcess(this);
+            connect(info, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, info](int exitCode) {
+                if (exitCode == 0)
+                    m_retroarchBinary = QStringLiteral("flatpak:org.libretro.RetroArch");
+                info->deleteLater();
+            });
+            info->start(QStringLiteral("flatpak-spawn"),
+                        {QStringLiteral("--host"), QStringLiteral("flatpak"), QStringLiteral("info"), QStringLiteral("org.libretro.RetroArch")});
+            which->deleteLater();
+        });
+        which->start(QStringLiteral("flatpak-spawn"), {QStringLiteral("--host"), QStringLiteral("which"), QStringLiteral("retroarch")});
+        return;
+    }
+
     QString found = QStandardPaths::findExecutable(QStringLiteral("retroarch"));
     if (!found.isEmpty()) {
         m_retroarchBinary = found;
@@ -127,28 +134,45 @@ void Launcher::cacheRetroarchBinary()
 
 QString Launcher::autoDetectCore(const QString &platformSlug) const
 {
-    QStringList candidates = platformCoreMap().value(platformSlug);
-    if (candidates.isEmpty())
-        return {};
-    for (const QString &dir : retroarchCoreDirs(m_retroarchBinary)) {
-        for (const QString &core : candidates) {
-            QString path = dir + QLatin1Char('/') + core;
-            if (QFileInfo::exists(path))
-                return path;
-        }
-    }
-    return {};
+    const QStringList cores = availableCoresForPlatform(platformSlug);
+    return cores.isEmpty() ? QString() : cores.constFirst();
 }
 
 QStringList Launcher::availableCoresForPlatform(const QString &platformSlug) const
 {
     QStringList candidates = platformCoreMap().value(platformSlug);
+    if (candidates.isEmpty())
+        return {};
+
+    QStringList dirs = retroarchCoreDirs(m_retroarchBinary);
+    const bool isFlatpakRetroarch = m_retroarchBinary == QStringLiteral("flatpak:org.libretro.RetroArch");
+
     QStringList found;
-    for (const QString &dir : retroarchCoreDirs(m_retroarchBinary)) {
+    for (const QString &dir : dirs) {
+        QStringList installed;
+
+        if (isInsideFlatpak() && isFlatpakRetroarch) {
+            // Can't see another Flatpak app's data dir from inside the sandbox;
+            // probe the host via flatpak-spawn instead.
+            QProcess ls;
+            ls.start(QStringLiteral("flatpak-spawn"), {QStringLiteral("--host"), QStringLiteral("ls"), dir});
+            ls.waitForFinished(3000);
+            if (ls.exitCode() == 0) {
+                const QStringList files = QString::fromUtf8(ls.readAllStandardOutput()).split(QLatin1Char('\n'), Qt::SkipEmptyParts);
+                for (const QString &f : files)
+                    installed << f.trimmed();
+            }
+        } else {
+            QDir d(dir);
+            installed = d.entryList(QDir::Files);
+        }
+
         for (const QString &core : candidates) {
-            QString path = dir + QLatin1Char('/') + core;
-            if (QFileInfo::exists(path) && !found.contains(path))
-                found << path;
+            if (installed.contains(core)) {
+                const QString entry = isFlatpakRetroarch ? core : (dir + QLatin1Char('/') + core);
+                if (!found.contains(entry))
+                    found << entry;
+            }
         }
     }
     return found;
@@ -180,8 +204,12 @@ QString Launcher::buildRomLaunchCommand(const QVariantMap &rom) const
     if (romPath.isEmpty())
         romPath = QStringLiteral("<rom_path>");
 
-    if (m_retroarchBinary == QStringLiteral("flatpak:org.libretro.RetroArch"))
+    if (m_retroarchBinary == QStringLiteral("flatpak:org.libretro.RetroArch")) {
+        if (isInsideFlatpak())
+            return QStringLiteral("flatpak-spawn --host flatpak run org.libretro.RetroArch -L ") + shellQuoted(corePath) + QStringLiteral(" --fullscreen ")
+                + shellQuoted(romPath);
         return QStringLiteral("flatpak run org.libretro.RetroArch -L ") + shellQuoted(corePath) + QStringLiteral(" --fullscreen ") + shellQuoted(romPath);
+    }
     return shellQuoted(m_retroarchBinary) + QStringLiteral(" -L ") + shellQuoted(corePath) + QStringLiteral(" --fullscreen ") + shellQuoted(romPath);
 }
 
@@ -192,6 +220,26 @@ void Launcher::copyToClipboard(const QString &text) const
 
 QString Launcher::detectRetroarchPath() const
 {
+    if (isInsideFlatpak()) {
+        QProcess which;
+        which.start(QStringLiteral("flatpak-spawn"), {QStringLiteral("--host"), QStringLiteral("which"), QStringLiteral("retroarch")});
+        which.waitForFinished(3000);
+        if (which.exitCode() == 0) {
+            const QString found = QString::fromUtf8(which.readAllStandardOutput()).trimmed();
+            if (!found.isEmpty())
+                return found;
+        }
+
+        QProcess info;
+        info.start(QStringLiteral("flatpak-spawn"),
+                   {QStringLiteral("--host"), QStringLiteral("flatpak"), QStringLiteral("info"), QStringLiteral("org.libretro.RetroArch")});
+        info.waitForFinished(3000);
+        if (info.exitCode() == 0)
+            return QStringLiteral("flatpak:org.libretro.RetroArch");
+
+        return {};
+    }
+
     QString found = QStandardPaths::findExecutable(QStringLiteral("retroarch"));
     if (!found.isEmpty())
         return found;
@@ -243,15 +291,25 @@ void Launcher::launchRom(const QVariantMap &rom, bool enableLogging, const QStri
     QStringList baseFlags = {QStringLiteral("-L"), corePath, QStringLiteral("--fullscreen")};
     if (enableLogging)
         baseFlags << QStringLiteral("-v");
-    if (m_retroarchBinary == QStringLiteral("flatpak:org.libretro.RetroArch"))
-        launch(QStringLiteral("flatpak"),
-               QStringList{QStringLiteral("run"), QStringLiteral("org.libretro.RetroArch")} + baseFlags,
-               romPath,
-               env,
-               launchOptions,
-               enableLogging,
-               name);
-    else
+    if (m_retroarchBinary == QStringLiteral("flatpak:org.libretro.RetroArch")) {
+        if (isInsideFlatpak())
+            launch(QStringLiteral("flatpak-spawn"),
+                   QStringList{QStringLiteral("--host"), QStringLiteral("flatpak"), QStringLiteral("run"), QStringLiteral("org.libretro.RetroArch")}
+                       + baseFlags,
+                   romPath,
+                   env,
+                   launchOptions,
+                   enableLogging,
+                   name);
+        else
+            launch(QStringLiteral("flatpak"),
+                   QStringList{QStringLiteral("run"), QStringLiteral("org.libretro.RetroArch")} + baseFlags,
+                   romPath,
+                   env,
+                   launchOptions,
+                   enableLogging,
+                   name);
+    } else
         launch(m_retroarchBinary, baseFlags, romPath, env, launchOptions, enableLogging, name);
 }
 

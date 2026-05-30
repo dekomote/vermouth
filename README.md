@@ -323,6 +323,16 @@ To create desktop shortcuts for your games, add `xdg-desktop` to filesystem perm
 
 HDR toggle is disabled on the flatpak version for now.
 
+### Flatpak RetroArch
+
+Vermouth detects and launches RetroArch installed as a Flatpak (`org.libretro.RetroArch`). If Vermouth is also running as a Flatpak, an extra permission is needed to let it talk to the host and launch other Flatpak apps:
+
+```bash
+flatpak override --user --talk-name=org.freedesktop.Flatpak com.dekomote.vermouth
+```
+
+You can also add it via Flatseal under **Session Bus** → **Talks**.
+
 ---
 
 ## Contributing
