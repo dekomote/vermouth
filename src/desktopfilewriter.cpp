@@ -1,8 +1,8 @@
 #include "desktopfilewriter.h"
+#include "flatpakutils.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
-#include <QFileInfo>
 #include <QRegularExpression>
 #include <QStandardPaths>
 #include <QTextStream>
@@ -24,9 +24,8 @@ bool DesktopFileWriter::writeDesktopFile(const QString &filePath, const QVariant
     QString name = app[QStringLiteral("name")].toString();
     QString id = app[QStringLiteral("id")].toString();
 
-    QString exec = QFileInfo::exists(QStringLiteral("/.flatpak-info"))
-        ? QStringLiteral("flatpak run com.dekomote.vermouth --launch-id %1").arg(id)
-        : QStringLiteral("'%1' --launch-id \"%2\"").arg(QCoreApplication::applicationFilePath(), id);
+    QString exec = isInsideFlatpak() ? QStringLiteral("flatpak run com.dekomote.vermouth --launch-id %1").arg(id)
+                                     : QStringLiteral("'%1' --launch-id \"%2\"").arg(QCoreApplication::applicationFilePath(), id);
 
     QFile f(filePath);
     if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -52,7 +51,8 @@ bool DesktopFileWriter::writeDesktopFile(const QString &filePath, const QVariant
 
 bool DesktopFileWriter::createStartMenuEntry(const QVariantMap &app)
 {
-    QString dir = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
+    QString dir = isInsideFlatpak() ? QDir::homePath() + QStringLiteral("/.local/share/applications")
+                                    : QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
     QDir().mkpath(dir);
     QString filePath = dir + QStringLiteral("/vermouth-") + safeName(app[QStringLiteral("name")].toString()) + QStringLiteral(".desktop");
     return writeDesktopFile(filePath, app);
@@ -72,7 +72,9 @@ void DesktopFileWriter::removeShortcuts(const QVariantMap &app)
 {
     const QString fileName = QStringLiteral("/vermouth-") + safeName(app[QStringLiteral("name")].toString()) + QStringLiteral(".desktop");
 
-    const QString menuEntry = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation) + fileName;
+    const QString appsDir = isInsideFlatpak() ? QDir::homePath() + QStringLiteral("/.local/share/applications")
+                                              : QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
+    const QString menuEntry = appsDir + fileName;
     QFile::remove(menuEntry);
 
     QString desktopDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);

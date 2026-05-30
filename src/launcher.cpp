@@ -1,4 +1,5 @@
 #include "launcher.h"
+#include "flatpakutils.h"
 #include "platformcores.h"
 #include <QClipboard>
 #include <QCursor>
@@ -27,11 +28,6 @@
 static bool isKde()
 {
     return qEnvironmentVariable("XDG_CURRENT_DESKTOP").contains(QLatin1String("KDE"), Qt::CaseInsensitive);
-}
-
-static bool isInsideFlatpak()
-{
-    return QFileInfo::exists(QStringLiteral("/.flatpak-info"));
 }
 
 static QStringList kscreenDoctorArgs(const QStringList &args)
