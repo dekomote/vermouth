@@ -93,20 +93,24 @@ void Launcher::cacheRetroarchBinary()
     }
 
     if (isInsideFlatpak()) {
+        m_retroarchBinary.clear();
         auto *which = new QProcess(this);
         connect(which, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, which](int exitCode) {
             if (exitCode == 0) {
                 const QString found = QString::fromUtf8(which->readAllStandardOutput()).trimmed();
                 if (!found.isEmpty()) {
                     m_retroarchBinary = found;
+                    Q_EMIT retroarchBinaryChanged();
                     which->deleteLater();
                     return;
                 }
             }
             auto *info = new QProcess(this);
             connect(info, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, info](int exitCode) {
-                if (exitCode == 0)
+                if (exitCode == 0) {
                     m_retroarchBinary = QStringLiteral("flatpak:org.libretro.RetroArch");
+                    Q_EMIT retroarchBinaryChanged();
+                }
                 info->deleteLater();
             });
             info->start(QStringLiteral("flatpak-spawn"),

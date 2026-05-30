@@ -22,11 +22,11 @@ QString DesktopFileWriter::safeName(const QString &name) const
 bool DesktopFileWriter::writeDesktopFile(const QString &filePath, const QVariantMap &app)
 {
     QString name = app[QStringLiteral("name")].toString();
-    QString vermouthBin =
-        QFileInfo::exists(QStringLiteral("/.flatpak-info")) ? QStringLiteral("flatpak run com.dekomote.vermouth") : QCoreApplication::applicationFilePath();
     QString id = app[QStringLiteral("id")].toString();
 
-    QString exec = QStringLiteral("'%1' --launch-id \"%2\"").arg(vermouthBin, id);
+    QString exec = QFileInfo::exists(QStringLiteral("/.flatpak-info"))
+        ? QStringLiteral("flatpak run com.dekomote.vermouth --launch-id %1").arg(id)
+        : QStringLiteral("'%1' --launch-id \"%2\"").arg(QCoreApplication::applicationFilePath(), id);
 
     QFile f(filePath);
     if (!f.open(QIODevice::WriteOnly | QIODevice::Text))

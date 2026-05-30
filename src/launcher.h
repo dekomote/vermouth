@@ -54,6 +54,7 @@ public:
     bool hdrSupported() const;
 
 Q_SIGNALS:
+    void retroarchBinaryChanged();
     void launched(const QString &name);
     void launchError(const QString &name, const QString &error);
     void romCoreMissing(const QString &platformSlug, const QVariantMap &rom);
