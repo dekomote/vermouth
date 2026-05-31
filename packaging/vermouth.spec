@@ -1,5 +1,5 @@
 Name:           vermouth
-Version:        1.8.3
+Version:        1.8.4
 Release:        1%{?dist}
 Summary:        A no-frills Wine/Proton game launcher for KDE
 License:        MIT
@@ -74,6 +74,8 @@ RomM library with RetroArch - all from one place.
 %{_datadir}/locale/*/LC_MESSAGES/vermouth.mo
 
 %changelog
+* Sun May 31 2026 Dejan Noveski <deko@duck.com> - 1.8.4-1
+- Flapak and shortcut fixes
 * Wed May 27 2026 Dejan Noveski <deko@duck.com> - 1.8.3-1
 - Default grid, welcome screen, fallback covers
 * Fri May 15 2026 Dejan Noveski <deko@duck.com> - 1.8.2-1

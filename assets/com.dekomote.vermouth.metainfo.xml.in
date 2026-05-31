@@ -6,12 +6,16 @@
     <name>@APP_AUTHOR_NAME@</name>
     <email>@APP_AUTHOR_EMAIL@</email>
   </developer>
-  <summary>@APP_DESCRIPTION@</summary>
+  <summary>Launch Windows games on KDE</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>@APP_LICENSE@</project_license>
   <description>
     <p>@APP_LONG_DESCRIPTION@</p>
   </description>
+  <branding>
+    <color type="primary" scheme_preference="light">#b4a0d3</color>
+    <color type="primary" scheme_preference="dark">#b4a0d3</color>
+  </branding>
   <url type="homepage">@APP_HOMEPAGE@</url>
   <url type="bugtracker">@APP_BUG_ADDRESS@</url>
   <url type="vcs-browser">@APP_HOMEPAGE@</url>
@@ -22,7 +26,7 @@
       <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen1.png</image>
     </screenshot>
     <screenshot>
-      <caption>Dark mode</caption>
+      <caption>Game and runtime settings</caption>
       <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen2.png</image>
     </screenshot>
     <screenshot>

@@ -18,11 +18,10 @@
 KDE-first, lightweight, no frills.</p>
 
 <p align="center">
-  <img src="assets/screen2.png?t=1.7" alt="Game library grid with Games and RomM tabs" width="400">
-  <img src="assets/screen1.png?t=1.71" alt="Game library with sidebar menu open" width="400"><br>
-  <img src="assets/screen4.png?t=1.7" alt="Right-click context menu with launch and Wine utility options" width="400">
-  <img src="assets/screen3.png?t=1.7" alt="Settings dialog showing umu-launcher, Proton, SteamGridDB and RomM configuration" width="400"><br>
-  <img src="assets/screen7.png?t=1.7" alt="RomM tab showing Sega Master System ROM library" width="400">
+  <img src="assets/screen1.png?t=1.8" alt="Game library with sidebar menu open" width="400"><br>
+  <img src="assets/screen2.png?t=1.8" alt="Game settings" width="400">
+  <img src="assets/screen4.png?t=1.8" alt="Right-click context menu with launch and Wine utility options" width="400">
+  <img src="assets/screen3.png?t=1.8" alt="Settings dialog showing umu-launcher, Proton, SteamGridDB and RomM configuration" width="400"><br>
 </p>
 
 ---
