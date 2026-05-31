@@ -232,6 +232,10 @@ ColumnLayout {
                 displayText: protonModel.count === 0 ? i18n("No Proton versions found. Download GE Proton to get started - no Steam or manual setup needed.") : currentText
                 QQC2.ToolTip.visible: hovered && protonModel.count === 0
                 QQC2.ToolTip.text: protonModel.count === 0 ? i18n("No Proton versions found. Download GE Proton to get started - no Steam or manual setup needed.") : ""
+                onActivated: {
+                    if (settingsManager.defaultProtonPath === "" && currentIndex >= 0)
+                        settingsManager.setDefaultProtonPath(protonModel.get(currentIndex).path);
+                }
             }
             QQC2.ToolButton {
                 icon.name: "folder-open"
@@ -289,6 +293,10 @@ ColumnLayout {
                 displayText: wineModel.count === 0 ? i18n("No Wine versions found. Download a build to get started.") : currentText
                 QQC2.ToolTip.visible: hovered && wineModel.count === 0
                 QQC2.ToolTip.text: wineModel.count === 0 ? i18n("No Wine versions found. Download a build to get started.") : ""
+                onActivated: {
+                    if (settingsManager.defaultWineBinary === "" && currentIndex >= 0)
+                        settingsManager.setDefaultWineBinary(wineModel.get(currentIndex).path);
+                }
             }
             QQC2.ToolButton {
                 icon.name: "folder-open"
