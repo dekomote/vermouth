@@ -2,15 +2,22 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import QtQuick.Dialogs
+import QtCore
 import org.kde.kirigami as Kirigami
 
 Kirigami.Dialog {
     id: dialog
-    title: i18n("Import from GOG")
+    title: i18n("Import GOG games")
     preferredWidth: Kirigami.Units.gridUnit * 30
     padding: Kirigami.Units.largeSpacing
     bottomPadding: Kirigami.Units.largeSpacing
     standardButtons: Kirigami.Dialog.NoButton
+
+    Settings {
+        id: gogSettings
+        category: "GogImporter"
+        property alias gogFolder: folderField.text
+    }
 
     customFooterActions: [
         Kirigami.Action {
@@ -25,6 +32,10 @@ Kirigami.Dialog {
             onTriggered: dialog.close()
         }
     ]
+
+    Component.onCompleted: {
+        folderField.textChanged();
+    }
 
     property int selectedCount: 0
     property bool importing: false
@@ -123,6 +134,10 @@ Kirigami.Dialog {
         spacing: Kirigami.Units.mediumSpacing
         Layout.fillWidth: true
 
+        QQC2.Label {
+            text: i18n("Import your installed GOG games. Works with manual and minigalaxy installed games, Windows and native Linux.")
+        }
+
         RowLayout {
             Layout.fillWidth: true
             spacing: Kirigami.Units.smallSpacing
@@ -130,7 +145,7 @@ Kirigami.Dialog {
             QQC2.TextField {
                 id: folderField
                 Layout.fillWidth: true
-                placeholderText: i18n("GOG games folder…")
+                placeholderText: i18n("GOG games folder...")
                 onTextChanged: {
                     if (text.length > 0 && !gogModel.busy) {
                         checkStates = {};
@@ -165,18 +180,19 @@ Kirigami.Dialog {
             Layout.fillHeight: true
             clip: true
             visible: gogModel.count > 0
+            Layout.topMargin: Kirigami.Units.largeSpacing
 
             ListView {
                 id: gameList
                 width: parent.width
                 height: parent.height
                 model: gogModel
-                spacing: 0
+                spacing: Kirigami.Units.mediumSpacing
 
                 delegate: Item {
                     id: rowItem
                     width: gameList.width
-                    height: visible ? Math.max(54, rowContent.implicitHeight) : 0
+                    height: visible ? rowContent.implicitHeight : 0
 
                     required property int index
                     required property string gameId
