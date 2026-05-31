@@ -17,7 +17,6 @@ finish-args:
   - --allow=multiarch
   - --filesystem=/mnt
   - --filesystem=/run/media
-  - --filesystem=xdg-config/MangoHud:ro
 
 modules:
   - name: vermouth

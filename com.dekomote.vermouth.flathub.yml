@@ -17,7 +17,6 @@ finish-args:
   - --allow=multiarch
   - --filesystem=/mnt
   - --filesystem=/run/media
-  - --filesystem=xdg-config/MangoHud:ro
 
 modules:
   - name: vermouth
@@ -28,4 +27,4 @@ modules:
       - type: git
         url: https://github.com/dekomote/vermouth.git
         tag: v1.8.4
-        commit: 6d30b215caa0830a3b5b643f725321981cf55a5e
+        commit: b1a7df78cd5ab135500f2d6cbac44e7abfad7718

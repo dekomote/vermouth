@@ -50,7 +50,6 @@
             <li>Fixes for RetroArch launching from the Flatpak build</li>
             <li>Desktop entries use the app icon when none is set</li>
           </ul>
-          <url>https://github.com/dekomote/vermouth/releases/tag/v@PROJECT_VERSION@</url>
         </description>
     </release>
   </releases>
