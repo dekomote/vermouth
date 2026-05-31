@@ -125,7 +125,15 @@ void ProtonDownloader::startExtraction(QTemporaryFile *archiveFile, const QStrin
     delete m_extractProc;
     m_extractProc = new QProcess(this);
     connect(m_extractProc, &QProcess::finished, this, [this, archiveFile](int exitCode) {
-        const QString firstLine = QString::fromUtf8(m_extractProc->readLine()).trimmed();
+        const QByteArray output = m_extractProc->readAllStandardOutput();
+        QString firstLine;
+        for (const QByteArray &line : output.split('\n')) {
+            QString s = QString::fromUtf8(line).trimmed();
+            if (!s.isEmpty() && !s.startsWith(QLatin1Char('.')) && !s.startsWith(QStringLiteral("PaxHeaders"))) {
+                firstLine = s;
+                break;
+            }
+        }
         delete archiveFile;
         if (exitCode != 0) {
             setStatusText(tr("Extraction failed"));

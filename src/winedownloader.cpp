@@ -126,7 +126,15 @@ void WineDownloader::startExtraction(QTemporaryFile *archiveFile)
     delete m_extractProc;
     m_extractProc = new QProcess(this);
     connect(m_extractProc, &QProcess::finished, this, [this, archiveFile](int exitCode) {
-        const QString firstLine = QString::fromUtf8(m_extractProc->readLine()).trimmed();
+        const QByteArray output = m_extractProc->readAllStandardOutput();
+        QString firstLine;
+        for (const QByteArray &line : output.split('\n')) {
+            QString s = QString::fromUtf8(line).trimmed();
+            if (!s.isEmpty() && !s.startsWith(QLatin1Char('.')) && !s.startsWith(QStringLiteral("PaxHeaders"))) {
+                firstLine = s;
+                break;
+            }
+        }
         delete archiveFile;
         if (exitCode != 0) {
             setStatusText(tr("Extraction failed"));
@@ -139,7 +147,8 @@ void WineDownloader::startExtraction(QTemporaryFile *archiveFile)
         QString topDir = firstLine;
         if (topDir.endsWith(QLatin1Char('/')))
             topDir.chop(1);
-        Q_EMIT finished(m_localWinePath + QLatin1Char('/') + topDir + QStringLiteral("/bin/wine"));
+        QString installedBin = topDir.isEmpty() ? QString() : m_localWinePath + QLatin1Char('/') + topDir + QStringLiteral("/bin/wine");
+        Q_EMIT finished(installedBin);
     });
 
     QDir().mkpath(m_localWinePath);
