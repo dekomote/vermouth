@@ -70,14 +70,14 @@ void ProtonDownloader::onReleaseFetched(QNetworkReply *reply, const ProtonBuildC
         if (entry.contains(tagName, Qt::CaseInsensitive)) {
             setStatusText(tr("Latest version (%1) is already installed").arg(tagName));
             setBusy(false);
-            Q_EMIT finished();
+            Q_EMIT finished(localDir.absoluteFilePath(entry));
             return;
         }
     }
 
     QString archiveName = QString::fromLatin1(config->archivePattern).arg(tagName);
     QString downloadUrl = QString::fromLatin1(config->downloadUrl).arg(tagName, archiveName);
-    QStringList tarArgs = {QLatin1String(config->tarFlag), QString(), QStringLiteral("-C"), m_localProtonPath};
+    QStringList tarArgs = {QLatin1String(config->tarFlag), QString(), QStringLiteral("-C"), m_localProtonPath, QStringLiteral("--verbose")};
 
     setStatusText(tr("Downloading %1…").arg(tagName));
 
@@ -125,6 +125,7 @@ void ProtonDownloader::startExtraction(QTemporaryFile *archiveFile, const QStrin
     delete m_extractProc;
     m_extractProc = new QProcess(this);
     connect(m_extractProc, &QProcess::finished, this, [this, archiveFile](int exitCode) {
+        const QString firstLine = QString::fromUtf8(m_extractProc->readLine()).trimmed();
         delete archiveFile;
         if (exitCode != 0) {
             setStatusText(tr("Extraction failed"));
@@ -134,7 +135,12 @@ void ProtonDownloader::startExtraction(QTemporaryFile *archiveFile, const QStrin
         }
         setStatusText(tr("Done!"));
         setBusy(false);
-        Q_EMIT finished();
+        // firstLine is the first entry tar printed, e.g. "GE-Proton9-27/" — strip trailing slash
+        QString topDir = firstLine;
+        if (topDir.endsWith(QLatin1Char('/')))
+            topDir.chop(1);
+        QString installedPath = topDir.isEmpty() ? QString() : m_localProtonPath + QLatin1Char('/') + topDir;
+        Q_EMIT finished(installedPath);
     });
 
     QDir().mkpath(m_localProtonPath);

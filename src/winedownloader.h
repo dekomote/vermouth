@@ -44,7 +44,7 @@ public:
     Q_INVOKABLE void downloadLatest(const QString &buildType);
 
 Q_SIGNALS:
-    void finished();
+    void finished(const QString &path);
     void error(const QString &message);
 
 private:

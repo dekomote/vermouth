@@ -126,6 +126,26 @@ Kirigami.PromptDialog {
                 }
             }
 
+            ColumnLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: ""
+                spacing: Kirigami.Units.smallSpacing
+                visible: umuDownloader.busy
+
+                QQC2.ProgressBar {
+                    Layout.fillWidth: true
+                    from: 0
+                    to: 1
+                    value: umuDownloader.progress
+                    indeterminate: umuDownloader.progress <= 0
+                }
+                QQC2.Label {
+                    text: umuDownloader.statusText
+                    font: Kirigami.Theme.smallFont
+                    opacity: 0.75
+                }
+            }
+
             Connections {
                 target: settingsManager
                 function onUmuPathChanged() {

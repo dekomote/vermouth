@@ -107,6 +107,18 @@ ColumnLayout {
                 "path": versions[i]
             });
         }
+        var defaultPath = settingsManager.defaultProtonPath;
+        if (defaultPath !== "") {
+            var found = false;
+            for (let i = 0; i < protonModel.count; i++) {
+                if (protonModel.get(i).path === defaultPath) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                settingsManager.setDefaultProtonPath("");
+        }
         for (let i = 0; i < protonModel.count; i++) {
             if (protonModel.get(i).path === prevPath) {
                 protonCombo.currentIndex = i;
@@ -128,6 +140,18 @@ ColumnLayout {
                 "path": versions[i].path
             });
         }
+        var defaultBinary = settingsManager.defaultWineBinary;
+        if (defaultBinary !== "") {
+            var found = false;
+            for (let i = 0; i < wineModel.count; i++) {
+                if (wineModel.get(i).path === defaultBinary) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+                settingsManager.setDefaultWineBinary("");
+        }
         for (let i = 0; i < wineModel.count; i++) {
             if (wineModel.get(i).path === prevPath) {
                 wineCombo.currentIndex = i;
@@ -147,15 +171,33 @@ ColumnLayout {
 
     Connections {
         target: protonDownloader
-        function onFinished() {
+        function onFinished(path) {
             root.refreshProton();
+            if (settingsManager.defaultProtonPath === "" && path !== "") {
+                settingsManager.setDefaultProtonPath(path);
+                for (var i = 0; i < protonModel.count; i++) {
+                    if (protonModel.get(i).path === path) {
+                        protonCombo.currentIndex = i;
+                        break;
+                    }
+                }
+            }
         }
     }
 
     Connections {
         target: wineDownloader
-        function onFinished() {
+        function onFinished(path) {
             root.refreshWine();
+            if (settingsManager.defaultWineBinary === "" && path !== "") {
+                settingsManager.setDefaultWineBinary(path);
+                for (var i = 0; i < wineModel.count; i++) {
+                    if (wineModel.get(i).path === path) {
+                        wineCombo.currentIndex = i;
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -227,6 +269,26 @@ ColumnLayout {
             }
         }
 
+        ColumnLayout {
+            Layout.fillWidth: true
+            visible: runtimeCombo.currentValue === "proton" && protonDownloader.busy
+            Kirigami.FormData.label: ""
+            spacing: Kirigami.Units.smallSpacing
+
+            QQC2.ProgressBar {
+                Layout.fillWidth: true
+                from: 0
+                to: 1
+                value: protonDownloader.progress
+                indeterminate: protonDownloader.progress <= 0
+            }
+            QQC2.Label {
+                text: protonDownloader.statusText
+                font: Kirigami.Theme.smallFont
+                opacity: 0.75
+            }
+        }
+
         RowLayout {
             Layout.fillWidth: true
             visible: runtimeCombo.currentValue === "wine"
@@ -283,6 +345,26 @@ ColumnLayout {
                         onTriggered: wineDownloader.downloadLatest("tkg-wow64")
                     }
                 }
+            }
+        }
+
+        ColumnLayout {
+            Layout.fillWidth: true
+            visible: runtimeCombo.currentValue === "wine" && wineDownloader.busy
+            Kirigami.FormData.label: ""
+            spacing: Kirigami.Units.smallSpacing
+
+            QQC2.ProgressBar {
+                Layout.fillWidth: true
+                from: 0
+                to: 1
+                value: wineDownloader.progress
+                indeterminate: wineDownloader.progress <= 0
+            }
+            QQC2.Label {
+                text: wineDownloader.statusText
+                font: Kirigami.Theme.smallFont
+                opacity: 0.75
             }
         }
     }
