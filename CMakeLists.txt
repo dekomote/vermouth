@@ -83,6 +83,7 @@ qt_add_qml_module(vermouth
         qml/SteamImportDialog.qml
         qml/CorePickerDialog.qml
         qml/RommView.qml
+        qml/DownloaderProgress.qml
     NO_RESOURCE_TARGET_PATH
 )
 

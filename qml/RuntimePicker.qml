@@ -269,24 +269,12 @@ ColumnLayout {
             }
         }
 
-        ColumnLayout {
+        DownloaderProgress {
             Layout.fillWidth: true
-            visible: runtimeCombo.currentValue === "proton" && protonDownloader.busy
             Kirigami.FormData.label: ""
-            spacing: Kirigami.Units.smallSpacing
-
-            QQC2.ProgressBar {
-                Layout.fillWidth: true
-                from: 0
-                to: 1
-                value: protonDownloader.progress
-                indeterminate: protonDownloader.progress <= 0
-            }
-            QQC2.Label {
-                text: protonDownloader.statusText
-                font: Kirigami.Theme.smallFont
-                opacity: 0.75
-            }
+            visible: runtimeCombo.currentValue === "proton" && protonDownloader.busy
+            progress: protonDownloader.progress
+            statusText: protonDownloader.statusText
         }
 
         RowLayout {
@@ -348,24 +336,12 @@ ColumnLayout {
             }
         }
 
-        ColumnLayout {
+        DownloaderProgress {
             Layout.fillWidth: true
-            visible: runtimeCombo.currentValue === "wine" && wineDownloader.busy
             Kirigami.FormData.label: ""
-            spacing: Kirigami.Units.smallSpacing
-
-            QQC2.ProgressBar {
-                Layout.fillWidth: true
-                from: 0
-                to: 1
-                value: wineDownloader.progress
-                indeterminate: wineDownloader.progress <= 0
-            }
-            QQC2.Label {
-                text: wineDownloader.statusText
-                font: Kirigami.Theme.smallFont
-                opacity: 0.75
-            }
+            visible: runtimeCombo.currentValue === "wine" && wineDownloader.busy
+            progress: wineDownloader.progress
+            statusText: wineDownloader.statusText
         }
     }
 }

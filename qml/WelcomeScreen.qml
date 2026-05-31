@@ -64,15 +64,14 @@ ColumnLayout {
         onClicked: protonDownloader.downloadLatest()
         Layout.alignment: Qt.AlignHCenter
     }
-    QQC2.ProgressBar {
+    DownloaderProgress {
         visible: {
             root.refresh;
             return !hasProton() && protonDownloader.busy;
         }
         Layout.fillWidth: true
-        from: 0.0
-        to: 1.0
-        value: protonDownloader.progress
+        progress: protonDownloader.progress
+        statusText: protonDownloader.statusText
     }
 
     Kirigami.Separator {
@@ -104,15 +103,14 @@ ColumnLayout {
         enabled: !umuDownloader.busy
         onClicked: umuDownloader.downloadLatest()
     }
-    QQC2.ProgressBar {
+    DownloaderProgress {
         visible: {
             root.refresh;
             return !hasUmu() && umuDownloader.busy;
         }
         Layout.fillWidth: true
-        from: 0.0
-        to: 1.0
-        value: umuDownloader.progress
+        progress: umuDownloader.progress
+        statusText: umuDownloader.statusText
     }
 
     Kirigami.Separator {
