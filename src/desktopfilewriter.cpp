@@ -43,6 +43,7 @@ bool DesktopFileWriter::writeDesktopFile(const QString &filePath, const QVariant
         icon = QStringLiteral("com.dekomote.vermouth");
     out << QStringLiteral("Icon=") << icon << QStringLiteral("\n");
     out << QStringLiteral("Comment=Launched via Vermouth\n");
+    out << QStringLiteral("X-Vermouth-AppId=") << id << QStringLiteral("\n");
 
     f.close();
     f.setPermissions(f.permissions() | QFile::ExeUser);
@@ -71,14 +72,41 @@ bool DesktopFileWriter::createDesktopShortcut(const QVariantMap &app)
 void DesktopFileWriter::removeShortcuts(const QVariantMap &app)
 {
     const QString fileName = QStringLiteral("/vermouth-") + safeName(app[QStringLiteral("name")].toString()) + QStringLiteral(".desktop");
+    const QString id = app[QStringLiteral("id")].toString();
+    const QString idMarker = QStringLiteral("X-Vermouth-AppId=") + id;
 
     const QString appsDir = isInsideFlatpak() ? QDir::homePath() + QStringLiteral("/.local/share/applications")
                                               : QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
-    const QString menuEntry = appsDir + fileName;
-    QFile::remove(menuEntry);
-
     QString desktopDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
     if (desktopDir.isEmpty())
         desktopDir = QDir::homePath() + QStringLiteral("/Desktop");
-    QFile::remove(desktopDir + fileName);
+
+    const QStringList dirs = {appsDir, desktopDir};
+    for (const QString &dir : dirs) {
+        QFile::remove(dir + fileName);
+
+        if (id.isEmpty())
+            continue;
+        QDir d(dir);
+        if (!d.exists())
+            continue;
+        const QStringList entries = d.entryList({QStringLiteral("vermouth-*.desktop")}, QDir::Files);
+        for (const QString &entry : entries) {
+            const QString fullPath = d.absoluteFilePath(entry);
+            QFile f(fullPath);
+            if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+                continue;
+            bool match = false;
+            QTextStream in(&f);
+            while (!in.atEnd()) {
+                if (in.readLine().trimmed() == idMarker) {
+                    match = true;
+                    break;
+                }
+            }
+            f.close();
+            if (match)
+                QFile::remove(fullPath);
+        }
+    }
 }
