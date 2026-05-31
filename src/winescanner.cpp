@@ -37,6 +37,14 @@ QVariantList WineScanner::findWineVersions() const
     return result;
 }
 
+bool WineScanner::isInstalled(const QString &path) const
+{
+    if (path.isEmpty())
+        return false;
+    QFileInfo fi(path);
+    return fi.exists() && fi.isExecutable();
+}
+
 QString WineScanner::localWinePath() const
 {
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/wines");

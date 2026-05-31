@@ -13,6 +13,7 @@ ColumnLayout {
     property string sectionLabel: i18n("Runtime")
     property alias formLayout: formLayout
     property var twinFormLayouts
+    property bool autoSaveDefaults: false
 
     function reset() {
         refreshProton();
@@ -108,17 +109,8 @@ ColumnLayout {
             });
         }
         var defaultPath = settingsManager.defaultProtonPath;
-        if (defaultPath !== "") {
-            var found = false;
-            for (let i = 0; i < protonModel.count; i++) {
-                if (protonModel.get(i).path === defaultPath) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-                settingsManager.setDefaultProtonPath("");
-        }
+        if (defaultPath !== "" && !protonScanner.isInstalled(defaultPath))
+            settingsManager.setDefaultProtonPath("");
         for (let i = 0; i < protonModel.count; i++) {
             if (protonModel.get(i).path === prevPath) {
                 protonCombo.currentIndex = i;
@@ -141,17 +133,8 @@ ColumnLayout {
             });
         }
         var defaultBinary = settingsManager.defaultWineBinary;
-        if (defaultBinary !== "") {
-            var found = false;
-            for (let i = 0; i < wineModel.count; i++) {
-                if (wineModel.get(i).path === defaultBinary) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
-                settingsManager.setDefaultWineBinary("");
-        }
+        if (defaultBinary !== "" && !wineScanner.isInstalled(defaultBinary))
+            settingsManager.setDefaultWineBinary("");
         for (let i = 0; i < wineModel.count; i++) {
             if (wineModel.get(i).path === prevPath) {
                 wineCombo.currentIndex = i;
@@ -218,6 +201,10 @@ ColumnLayout {
             textRole: "label"
             valueRole: "key"
             Layout.minimumWidth: 400
+            onActivated: {
+                if (root.autoSaveDefaults && currentValue !== "")
+                    settingsManager.setDefaultRuntimeType(currentValue);
+            }
         }
 
         RowLayout {
@@ -233,7 +220,7 @@ ColumnLayout {
                 QQC2.ToolTip.visible: hovered && protonModel.count === 0
                 QQC2.ToolTip.text: protonModel.count === 0 ? i18n("No Proton versions found. Download GE Proton to get started - no Steam or manual setup needed.") : ""
                 onActivated: {
-                    if (settingsManager.defaultProtonPath === "" && currentIndex >= 0)
+                    if (currentIndex >= 0 && (root.autoSaveDefaults || settingsManager.defaultProtonPath === ""))
                         settingsManager.setDefaultProtonPath(protonModel.get(currentIndex).path);
                 }
             }
@@ -294,7 +281,7 @@ ColumnLayout {
                 QQC2.ToolTip.visible: hovered && wineModel.count === 0
                 QQC2.ToolTip.text: wineModel.count === 0 ? i18n("No Wine versions found. Download a build to get started.") : ""
                 onActivated: {
-                    if (settingsManager.defaultWineBinary === "" && currentIndex >= 0)
+                    if (currentIndex >= 0 && (root.autoSaveDefaults || settingsManager.defaultWineBinary === ""))
                         settingsManager.setDefaultWineBinary(wineModel.get(currentIndex).path);
                 }
             }

@@ -233,7 +233,7 @@ GameGridView {
                     onTriggered: {
                         var exePath = cardFrame.exePath;
                         var lastSlash = exePath.lastIndexOf('/');
-                        var dir = lastSlash > 0 ? exePath.substring(0, lastSlash) : exePath;
+                        var dir = lastSlash <= 0 ? "/" : exePath.substring(0, lastSlash);
                         Qt.openUrlExternally("file://" + dir);
                     }
                 }

@@ -44,6 +44,7 @@ ColumnLayout {
         id: defaultRuntimePicker
         Layout.fillWidth: true
         sectionLabel: i18n("Default Runtime")
+        autoSaveDefaults: true
     }
 
     Kirigami.Separator {

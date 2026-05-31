@@ -117,6 +117,11 @@ QStringList ProtonScanner::findProtonVersions() const
     return result;
 }
 
+bool ProtonScanner::isInstalled(const QString &path) const
+{
+    return !path.isEmpty() && QFileInfo::exists(path + QStringLiteral("/proton"));
+}
+
 QString ProtonScanner::homePath() const
 {
     return QDir::homePath();
