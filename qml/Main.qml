@@ -77,6 +77,11 @@ Kirigami.ApplicationWindow {
                 onTriggered: steamImportDialog.openDialog()
             },
             Kirigami.Action {
+                text: i18n("Import from GOG")
+                icon.name: "folder-games"
+                onTriggered: gogImportDialog.openDialog()
+            },
+            Kirigami.Action {
                 text: launcher.sleepInhibited ? i18n("Allow Sleep") : i18n("Prevent Sleep")
                 icon.name: launcher.sleepInhibited ? "media-playback-pause" : "system-suspend-inhibited"
                 checkable: true
@@ -545,6 +550,10 @@ Kirigami.ApplicationWindow {
 
     SteamImportDialog {
         id: steamImportDialog
+    }
+
+    GogImportDialog {
+        id: gogImportDialog
     }
 
     Kirigami.PromptDialog {

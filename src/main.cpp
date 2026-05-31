@@ -1,6 +1,7 @@
 #include "appmodel.h"
 #include "desktopfilewriter.h"
 #include "gamepadhandler.h"
+#include "gogmodel.h"
 #include "iconextractor.h"
 #include "launcher.h"
 #include "protondownloader.h"
@@ -182,6 +183,7 @@ int main(int argc, char *argv[])
     SteamGridDB steamGridDb;
 
     SteamModel steamModel;
+    GogModel gogModel;
 
     RuntimeTypeModel runtimeTypeModel;
 
@@ -278,6 +280,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("umuDownloader"), &umuDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("steamGridDb"), &steamGridDb);
     engine.rootContext()->setContextProperty(QStringLiteral("steamModel"), &steamModel);
+    engine.rootContext()->setContextProperty(QStringLiteral("gogModel"), &gogModel);
     engine.rootContext()->setContextProperty(QStringLiteral("runtimeModel"), &runtimeTypeModel);
     engine.rootContext()->setContextProperty(QStringLiteral("rommClient"), &rommClient);
     engine.rootContext()->setContextProperty(QStringLiteral("rommModel"), &rommModel);
