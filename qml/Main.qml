@@ -89,6 +89,7 @@ Kirigami.ApplicationWindow {
                 checkable: true
                 checked: launcher.hdrEnabled
                 enabled: launcher.hdrSupported
+                visible: launcher.hdrSupported
                 onTriggered: launcher.toggleHdr()
             },
             Kirigami.Action {
@@ -448,6 +449,7 @@ Kirigami.ApplicationWindow {
                     checkable: true
                     checked: launcher.hdrEnabled
                     enabled: launcher.hdrSupported
+                    visible: launcher.hdrSupported
                     onClicked: launcher.toggleHdr()
                     icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
                     QQC2.ToolTip.text: launcher.hdrEnabled ? i18n("Disable HDR") : i18n("Enable HDR")

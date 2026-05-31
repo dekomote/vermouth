@@ -11,6 +11,7 @@ public:
     explicit ProtonScanner(QObject *parent = nullptr);
 
     Q_INVOKABLE QStringList findProtonVersions() const;
+    Q_INVOKABLE bool isInstalled(const QString &path) const;
     Q_INVOKABLE QString prefixBasePath() const;
     Q_INVOKABLE QString winePrefixBasePath() const;
     Q_INVOKABLE QString localProtonPath() const;

@@ -1,4 +1,5 @@
 #include "desktopfilewriter.h"
+#include "flatpakutils.h"
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
@@ -21,10 +22,10 @@ QString DesktopFileWriter::safeName(const QString &name) const
 bool DesktopFileWriter::writeDesktopFile(const QString &filePath, const QVariantMap &app)
 {
     QString name = app[QStringLiteral("name")].toString();
-    QString vermouthBin = QCoreApplication::applicationFilePath();
     QString id = app[QStringLiteral("id")].toString();
 
-    QString exec = QStringLiteral("'%1' --launch-id \"%2\"").arg(vermouthBin, id);
+    QString exec = isInsideFlatpak() ? QStringLiteral("flatpak run com.dekomote.vermouth --launch-id %1").arg(id)
+                                     : QStringLiteral("'%1' --launch-id \"%2\"").arg(QCoreApplication::applicationFilePath(), id);
 
     QFile f(filePath);
     if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -37,9 +38,12 @@ bool DesktopFileWriter::writeDesktopFile(const QString &filePath, const QVariant
     out << QStringLiteral("Exec=") << exec << QStringLiteral("\n");
     out << QStringLiteral("Terminal=false\n");
     out << QStringLiteral("Categories=Game;\n");
-    if (!app[QStringLiteral("iconPath")].toString().isEmpty())
-        out << QStringLiteral("Icon=") << app[QStringLiteral("iconPath")].toString() << QStringLiteral("\n");
+    QString icon = app[QStringLiteral("iconPath")].toString();
+    if (icon.isEmpty())
+        icon = QStringLiteral("com.dekomote.vermouth");
+    out << QStringLiteral("Icon=") << icon << QStringLiteral("\n");
     out << QStringLiteral("Comment=Launched via Vermouth\n");
+    out << QStringLiteral("X-Vermouth-AppId=") << id << QStringLiteral("\n");
 
     f.close();
     f.setPermissions(f.permissions() | QFile::ExeUser);
@@ -48,7 +52,8 @@ bool DesktopFileWriter::writeDesktopFile(const QString &filePath, const QVariant
 
 bool DesktopFileWriter::createStartMenuEntry(const QVariantMap &app)
 {
-    QString dir = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
+    QString dir = isInsideFlatpak() ? QDir::homePath() + QStringLiteral("/.local/share/applications")
+                                    : QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
     QDir().mkpath(dir);
     QString filePath = dir + QStringLiteral("/vermouth-") + safeName(app[QStringLiteral("name")].toString()) + QStringLiteral(".desktop");
     return writeDesktopFile(filePath, app);
@@ -62,4 +67,46 @@ bool DesktopFileWriter::createDesktopShortcut(const QVariantMap &app)
     QDir().mkpath(dir);
     QString filePath = dir + QStringLiteral("/vermouth-") + safeName(app[QStringLiteral("name")].toString()) + QStringLiteral(".desktop");
     return writeDesktopFile(filePath, app);
+}
+
+void DesktopFileWriter::removeShortcuts(const QVariantMap &app)
+{
+    const QString fileName = QStringLiteral("/vermouth-") + safeName(app[QStringLiteral("name")].toString()) + QStringLiteral(".desktop");
+    const QString id = app[QStringLiteral("id")].toString();
+    const QString idMarker = QStringLiteral("X-Vermouth-AppId=") + id;
+
+    const QString appsDir = isInsideFlatpak() ? QDir::homePath() + QStringLiteral("/.local/share/applications")
+                                              : QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
+    QString desktopDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    if (desktopDir.isEmpty())
+        desktopDir = QDir::homePath() + QStringLiteral("/Desktop");
+
+    const QStringList dirs = {appsDir, desktopDir};
+    for (const QString &dir : dirs) {
+        QFile::remove(dir + fileName);
+
+        if (id.isEmpty())
+            continue;
+        QDir d(dir);
+        if (!d.exists())
+            continue;
+        const QStringList entries = d.entryList({QStringLiteral("vermouth-*.desktop")}, QDir::Files);
+        for (const QString &entry : entries) {
+            const QString fullPath = d.absoluteFilePath(entry);
+            QFile f(fullPath);
+            if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+                continue;
+            bool match = false;
+            QTextStream in(&f);
+            while (!in.atEnd()) {
+                if (in.readLine().trimmed() == idMarker) {
+                    match = true;
+                    break;
+                }
+            }
+            f.close();
+            if (match)
+                QFile::remove(fullPath);
+        }
+    }
 }

@@ -25,6 +25,14 @@ Kirigami.PromptDialog {
     subtitle: platformSlug !== "" ? i18n("Platform: %1", platformSlug) : ""
     standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
 
+    Connections {
+        target: launcher
+        function onRetroarchBinaryChanged() {
+            if (dialog.visible)
+                dialog.availableCores = launcher.availableCoresForPlatform(dialog.platformSlug);
+        }
+    }
+
     onOpened: {
         availableCores = launcher.availableCoresForPlatform(platformSlug);
         customCorePath = "";

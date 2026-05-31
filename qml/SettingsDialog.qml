@@ -126,6 +126,14 @@ Kirigami.PromptDialog {
                 }
             }
 
+            DownloaderProgress {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: ""
+                visible: umuDownloader.busy
+                progress: umuDownloader.progress
+                statusText: umuDownloader.statusText
+            }
+
             Connections {
                 target: settingsManager
                 function onUmuPathChanged() {

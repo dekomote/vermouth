@@ -54,6 +54,7 @@ public:
     bool hdrSupported() const;
 
 Q_SIGNALS:
+    void retroarchBinaryChanged();
     void launched(const QString &name);
     void launchError(const QString &name, const QString &error);
     void romCoreMissing(const QString &platformSlug, const QVariantMap &rom);
@@ -67,16 +68,15 @@ Q_SIGNALS:
 
 private:
     qint64 launch(const QString &binary,
-                const QStringList &baseArgs,
-                const QString &exePath,
-                const QProcessEnvironment &env,
-                const QString &launchOptions,
-                bool enableLogging,
-                const QString &logName,
-                bool appendExe = true);
+                  const QStringList &baseArgs,
+                  const QString &exePath,
+                  const QProcessEnvironment &env,
+                  const QString &launchOptions,
+                  bool enableLogging,
+                  const QString &logName,
+                  bool appendExe = true);
     void setupLogging(QProcess *proc, const QString &name);
     void refreshHdrState();
-    QString resolveRetroarchBinary() const;
     void cacheRetroarchBinary();
     QString autoDetectCore(const QString &platformSlug) const;
     QString m_logDir;

@@ -6,12 +6,16 @@
     <name>@APP_AUTHOR_NAME@</name>
     <email>@APP_AUTHOR_EMAIL@</email>
   </developer>
-  <summary>@APP_DESCRIPTION@</summary>
+  <summary>Launch Windows games on KDE</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>@APP_LICENSE@</project_license>
   <description>
     <p>@APP_LONG_DESCRIPTION@</p>
   </description>
+  <branding>
+    <color type="primary" scheme_preference="light">#b4a0d3</color>
+    <color type="primary" scheme_preference="dark">#b4a0d3</color>
+  </branding>
   <url type="homepage">@APP_HOMEPAGE@</url>
   <url type="bugtracker">@APP_BUG_ADDRESS@</url>
   <url type="vcs-browser">@APP_HOMEPAGE@</url>
@@ -19,23 +23,35 @@
   <screenshots>
     <screenshot type="default">
       <caption>Main game library view</caption>
-      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen1.png</image>
+      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen1-fh.png</image>
     </screenshot>
     <screenshot>
-      <caption>Game settings</caption>
-      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen2.png</image>
+      <caption>Game and runtime settings</caption>
+      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen2-fh.png</image>
     </screenshot>
     <screenshot>
       <caption>Application settings</caption>
-      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen3.png</image>
+      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen3-fh.png</image>
     </screenshot>
     <screenshot>
       <caption>Utilities</caption>
-      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen4.png</image>
+      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen4-fh.png</image>
     </screenshot>
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
-    <release version="@PROJECT_VERSION@" date="@APP_RELEASE_DATE@" />
+    <release version="1.8.4" date="2026-05-31">
+        <description>
+          <p>This release focuses on Flatpak polish and runtime management.</p>
+          <ul>
+            <li>Welcome screen now has a default runtime picker</li>
+            <li>Reusable download progress bar across Proton/Wine/umu</li>
+            <li>Submenus for shortcuts and folders in the app context menu</li>
+            <li>Fixes for RetroArch launching from the Flatpak build</li>
+            <li>Desktop entries use the app icon when none is set</li>
+          </ul>
+          <url>https://github.com/dekomote/vermouth/releases/tag/v@PROJECT_VERSION@</url>
+        </description>
+    </release>
   </releases>
 </component>

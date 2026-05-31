@@ -73,7 +73,7 @@ void WineDownloader::onReleaseFetched(QNetworkReply *reply, const WineBuildConfi
         if (entry == expectedDir) {
             setStatusText(tr("Latest version (%1) is already installed").arg(expectedDir));
             setBusy(false);
-            Q_EMIT finished();
+            Q_EMIT finished(localDir.absoluteFilePath(entry + QStringLiteral("/bin/wine")));
             return;
         }
     }
@@ -126,6 +126,15 @@ void WineDownloader::startExtraction(QTemporaryFile *archiveFile)
     delete m_extractProc;
     m_extractProc = new QProcess(this);
     connect(m_extractProc, &QProcess::finished, this, [this, archiveFile](int exitCode) {
+        const QByteArray output = m_extractProc->readAllStandardOutput();
+        QString firstLine;
+        for (const QByteArray &line : output.split('\n')) {
+            QString s = QString::fromUtf8(line).trimmed();
+            if (!s.isEmpty() && !s.startsWith(QLatin1Char('.')) && !s.startsWith(QStringLiteral("PaxHeaders"))) {
+                firstLine = s;
+                break;
+            }
+        }
         delete archiveFile;
         if (exitCode != 0) {
             setStatusText(tr("Extraction failed"));
@@ -135,11 +144,15 @@ void WineDownloader::startExtraction(QTemporaryFile *archiveFile)
         }
         setStatusText(tr("Done!"));
         setBusy(false);
-        Q_EMIT finished();
+        QString topDir = firstLine;
+        if (topDir.endsWith(QLatin1Char('/')))
+            topDir.chop(1);
+        QString installedBin = topDir.isEmpty() ? QString() : m_localWinePath + QLatin1Char('/') + topDir + QStringLiteral("/bin/wine");
+        Q_EMIT finished(installedBin);
     });
 
     QDir().mkpath(m_localWinePath);
     m_extractProc->setProgram(QStringLiteral("tar"));
-    m_extractProc->setArguments({QStringLiteral("-xf"), archiveFile->fileName(), QStringLiteral("-C"), m_localWinePath});
+    m_extractProc->setArguments({QStringLiteral("-xf"), archiveFile->fileName(), QStringLiteral("-C"), m_localWinePath, QStringLiteral("--verbose")});
     m_extractProc->start();
 }

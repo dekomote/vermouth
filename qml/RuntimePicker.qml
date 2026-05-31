@@ -13,6 +13,7 @@ ColumnLayout {
     property string sectionLabel: i18n("Runtime")
     property alias formLayout: formLayout
     property var twinFormLayouts
+    property bool autoSaveDefaults: false
 
     function reset() {
         refreshProton();
@@ -107,6 +108,9 @@ ColumnLayout {
                 "path": versions[i]
             });
         }
+        var defaultPath = settingsManager.defaultProtonPath;
+        if (defaultPath !== "" && !protonScanner.isInstalled(defaultPath))
+            settingsManager.setDefaultProtonPath("");
         for (let i = 0; i < protonModel.count; i++) {
             if (protonModel.get(i).path === prevPath) {
                 protonCombo.currentIndex = i;
@@ -128,6 +132,9 @@ ColumnLayout {
                 "path": versions[i].path
             });
         }
+        var defaultBinary = settingsManager.defaultWineBinary;
+        if (defaultBinary !== "" && !wineScanner.isInstalled(defaultBinary))
+            settingsManager.setDefaultWineBinary("");
         for (let i = 0; i < wineModel.count; i++) {
             if (wineModel.get(i).path === prevPath) {
                 wineCombo.currentIndex = i;
@@ -147,15 +154,33 @@ ColumnLayout {
 
     Connections {
         target: protonDownloader
-        function onFinished() {
+        function onFinished(path) {
             root.refreshProton();
+            if (settingsManager.defaultProtonPath === "" && path !== "") {
+                settingsManager.setDefaultProtonPath(path);
+                for (var i = 0; i < protonModel.count; i++) {
+                    if (protonModel.get(i).path === path) {
+                        protonCombo.currentIndex = i;
+                        break;
+                    }
+                }
+            }
         }
     }
 
     Connections {
         target: wineDownloader
-        function onFinished() {
+        function onFinished(path) {
             root.refreshWine();
+            if (settingsManager.defaultWineBinary === "" && path !== "") {
+                settingsManager.setDefaultWineBinary(path);
+                for (var i = 0; i < wineModel.count; i++) {
+                    if (wineModel.get(i).path === path) {
+                        wineCombo.currentIndex = i;
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -176,6 +201,10 @@ ColumnLayout {
             textRole: "label"
             valueRole: "key"
             Layout.minimumWidth: 400
+            onActivated: {
+                if (root.autoSaveDefaults && currentValue !== "")
+                    settingsManager.setDefaultRuntimeType(currentValue);
+            }
         }
 
         RowLayout {
@@ -190,6 +219,10 @@ ColumnLayout {
                 displayText: protonModel.count === 0 ? i18n("No Proton versions found. Download GE Proton to get started - no Steam or manual setup needed.") : currentText
                 QQC2.ToolTip.visible: hovered && protonModel.count === 0
                 QQC2.ToolTip.text: protonModel.count === 0 ? i18n("No Proton versions found. Download GE Proton to get started - no Steam or manual setup needed.") : ""
+                onActivated: {
+                    if (currentIndex >= 0 && (root.autoSaveDefaults || settingsManager.defaultProtonPath === ""))
+                        settingsManager.setDefaultProtonPath(protonModel.get(currentIndex).path);
+                }
             }
             QQC2.ToolButton {
                 icon.name: "folder-open"
@@ -227,6 +260,14 @@ ColumnLayout {
             }
         }
 
+        DownloaderProgress {
+            Layout.fillWidth: true
+            Kirigami.FormData.label: ""
+            visible: runtimeCombo.currentValue === "proton" && protonDownloader.busy
+            progress: protonDownloader.progress
+            statusText: protonDownloader.statusText
+        }
+
         RowLayout {
             Layout.fillWidth: true
             visible: runtimeCombo.currentValue === "wine"
@@ -239,6 +280,10 @@ ColumnLayout {
                 displayText: wineModel.count === 0 ? i18n("No Wine versions found. Download a build to get started.") : currentText
                 QQC2.ToolTip.visible: hovered && wineModel.count === 0
                 QQC2.ToolTip.text: wineModel.count === 0 ? i18n("No Wine versions found. Download a build to get started.") : ""
+                onActivated: {
+                    if (currentIndex >= 0 && (root.autoSaveDefaults || settingsManager.defaultWineBinary === ""))
+                        settingsManager.setDefaultWineBinary(wineModel.get(currentIndex).path);
+                }
             }
             QQC2.ToolButton {
                 icon.name: "folder-open"
@@ -284,6 +329,14 @@ ColumnLayout {
                     }
                 }
             }
+        }
+
+        DownloaderProgress {
+            Layout.fillWidth: true
+            Kirigami.FormData.label: ""
+            visible: runtimeCombo.currentValue === "wine" && wineDownloader.busy
+            progress: wineDownloader.progress
+            statusText: wineDownloader.statusText
         }
     }
 }

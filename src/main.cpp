@@ -98,6 +98,12 @@ int main(int argc, char *argv[])
     aboutData.processCommandLine(&parser);
 
     Launcher launcher;
+    SettingsManager settingsManager;
+    launcher.setGlobalEnvVars(settingsManager.globalEnvVars());
+    launcher.setUmuPath(settingsManager.umuPath());
+    launcher.setRetroarchPath(settingsManager.retroarchPath());
+    launcher.setRommCoreMap(settingsManager.rommCoreMap());
+    launcher.setRommGameCoreMap(settingsManager.rommGameCoreMap());
 
     auto launchCli = [&](const QVariantMap &entry) -> int {
         QObject::connect(&launcher, &Launcher::processFinished, &app, &QApplication::exit);
@@ -165,7 +171,6 @@ int main(int argc, char *argv[])
     WineScanner wineScanner;
     DesktopFileWriter desktopWriter;
     IconExtractor iconExtractor;
-    SettingsManager settingsManager;
     ProtonDownloader protonDownloader;
     protonDownloader.setLocalProtonPath(protonScanner.localProtonPath());
     WineDownloader wineDownloader;
@@ -180,12 +185,10 @@ int main(int argc, char *argv[])
 
     RuntimeTypeModel runtimeTypeModel;
 
-    launcher.setUmuPath(settingsManager.umuPath());
     QObject::connect(&settingsManager, &SettingsManager::umuPathChanged, [&]() {
         launcher.setUmuPath(settingsManager.umuPath());
     });
 
-    launcher.setGlobalEnvVars(settingsManager.globalEnvVars());
     QObject::connect(&settingsManager, &SettingsManager::globalEnvVarsChanged, [&]() {
         launcher.setGlobalEnvVars(settingsManager.globalEnvVars());
     });
@@ -232,10 +235,6 @@ int main(int argc, char *argv[])
     rommFileDownloader.setServerUrl(settingsManager.rommServerUrl());
     rommFileDownloader.setApiKey(settingsManager.rommApiKey());
     rommFileDownloader.setRomCacheDir(settingsManager.romCacheDir());
-
-    launcher.setRetroarchPath(settingsManager.retroarchPath());
-    launcher.setRommCoreMap(settingsManager.rommCoreMap());
-    launcher.setRommGameCoreMap(settingsManager.rommGameCoreMap());
 
     QObject::connect(&settingsManager, &SettingsManager::rommCoreMapChanged, [&]() {
         launcher.setRommCoreMap(settingsManager.rommCoreMap());

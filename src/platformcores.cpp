@@ -110,12 +110,13 @@ const QHash<QString, QStringList> &platformCoreMap()
 QStringList retroarchCoreDirs(const QString &retroarchBinary)
 {
     QString home = QDir::homePath();
-    QStringList dirs;
     if (retroarchBinary == QStringLiteral("flatpak:org.libretro.RetroArch"))
-        dirs << home + QStringLiteral("/.var/app/org.libretro.RetroArch/config/retroarch/cores");
-    dirs << home + QStringLiteral("/.config/retroarch/cores");
-    dirs << QStringLiteral("/usr/lib/x86_64-linux-gnu/libretro");
-    dirs << QStringLiteral("/usr/lib/libretro");
-    dirs << QStringLiteral("/usr/share/libretro/cores");
-    return dirs;
+        return {home + QStringLiteral("/.var/app/org.libretro.RetroArch/config/retroarch/cores")};
+
+    return {
+        home + QStringLiteral("/.config/retroarch/cores"),
+        QStringLiteral("/usr/lib/x86_64-linux-gnu/libretro"),
+        QStringLiteral("/usr/lib/libretro"),
+        QStringLiteral("/usr/share/libretro/cores"),
+    };
 }

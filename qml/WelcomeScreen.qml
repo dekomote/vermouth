@@ -9,22 +9,12 @@ ColumnLayout {
 
     property int refresh: 0
 
-    function hasProton() {
-        return protonScanner.findProtonVersions().length > 0;
-    }
+    Component.onCompleted: defaultRuntimePicker.reset()
+
     function hasUmu() {
         return settingsManager.umuPath !== "";
     }
 
-    Connections {
-        target: protonDownloader
-        function onFinished() {
-            root.refresh++;
-        }
-        function onError(message) {
-            root.refresh++;
-        }
-    }
     Connections {
         target: umuDownloader
         function onFinished() {
@@ -44,42 +34,20 @@ ColumnLayout {
     }
 
     QQC2.Label {
-        visible: {
-            root.refresh;
-            return !hasProton();
-        }
         Layout.fillWidth: true
         Layout.topMargin: Kirigami.Units.largeSpacing
         wrapMode: Text.WordWrap
         text: i18n("Start by downloading a Proton runtime for Windows game support.")
     }
-    QQC2.Button {
-        visible: {
-            root.refresh;
-            return !hasProton();
-        }
-        icon.name: "download"
-        text: protonDownloader.busy ? i18n("Downloading Proton GE…") : i18n("Download Proton GE")
-        enabled: !protonDownloader.busy
-        onClicked: protonDownloader.downloadLatest()
-        Layout.alignment: Qt.AlignHCenter
-    }
-    QQC2.ProgressBar {
-        visible: {
-            root.refresh;
-            return !hasProton() && protonDownloader.busy;
-        }
+
+    RuntimePicker {
+        id: defaultRuntimePicker
         Layout.fillWidth: true
-        from: 0.0
-        to: 1.0
-        value: protonDownloader.progress
+        sectionLabel: i18n("Default Runtime")
+        autoSaveDefaults: true
     }
 
     Kirigami.Separator {
-        visible: {
-            root.refresh;
-            return !hasProton();
-        }
         Layout.fillWidth: true
         Layout.topMargin: Kirigami.Units.largeSpacing
     }
@@ -104,15 +72,14 @@ ColumnLayout {
         enabled: !umuDownloader.busy
         onClicked: umuDownloader.downloadLatest()
     }
-    QQC2.ProgressBar {
+    DownloaderProgress {
         visible: {
             root.refresh;
             return !hasUmu() && umuDownloader.busy;
         }
         Layout.fillWidth: true
-        from: 0.0
-        to: 1.0
-        value: umuDownloader.progress
+        progress: umuDownloader.progress
+        statusText: umuDownloader.statusText
     }
 
     Kirigami.Separator {

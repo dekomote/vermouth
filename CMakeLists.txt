@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(vermouth VERSION 1.8.3 LANGUAGES CXX)
+project(vermouth VERSION 1.8.4 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -83,6 +83,7 @@ qt_add_qml_module(vermouth
         qml/SteamImportDialog.qml
         qml/CorePickerDialog.qml
         qml/RommView.qml
+        qml/DownloaderProgress.qml
     NO_RESOURCE_TARGET_PATH
 )
 
