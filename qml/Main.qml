@@ -77,7 +77,7 @@ Kirigami.ApplicationWindow {
                 onTriggered: steamImportDialog.openDialog()
             },
             Kirigami.Action {
-                text: i18n("Import from GOG")
+                text: i18n("Import GOG games")
                 icon.name: "folder-games"
                 onTriggered: gogImportDialog.openDialog()
             },

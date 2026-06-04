@@ -1,16 +1,23 @@
 import QtQuick
 import QtQuick.Controls as QQC2
-import QtQuick.Layouts
 import QtQuick.Dialogs
+import QtQuick.Layouts
+import QtCore
 import org.kde.kirigami as Kirigami
 
 Kirigami.Dialog {
     id: dialog
-    title: i18n("Import from GOG")
+    title: i18n("Import GOG games")
     preferredWidth: Kirigami.Units.gridUnit * 30
     padding: Kirigami.Units.largeSpacing
     bottomPadding: Kirigami.Units.largeSpacing
     standardButtons: Kirigami.Dialog.NoButton
+
+    Settings {
+        id: gogSettings
+        category: "GogImporter"
+        property alias gogFolder: folderField.text
+    }
 
     customFooterActions: [
         Kirigami.Action {
@@ -123,6 +130,13 @@ Kirigami.Dialog {
         spacing: Kirigami.Units.mediumSpacing
         Layout.fillWidth: true
 
+        QQC2.Label {
+            Layout.fillWidth: true
+            wrapMode: Text.WordWrap
+            text: i18n("Select a folder containing your installed GOG games - either a single game directory or a parent folder with multiple games.")
+            Layout.bottomMargin: Kirigami.Units.largeSpacing
+        }
+
         RowLayout {
             Layout.fillWidth: true
             spacing: Kirigami.Units.smallSpacing
@@ -171,12 +185,12 @@ Kirigami.Dialog {
                 width: parent.width
                 height: parent.height
                 model: gogModel
-                spacing: 0
+                spacing: Kirigami.Units.smallSpacing
 
                 delegate: Item {
                     id: rowItem
                     width: gameList.width
-                    height: visible ? Math.max(54, rowContent.implicitHeight) : 0
+                    height: visible ? Math.max(Kirigami.Units.gridUnit * 2, rowContent.implicitHeight) : 0
 
                     required property int index
                     required property string gameId

@@ -97,6 +97,13 @@ QVector<GogEntry> GogLibrary::scan(const QString &rootPath)
     if (!root.exists())
         return entries;
 
+    // Check if root itself is a game
+    GogEntry rootEntry = tryParseWindows(root);
+    if (rootEntry.name.isEmpty())
+        rootEntry = tryParseLinux(root);
+    if (!rootEntry.name.isEmpty())
+        entries.append(rootEntry);
+
     for (const QString &dirName : root.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
         QDir gameDir(root.absoluteFilePath(dirName));
 
