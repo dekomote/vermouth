@@ -36,6 +36,7 @@ KDE-first, lightweight, no frills.</p>
 - [umu-launcher support](#umu-launcher-support)
 - [SteamGridDB support](#steamgriddb-support)
 - [Steam support](#steam-support)
+- [GOG support](#gog-support)
 - [RetroArch support](#retroarch-support)
 - [RomM support](#romm-support)
 - [Installing](#installing)
@@ -64,6 +65,7 @@ Vermouth is a KDE-first launcher with four modes:
 - **Windows games** - run `.exe` files with Proton or Wine, with umu-launcher support for full Steam Runtime compatibility
 - **Native apps** - launch Linux binaries, `.desktop` entries, and AppImages directly
 - **Steam games** - import your installed Steam library with one click and launch games directly via Steam
+- **GOG games** - point Vermouth at your GOG install folder and import your games, Windows ones run through Proton and native Linux ones run directly
 - **Retro games** - browse and launch your [RomM](https://github.com/rommapp/romm) library via RetroArch, with platform filtering, cover art, and ROM downloads; or add ROM files directly to your library
 
 It works like Lutris, Heroic, or Bottles, but lighter and KDE-first - less buttons, checks and knobs, just the bare necessities.
@@ -121,6 +123,8 @@ The **Launch Options** field wraps the command with tools like `mangohud`, `game
 
 **Steam games:** Click **Menu → Import from Steam**. Vermouth scans your Steam library, shows all installed games, and lets you select which ones to import. Art is resolved from your local Steam cache and any gaps are filled from SteamGridDB automatically.
 
+**GOG games:** Click **Menu → Import GOG games** and point Vermouth at the folder where your GOG games live. It scans the folder, lists everything it finds, and lets you tick the ones you want. Windows games are set up to run through Proton with their own prefix, and native Linux installs are launched directly. Icons are picked up from the GOG install where available.
+
 **RetroArch games:** Click **Add Game**, select **RetroArch** as the runtime, choose the ROM file and platform. Vermouth will pick the right core automatically or prompt you to select one.
 
 **Retro games via RomM:** Configure your RomM server URL and API key in Settings. Switch to the **RomM** tab, and double-click a ROM to download and launch it. Cores can be overridden per game via right-click.
@@ -154,6 +158,14 @@ Vermouth supports [SteamGridDB](https://www.steamgriddb.com) for fetching icons,
 Vermouth can import your installed Steam library in one click. Go to **Menu → Import from Steam**, select the games you want, and they will appear in your library. Launching them opens Steam directly to that game. Art is fetched from your local Steam cache automatically; any missing artwork is downloaded from SteamGridDB if you have an API key configured.
 
 Steam is detected from all standard install locations, including native and Flatpak installs.
+
+---
+
+## GOG support
+
+If you have games installed from GOG, Vermouth can pull them into your library without you having to add each one by hand. Go to **Menu → Import GOG games**, point it at the folder your GOG games are installed in, and it will scan through and show you everything it recognises. Pick the ones you want and import them in one go.
+
+Both Windows and native Linux GOG installs are supported. Windows games are read from their `goggame-*.info` manifest and set up to run through Proton with a dedicated prefix, while native Linux games are detected from their `start.sh` and launched directly. Where a game ships an icon, Vermouth uses it automatically.
 
 ---
 
