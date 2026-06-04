@@ -33,6 +33,10 @@ Kirigami.Dialog {
         }
     ]
 
+    Component.onCompleted: {
+        folderField.textChanged();
+    }
+
     property int selectedCount: 0
     property bool importing: false
     property var checkStates: ({})
@@ -144,7 +148,7 @@ Kirigami.Dialog {
             QQC2.TextField {
                 id: folderField
                 Layout.fillWidth: true
-                placeholderText: i18n("GOG games folder…")
+                placeholderText: i18n("GOG games folder...")
                 onTextChanged: {
                     if (text.length > 0 && !gogModel.busy) {
                         checkStates = {};
@@ -179,18 +183,19 @@ Kirigami.Dialog {
             Layout.fillHeight: true
             clip: true
             visible: gogModel.count > 0
+            Layout.topMargin: Kirigami.Units.largeSpacing
 
             ListView {
                 id: gameList
                 width: parent.width
                 height: parent.height
                 model: gogModel
-                spacing: Kirigami.Units.smallSpacing
+                spacing: Kirigami.Units.mediumSpacing
 
                 delegate: Item {
                     id: rowItem
                     width: gameList.width
-                    height: visible ? Math.max(Kirigami.Units.gridUnit * 2, rowContent.implicitHeight) : 0
+                    height: visible ? rowContent.implicitHeight : 0
 
                     required property int index
                     required property string gameId
