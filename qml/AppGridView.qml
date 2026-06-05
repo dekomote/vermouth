@@ -7,6 +7,8 @@ GameGridView {
     id: gridView
     model: appModel
 
+    property bool searchActive: false
+
     Connections {
         target: launcher
         function onRomCoreMissing(platformSlug, rom) {
@@ -327,8 +329,8 @@ GameGridView {
         anchors.centerIn: parent
         width: parent.width - Kirigami.Units.gridUnit * 4
         visible: gridView.count === 0
-        text: i18n("No apps or games added yet")
-        explanation: i18n("Click \"Add App/Game\" to get started")
-        icon.name: "games-config-custom"
+        text: gridView.searchActive ? i18n("No apps or games found") : i18n("No apps or games added yet")
+        explanation: gridView.searchActive ? i18n("Try a different search term") : i18n("Click \"Add App/Game\" to get started")
+        icon.name: "folder-games"
     }
 }

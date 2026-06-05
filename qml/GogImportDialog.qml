@@ -44,6 +44,13 @@ Kirigami.Dialog {
     property string currentDownloadAppId: ""
     property string autoDownloadStatus: ""
 
+    function recalculateSelection() {
+        checkStates = Object.assign({}, checkStates);
+        selectedCount = Object.values(checkStates).filter(function (v) {
+            return v;
+        }).length;
+    }
+
     function openDialog() {
         checkStates = {};
         selectedCount = 0;
@@ -178,6 +185,29 @@ Kirigami.Dialog {
             opacity: 0.75
         }
 
+        RowLayout {
+            visible: gogModel.count > 0 && !importing
+            spacing: Kirigami.Units.smallSpacing
+            QQC2.Button {
+                text: i18n("Select All")
+                onClicked: {
+                    for (var i = 0; i < gogModel.count; i++) {
+                        var entry = gogModel.getGame(i);
+                        if (appModel.getAppByExePath(entry.exePath).id === undefined)
+                            checkStates[i] = true;
+                    }
+                    recalculateSelection();
+                }
+            }
+            QQC2.Button {
+                text: i18n("Deselect All")
+                onClicked: {
+                    checkStates = {};
+                    recalculateSelection();
+                }
+            }
+        }
+
         QQC2.ScrollView {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -249,9 +279,7 @@ Kirigami.Dialog {
                             var s = Object.assign({}, dialog.checkStates);
                             s[index] = !(s[index] === true);
                             dialog.checkStates = s;
-                            dialog.selectedCount = Object.values(dialog.checkStates).filter(function (v) {
-                                return v;
-                            }).length;
+                            dialog.recalculateSelection();
                         }
                     }
                 }

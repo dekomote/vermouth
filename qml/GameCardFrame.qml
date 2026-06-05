@@ -25,6 +25,7 @@ Item {
     }
 
     readonly property bool isSelected: gv && gv.currentIndex === frameRoot.index
+    property bool hovered: false
 
     width: gv ? gv.cellWidth : 140
     height: gv ? gv.cellHeight : 120
@@ -36,7 +37,7 @@ Item {
         radius: Kirigami.Units.cornerRadius
         color: "transparent"
         layer.enabled: frameRoot.gv && frameRoot.gv.viewType !== "icon"
-        scale: frameRoot.isSelected ? 1.03 : 1.0
+        scale: frameRoot.isSelected ? 1.03 : frameRoot.hovered ? 1.02 : 1.0
         z: frameRoot.isSelected ? 2 : 0
 
         Behavior on scale {
@@ -331,6 +332,7 @@ Item {
             cursorShape: Qt.PointingHandCursor
             z: 20
 
+            onContainsMouseChanged: frameRoot.hovered = containsMouse
             onClicked: function (mouse) {
                 if (frameRoot.gv) {
                     frameRoot.gv.currentIndex = frameRoot.index;

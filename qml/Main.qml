@@ -10,7 +10,7 @@ Kirigami.ApplicationWindow {
     id: root
     width: 800
     height: 800
-    minimumWidth: settingsManager.drawerPinned ? 900 : 700
+    minimumWidth: 700
     minimumHeight: 800
     visibility: settingsManager.bigPicture ? Window.FullScreen : Window.Windowed
 
@@ -30,10 +30,58 @@ Kirigami.ApplicationWindow {
 
     property double prevScaleFactor: 1
     property bool prevLightsOut: false
+    property bool prevDrawerPinned: false
     property int activeTab: 0
     readonly property var tabViews: [gridView, rommView]
     function activeGridView() {
         return tabViews[activeTab] ?? gridView;
+    }
+
+    property string searchQuery: ""
+    function updateSearch(text) {
+        root.searchQuery = text;
+        if (root.activeTab === 0) {
+            appModel.setFilterString(text);
+            gridView.searchActive = text !== "";
+        } else {
+            rommView.applySearch(text);
+        }
+    }
+    readonly property bool searchInSidebar: !globalDrawer.modal && !root.bigPicture
+
+    readonly property real headerHeight: Math.max(searchField.implicitHeight, rommPlatformCombo.implicitHeight, addBtn.implicitHeight) + Kirigami.Units.largeSpacing * 2
+
+    readonly property var tabModel: [
+        {
+            name: i18n("Games"),
+            icon: "applications-games",
+            enabled: true
+        },
+        {
+            name: i18n("RomM"),
+            icon: "network-server",
+            enabled: settingsManager.rommServerUrl !== ""
+        }
+    ]
+    readonly property int enabledTabCount: tabModel.filter(t => t.enabled).length
+    readonly property bool tabsInDrawer: enabledTabCount > 1 && (searchInSidebar || !settingsManager.showTabBar)
+
+    function selectTab(index) {
+        if (root.activeTab === index)
+            return;
+        root.activeTab = index;
+        root.searchQuery = "";
+        searchField.text = "";
+        sidebarSearch.text = "";
+        if (index === 0) {
+            appModel.setFilterString("");
+            gridView.searchActive = false;
+        } else {
+            rommView.searchText = "";
+            if (settingsManager.rommServerUrl !== "" && rommView.platforms.length === 0 && !rommModel.busy)
+                rommView.refresh();
+        }
+        Qt.callLater(() => root.activeGridView().forceActiveFocus());
     }
 
     Settings {
@@ -43,10 +91,30 @@ Kirigami.ApplicationWindow {
         property int savedHeight: 800
     }
 
+    Settings {
+        id: sidebarSettings
+        category: "Sidebar"
+        property real width: -1
+    }
+
     onWidthChanged: if (visibility === Window.Windowed)
         windowSettings.savedWidth = width
     onHeightChanged: if (visibility === Window.Windowed)
         windowSettings.savedHeight = height
+
+    onLightsOutChanged: {
+        if (root.lightsOut) {
+            root.prevDrawerPinned = settingsManager.drawerPinned;
+            if (settingsManager.drawerPinned) {
+                settingsManager.setDrawerPinned(false);
+                globalDrawer.close();
+            }
+        } else if (root.prevDrawerPinned) {
+            settingsManager.setDrawerPinned(true);
+            if (root.wideScreen)
+                Qt.callLater(() => globalDrawer.open());
+        }
+    }
 
     background: Rectangle {
         color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
@@ -54,10 +122,82 @@ Kirigami.ApplicationWindow {
 
     globalDrawer: Kirigami.GlobalDrawer {
         id: globalDrawer
-        modal: !settingsManager.drawerPinned
+        modal: !settingsManager.drawerPinned || !root.wideScreen
         focus: modal
         handle.visible: false
-        Kirigami.Theme.inherit: true
+        interactiveResizeEnabled: true
+        Component.onCompleted: preferredSize = sidebarSettings.width > 0 ? sidebarSettings.width : Kirigami.Units.gridUnit * 14
+        onPreferredSizeChanged: sidebarSettings.width = preferredSize
+
+        padding: 0
+        topPadding: 0
+        leftPadding: 0
+        rightPadding: 0
+        bottomPadding: 0
+
+        Kirigami.Theme.inherit: root.lightsOut
+        Kirigami.Theme.colorSet: modal ? Kirigami.Theme.Window : Kirigami.Theme.View
+
+        header: Kirigami.AbstractApplicationHeader {
+            visible: root.searchInSidebar
+            preferredHeight: root.headerHeight
+            Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Header
+            Kirigami.Theme.inherit: false
+            background: Rectangle {
+                color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
+            }
+
+            contentItem: Kirigami.SearchField {
+                id: sidebarSearch
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    verticalCenter: parent.verticalCenter
+                    leftMargin: Kirigami.Units.smallSpacing
+                    rightMargin: Kirigami.Units.smallSpacing
+                }
+                text: root.searchQuery
+                onTextChanged: root.updateSearch(text)
+                onVisibleChanged: if (visible)
+                    text = Qt.binding(() => root.searchQuery)
+                Kirigami.Theme.colorSet: Kirigami.Theme.View
+                Kirigami.Theme.inherit: false
+                color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                placeholderTextColor: root.lightsOut ? root.loSubText : Kirigami.Theme.disabledTextColor
+                background: Rectangle {
+                    color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
+                    radius: Kirigami.Units.cornerRadius
+                    border.width: 1
+                    border.color: sidebarSearch.hovered || sidebarSearch.activeFocus ? Kirigami.Theme.focusColor : Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
+                }
+            }
+        }
+
+        topContent: [
+            Repeater {
+                model: root.tabsInDrawer ? root.tabModel : []
+                delegate: QQC2.ItemDelegate {
+                    required property var modelData
+                    required property int index
+                    Layout.fillWidth: true
+                    visible: modelData.enabled
+                    text: modelData.name
+                    icon.name: modelData.icon
+                    checkable: true
+                    checked: root.activeTab === index
+                    onClicked: root.selectTab(index)
+                }
+            },
+            Repeater {
+                model: root.tabsInDrawer ? 1 : 0
+                delegate: Kirigami.Separator {
+                    Layout.fillWidth: true
+                    Layout.topMargin: Kirigami.Units.smallSpacing
+                    Layout.leftMargin: Kirigami.Units.largeSpacing
+                    Layout.rightMargin: Kirigami.Units.largeSpacing
+                }
+            }
+        ]
 
         actions: [
             Kirigami.Action {
@@ -84,15 +224,11 @@ Kirigami.ApplicationWindow {
             Kirigami.Action {
                 text: launcher.sleepInhibited ? i18n("Allow Sleep") : i18n("Prevent Sleep")
                 icon.name: launcher.sleepInhibited ? "media-playback-pause" : "system-suspend-inhibited"
-                checkable: true
-                checked: launcher.sleepInhibited
                 onTriggered: launcher.toggleSleepInhibit()
             },
             Kirigami.Action {
                 text: launcher.hdrEnabled ? i18n("Disable HDR") : i18n("Enable HDR")
                 icon.name: "contrast"
-                checkable: true
-                checked: launcher.hdrEnabled
                 enabled: launcher.hdrSupported
                 visible: launcher.hdrSupported
                 onTriggered: launcher.toggleHdr()
@@ -149,6 +285,8 @@ Kirigami.ApplicationWindow {
                 focusPolicy: Qt.NoFocus
                 checkable: true
                 checked: settingsManager.drawerPinned
+                // Pinning is a light-mode feature; disabled while in dark mode.
+                enabled: !root.lightsOut
                 flat: true
                 onClicked: settingsManager.setDrawerPinned(!settingsManager.drawerPinned)
                 QQC2.ToolTip.text: settingsManager.drawerPinned ? i18n("Unpin sidebar") : i18n("Pin sidebar")
@@ -168,6 +306,7 @@ Kirigami.ApplicationWindow {
 
             QQC2.ToolBar {
                 Layout.fillWidth: true
+                Layout.preferredHeight: root.headerHeight
                 topPadding: Kirigami.Units.largeSpacing
                 bottomPadding: Kirigami.Units.largeSpacing
                 background: Rectangle {
@@ -202,15 +341,14 @@ Kirigami.ApplicationWindow {
 
                     Kirigami.SearchField {
                         id: searchField
+                        visible: !root.searchInSidebar
                         Layout.fillWidth: !root.bigPicture
                         Layout.preferredWidth: root.bigPicture ? Kirigami.Units.gridUnit * 28 : -1
                         font.pixelSize: root.bigPicture ? Math.round(Kirigami.Theme.defaultFont.pixelSize * 1.8) : Kirigami.Theme.defaultFont.pixelSize
-                        onTextChanged: {
-                            if (root.activeTab === 0)
-                                appModel.setFilterString(text);
-                            else
-                                rommView.applySearch(text);
-                        }
+                        text: root.searchQuery
+                        onTextChanged: root.updateSearch(text)
+                        onVisibleChanged: if (visible)
+                            text = Qt.binding(() => root.searchQuery)
                         Kirigami.Theme.colorSet: Kirigami.Theme.View
                         Kirigami.Theme.inherit: false
                         color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
@@ -226,6 +364,11 @@ Kirigami.ApplicationWindow {
                     Item {
                         Layout.fillWidth: root.bigPicture
                         visible: root.bigPicture
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                        visible: root.searchInSidebar
                     }
 
                     QQC2.ToolButton {
@@ -316,41 +459,16 @@ Kirigami.ApplicationWindow {
                 palette.text: root.lightsOut ? root.loText : undefined
                 palette.placeholderText: root.lightsOut ? root.loSubText : undefined
 
-                property var tabs: [
-                    {
-                        name: i18n("Games"),
-                        enabled: true
-                    },
-                    {
-                        name: i18n("RomM"),
-                        enabled: settingsManager.rommServerUrl !== ""
-                    }
-                ]
-                readonly property int enabledTabCount: tabs.filter(t => t.enabled).length
-                visible: enabledTabCount > 1
+                visible: root.enabledTabCount > 1 && !root.tabsInDrawer
 
                 background: Rectangle {
                     color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
                 }
 
-                onCurrentIndexChanged: {
-                    root.activeTab = currentIndex;
-                    searchField.text = "";
-                    if (currentIndex === 0) {
-                        appModel.setFilterString("");
-                    } else {
-                        rommView.searchText = "";
-                        if (settingsManager.rommServerUrl !== "" && rommView.platforms.length === 0 && !rommModel.busy) {
-                            rommView.refresh();
-                        }
-                    }
-                    Qt.callLater(function () {
-                        root.activeGridView().forceActiveFocus();
-                    });
-                }
+                onCurrentIndexChanged: root.selectTab(currentIndex)
 
                 Repeater {
-                    model: mainTabBar.tabs
+                    model: root.tabModel
                     QQC2.TabButton {
                         text: modelData.name
                         enabled: modelData.enabled
@@ -798,13 +916,13 @@ Kirigami.ApplicationWindow {
         }
 
         function onL1Pressed() {
-            if (mainTabBar.enabledTabCount > 1)
-                mainTabBar.currentIndex = Math.max(0, mainTabBar.currentIndex - 1);
+            if (root.enabledTabCount > 1)
+                root.selectTab(Math.max(0, root.activeTab - 1));
         }
 
         function onR1Pressed() {
-            if (mainTabBar.enabledTabCount > 1)
-                mainTabBar.currentIndex = Math.min(mainTabBar.count - 1, mainTabBar.currentIndex + 1);
+            if (root.enabledTabCount > 1)
+                root.selectTab(Math.min(root.tabModel.length - 1, root.activeTab + 1));
         }
 
         function onR2Pressed() {

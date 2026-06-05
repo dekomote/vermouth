@@ -107,6 +107,7 @@ Kirigami.PromptDialog {
 
             RowLayout {
                 Layout.fillWidth: true
+
                 Kirigami.FormData.label: i18n("umu-run path:")
                 QQC2.TextField {
                     id: umuPathField
@@ -166,17 +167,9 @@ Kirigami.PromptDialog {
                     icon.name: "document-open"
                     onClicked: prefixDirFolderDialog.open()
                 }
-            }
-
-            QQC2.Label {
-                Kirigami.FormData.label: ""
-                text: i18n("This is the folder where Vermouth stores all the created prefixes by default.")
-                wrapMode: Text.WordWrap
-                Layout.fillWidth: true
-                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
-                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
-                font.italic: true
-                color: Kirigami.Theme.disabledTextColor
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("This is the folder where Vermouth stores all the created prefixes by default.")
+                }
             }
 
             RowLayout {
@@ -191,17 +184,9 @@ Kirigami.PromptDialog {
                     icon.name: "document-open"
                     onClicked: gamePrefixFolderDialog.open()
                 }
-            }
-
-            QQC2.Label {
-                Kirigami.FormData.label: ""
-                text: i18n("Set this if you want all Proton games to share a single prefix (e.g. one Proton environment for everything). Leave empty to auto-generate a separate prefix per game. You can still use separate prefix per game, but you have to set it explicitly.")
-                wrapMode: Text.WordWrap
-                Layout.fillWidth: true
-                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
-                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
-                font.italic: true
-                color: Kirigami.Theme.disabledTextColor
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Set this if you want all Proton games to share a single prefix (e.g. one Proton environment for everything). Leave empty to auto-generate a separate prefix per game. You can still use separate prefix per game, but you have to set it explicitly.")
+                }
             }
 
             RowLayout {
@@ -216,22 +201,25 @@ Kirigami.PromptDialog {
                     icon.name: "document-open"
                     onClicked: winePrefixFolderDialog.open()
                 }
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Set this if you want all Wine games to share a single prefix. Leave empty to auto-generate a separate Wine prefix per game under the 'wines/' subfolder.")
+                }
+            }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("Vermouth Proton Folder")
             }
 
             QQC2.Label {
                 Kirigami.FormData.label: ""
-                text: i18n("Set this if you want all Wine games to share a single prefix. Leave empty to auto-generate a separate Wine prefix per game under the 'wines/' subfolder.")
+                text: i18n("Download GE Proton to run most games and apps — no Steam or manual setup needed.")
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
                 font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
                 font.italic: true
                 color: Kirigami.Theme.disabledTextColor
-            }
-
-            Kirigami.Separator {
-                Kirigami.FormData.isSection: true
-                Kirigami.FormData.label: i18n("Vermouth Proton Folder")
             }
 
             RowLayout {
@@ -252,17 +240,6 @@ Kirigami.PromptDialog {
                     QQC2.ToolTip.text: protonDownloader.statusText ? protonDownloader.statusText : i18n("Download latest GE Proton")
                     onClicked: protonDownloader.downloadLatest()
                 }
-            }
-
-            QQC2.Label {
-                Kirigami.FormData.label: ""
-                text: i18n("Download GE Proton to run most games and apps — no Steam or manual setup needed.")
-                wrapMode: Text.WordWrap
-                Layout.fillWidth: true
-                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
-                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
-                font.italic: true
-                color: Kirigami.Theme.disabledTextColor
             }
 
             Kirigami.Separator {
@@ -297,11 +274,8 @@ Kirigami.PromptDialog {
                     checked: settingsManager.autoDownloadArt
                     onToggled: settingsManager.setAutoDownloadArt(checked)
                 }
-                QQC2.Label {
-                    text: i18n("Automatically download icon, grid, hero and logo when adding a game")
-                    wrapMode: Text.WordWrap
-                    font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
-                    color: Kirigami.Theme.disabledTextColor
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Automatically download icon, grid, hero and logo when adding a game.")
                 }
             }
 
@@ -396,6 +370,17 @@ Kirigami.PromptDialog {
                 Kirigami.FormData.label: i18n("Extra Proton Scan Paths")
             }
 
+            QQC2.Label {
+                Kirigami.FormData.label: ""
+                text: i18n("Folders to scan for Proton installations, in addition to Steam and local paths.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
+                font.italic: true
+                color: Kirigami.Theme.disabledTextColor
+            }
+
             ColumnLayout {
                 Kirigami.FormData.label: i18n("Scan Folders:")
                 Layout.fillWidth: true
@@ -425,20 +410,20 @@ Kirigami.PromptDialog {
                 }
             }
 
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("Global Environment Variables")
+            }
+
             QQC2.Label {
                 Kirigami.FormData.label: ""
-                text: i18n("Folders to scan for Proton installations, in addition to Steam and local paths.")
+                text: i18n("Applied to every game. Per-game launch options can override these.")
                 wrapMode: Text.WordWrap
                 Layout.fillWidth: true
                 Layout.maximumWidth: Kirigami.Units.gridUnit * 26
                 font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
                 font.italic: true
                 color: Kirigami.Theme.disabledTextColor
-            }
-
-            Kirigami.Separator {
-                Kirigami.FormData.isSection: true
-                Kirigami.FormData.label: i18n("Global Environment Variables")
             }
 
             ColumnLayout {
@@ -481,20 +466,21 @@ Kirigami.PromptDialog {
                 }
             }
 
-            QQC2.Label {
-                Kirigami.FormData.label: ""
-                text: i18n("Applied to every game. Per-game launch options can override these.")
-                wrapMode: Text.WordWrap
-                Layout.fillWidth: true
-                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
-                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
-                font.italic: true
-                color: Kirigami.Theme.disabledTextColor
-            }
-
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
                 Kirigami.FormData.label: i18n("Appearance")
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Tab bar:")
+                QQC2.Switch {
+                    checked: settingsManager.showTabBar
+                    onToggled: settingsManager.setShowTabBar(checked)
+                }
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Show Games/RomM tabs as a top bar; otherwise they appear in the sidebar.")
+                }
             }
 
             RowLayout {
@@ -549,11 +535,8 @@ Kirigami.PromptDialog {
                     checked: settingsManager.showTips
                     onToggled: settingsManager.setShowTips(checked)
                 }
-                QQC2.Label {
-                    text: i18n("Show helpful prompts like the Steam import suggestion on first launch")
-                    wrapMode: Text.WordWrap
-                    font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
-                    color: Kirigami.Theme.disabledTextColor
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Show helpful prompts like the Steam import suggestion on first launch.")
                 }
             }
 

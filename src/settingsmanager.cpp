@@ -191,6 +191,19 @@ void SettingsManager::setDrawerPinned(bool pinned)
     Q_EMIT drawerPinnedChanged();
 }
 
+bool SettingsManager::showTabBar() const
+{
+    return m_settings.value(QStringLiteral("showTabBar"), true).toBool();
+}
+
+void SettingsManager::setShowTabBar(bool show)
+{
+    if (showTabBar() == show)
+        return;
+    m_settings.setValue(QStringLiteral("showTabBar"), show);
+    Q_EMIT showTabBarChanged();
+}
+
 bool SettingsManager::bigPicture() const
 {
     return m_settings.value(QStringLiteral("bigPicture"), false).toBool();
