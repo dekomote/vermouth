@@ -775,14 +775,15 @@ Kirigami.ApplicationWindow {
             return;
         }
         var app = appModel.getApp(gridView.currentIndex);
-        var runner;
-        if (app.runtimeType === "proton")
-            runner = app.protonPath.split("/").pop();
-        else if (app.runtimeType === "wine")
-            runner = app.wineBinary;
-        else
-            runner = "Native";
-        footerStatusText.text = i18n("%1 - %2", runner, app.exePath);
+        var runner = app.runtimeType === "retroarch" ? "RetroArch" : app.runtimeType.charAt(0).toUpperCase() + app.runtimeType.slice(1);
+        var exePath = app.exePath;
+        var home = protonScanner.homePath();
+        if (exePath.startsWith(home))
+            exePath = "~" + exePath.substring(home.length);
+
+        if (app.runtimeType === "steam")
+            exePath = app.steamAppId.toString();
+        footerStatusText.text = i18n("%1 - %2", runner, exePath);
     }
 
     function openExe(path) {
