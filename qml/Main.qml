@@ -129,12 +129,6 @@ Kirigami.ApplicationWindow {
         Component.onCompleted: preferredSize = sidebarSettings.width > 0 ? sidebarSettings.width : Kirigami.Units.gridUnit * 14
         onPreferredSizeChanged: sidebarSettings.width = preferredSize
 
-        padding: 0
-        topPadding: 0
-        leftPadding: 0
-        rightPadding: 0
-        bottomPadding: 0
-
         Kirigami.Theme.inherit: root.lightsOut
         Kirigami.Theme.colorSet: modal ? Kirigami.Theme.Window : Kirigami.Theme.View
 
