@@ -88,7 +88,7 @@ GameGridView {
             romGrid.platforms = [
                 {
                     id: 0,
-                    name: i18n("All")
+                    name: i18n("All Platforms")
                 }
             ].concat(p);
         }

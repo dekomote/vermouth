@@ -422,6 +422,7 @@ Kirigami.ApplicationWindow {
                 topPadding: Kirigami.Units.largeSpacing
                 bottomPadding: Kirigami.Units.largeSpacing
                 leftPadding: Kirigami.Units.largeSpacing
+                rightPadding: Kirigami.Units.largeSpacing
                 background: Rectangle {
                     color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
                 }
@@ -437,7 +438,7 @@ Kirigami.ApplicationWindow {
                 palette.brightText: root.lightsOut ? root.loText : undefined
 
                 contentItem: RowLayout {
-                    spacing: Kirigami.Units.smallSpacing
+                    spacing: Kirigami.Units.mediumSpacing
                     QQC2.ToolButton {
                         icon.name: "application-menu"
                         focusPolicy: Qt.NoFocus
@@ -570,13 +571,11 @@ Kirigami.ApplicationWindow {
                         visible: root.currentPage === "settings"
                         focusPolicy: Qt.NoFocus
                         icon.name: "document-save"
-                        text: i18n("Save")
-                        display: QQC2.AbstractButton.TextBesideIcon
+                        text: root.lightsOut ? null : i18n("Save")
                         icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
-                        palette.buttonText: root.lightsOut ? root.loText : undefined
                         onClicked: {
                             settingsPage.save();
-                            root.navigate(root.previousPage);
+                            root.showPassiveNotification(i18n("Settings saved"), 2000);
                         }
                     }
                 }
@@ -609,10 +608,14 @@ Kirigami.ApplicationWindow {
 
                 FormCard.AboutPage {
                     aboutData: About
+                    Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
+                    Kirigami.Theme.inherit: false
                 }
 
                 SettingsDialog {
                     id: settingsPage
+                    Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
+                    Kirigami.Theme.inherit: false
                 }
             }
         }
