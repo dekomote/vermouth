@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import QtQuick.Window
 import QtCore
 import org.kde.kirigami as Kirigami
+import org.kde.kirigamiaddons.formcard as FormCard
 import com.dekomote.vermouth 1.0
 
 Kirigami.ApplicationWindow {
@@ -31,57 +32,102 @@ Kirigami.ApplicationWindow {
     property double prevScaleFactor: 1
     property bool prevLightsOut: false
     property bool prevDrawerPinned: false
-    property int activeTab: 0
-    readonly property var tabViews: [gridView, rommView]
-    function activeGridView() {
-        return tabViews[activeTab] ?? gridView;
+    // Declarative page registry. The order here defines the StackLayout child
+    // order, so keep the views in that layout in the same order. `nav` pages are
+    // listed in the sidebar; `search` pages get the header search field.
+    readonly property var pages: [
+        {
+            key: "games",
+            name: i18n("Games"),
+            icon: "applications-games",
+            enabled: true,
+            nav: true,
+            search: true
+        },
+        {
+            key: "romm",
+            name: i18n("RomM"),
+            icon: "network-server",
+            enabled: settingsManager.rommServerUrl !== "",
+            nav: true,
+            search: true
+        },
+        {
+            key: "about",
+            name: i18n("About Vermouth"),
+            icon: "help-about",
+            enabled: true,
+            nav: false,
+            search: false
+        },
+        {
+            key: "settings",
+            name: i18n("Settings"),
+            icon: "configure",
+            enabled: true,
+            nav: false,
+            search: false
+        }
+    ]
+    property string currentPage: "games"
+    property string previousPage: "games"
+    readonly property var navPages: pages.filter(p => p.nav && p.enabled)
+    readonly property var currentPageObject: pages.find(p => p.key === root.currentPage) ?? pages[0]
+    readonly property int currentPageIndex: pages.findIndex(p => p.key === root.currentPage)
+    readonly property var pageViews: ({
+            "games": gridView,
+            "romm": rommView
+        })
+    function currentView() {
+        return root.pageViews[root.currentPage] ?? gridView;
+    }
+
+    function navigate(key) {
+        var page = root.pages.find(p => p.key === key);
+        if (!page || !page.enabled)
+            key = "games";
+        if (root.currentPage === key)
+            return;
+        root.previousPage = root.currentPage;
+        root.currentPage = key;
+        root.searchQuery = "";
+        searchField.text = "";
+        if (key === "games") {
+            appModel.setFilterString("");
+            gridView.searchActive = false;
+        } else if (key === "romm") {
+            rommView.searchText = "";
+            if (settingsManager.rommServerUrl !== "" && rommView.platforms.length === 0 && !rommModel.busy)
+                rommView.refresh();
+        }
+        Qt.callLater(() => root.currentView().forceActiveFocus());
+    }
+
+    // Step through the sidebar nav pages, used by the gamepad shoulder buttons.
+    function cycleNavPage(delta) {
+        var nav = root.navPages;
+        if (nav.length <= 1)
+            return;
+        var i = nav.findIndex(p => p.key === root.currentPage);
+        if (i < 0)
+            i = 0;
+        var next = Math.max(0, Math.min(nav.length - 1, i + delta));
+        root.navigate(nav[next].key);
     }
 
     property string searchQuery: ""
     function updateSearch(text) {
         root.searchQuery = text;
-        if (root.activeTab === 0) {
+        if (root.currentPage === "games") {
             appModel.setFilterString(text);
             gridView.searchActive = text !== "";
-        } else {
+        } else if (root.currentPage === "romm") {
             rommView.applySearch(text);
         }
     }
     readonly property bool sidebarPinned: !globalDrawer.modal && !root.bigPicture
 
     readonly property real headerHeight: Math.max(searchField.implicitHeight, rommPlatformCombo.implicitHeight, addBtn.implicitHeight) + Kirigami.Units.largeSpacing * 2
-
-    readonly property var tabModel: [
-        {
-            name: i18n("Games"),
-            icon: "applications-games",
-            enabled: true
-        },
-        {
-            name: i18n("RomM"),
-            icon: "network-server",
-            enabled: settingsManager.rommServerUrl !== ""
-        }
-    ]
-    readonly property int enabledTabCount: tabModel.filter(t => t.enabled).length
-    readonly property bool tabsInDrawer: enabledTabCount > 1 && (sidebarPinned || !settingsManager.showTabBar)
-
-    function selectTab(index) {
-        if (root.activeTab === index)
-            return;
-        root.activeTab = index;
-        root.searchQuery = "";
-        searchField.text = "";
-        if (index === 0) {
-            appModel.setFilterString("");
-            gridView.searchActive = false;
-        } else {
-            rommView.searchText = "";
-            if (settingsManager.rommServerUrl !== "" && rommView.platforms.length === 0 && !rommModel.busy)
-                rommView.refresh();
-        }
-        Qt.callLater(() => root.activeGridView().forceActiveFocus());
-    }
 
     Settings {
         id: windowSettings
@@ -243,27 +289,22 @@ Kirigami.ApplicationWindow {
 
         topContent: [
             Repeater {
-                model: root.tabsInDrawer ? root.tabModel : []
+                model: root.navPages
                 delegate: QQC2.ItemDelegate {
                     required property var modelData
-                    required property int index
                     Layout.fillWidth: true
-                    visible: modelData.enabled
                     text: modelData.name
                     icon.name: modelData.icon
                     checkable: true
-                    checked: root.activeTab === index
-                    onClicked: root.selectTab(index)
+                    checked: root.currentPage === modelData.key
+                    onClicked: root.navigate(modelData.key)
                 }
             },
-            Repeater {
-                model: root.tabsInDrawer ? 1 : 0
-                delegate: Kirigami.Separator {
-                    Layout.fillWidth: true
-                    Layout.topMargin: Kirigami.Units.smallSpacing
-                    Layout.leftMargin: Kirigami.Units.largeSpacing
-                    Layout.rightMargin: Kirigami.Units.largeSpacing
-                }
+            Kirigami.Separator {
+                Layout.fillWidth: true
+                Layout.topMargin: Kirigami.Units.smallSpacing
+                Layout.leftMargin: Kirigami.Units.largeSpacing
+                Layout.rightMargin: Kirigami.Units.largeSpacing
             }
         ]
 
@@ -329,12 +370,15 @@ Kirigami.ApplicationWindow {
             Kirigami.Action {
                 text: i18n("&Settings")
                 icon.name: "configure"
-                onTriggered: settingsDialog.openDialog()
+                onTriggered: {
+                    settingsPage.load();
+                    root.navigate("settings");
+                }
             },
             Kirigami.Action {
                 text: i18n("&About Vermouth")
                 icon.name: "help-about"
-                onTriggered: pageStack.pushDialogLayer(aboutPage)
+                onTriggered: root.navigate("about")
             },
             Kirigami.Action {
                 text: i18n("Quit")
@@ -394,13 +438,31 @@ Kirigami.ApplicationWindow {
 
                 contentItem: RowLayout {
                     spacing: Kirigami.Units.smallSpacing
-
                     QQC2.ToolButton {
                         icon.name: "application-menu"
                         focusPolicy: Qt.NoFocus
                         visible: globalDrawer.modal
                         onClicked: globalDrawer.open()
                         icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                    }
+
+                    QQC2.ToolButton {
+                        icon.name: "draw-arrow-back"
+                        focusPolicy: Qt.NoFocus
+                        visible: !root.currentPageObject.nav
+                        onClicked: root.navigate(root.previousPage)
+                        icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                        QQC2.ToolTip.text: i18n("Back")
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                    }
+
+                    Kirigami.Heading {
+                        level: 3
+                        text: root.currentPageObject.name
+                        visible: !root.currentPageObject.nav
+                        Layout.fillWidth: true
+                        color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                     }
 
                     Item {
@@ -410,6 +472,7 @@ Kirigami.ApplicationWindow {
 
                     Kirigami.SearchField {
                         id: searchField
+                        visible: root.currentPageObject.search === true
                         Layout.fillWidth: !root.bigPicture
                         Layout.preferredWidth: root.bigPicture ? Kirigami.Units.gridUnit * 28 : -1
                         font.pixelSize: root.bigPicture ? Math.round(Kirigami.Theme.defaultFont.pixelSize * 1.8) : Kirigami.Theme.defaultFont.pixelSize
@@ -439,13 +502,13 @@ Kirigami.ApplicationWindow {
                         icon.name: "list-add"
                         focusPolicy: Qt.NoFocus
                         icon.color: root.lightsOut ? root.loText : "transparent"
-                        visible: !root.bigPicture && root.activeTab === 0 && !root.sidebarPinned
+                        visible: !root.bigPicture && root.currentPage === "games" && !root.sidebarPinned
                         onClicked: addDialog.openForNew()
                     }
 
                     QQC2.ComboBox {
                         id: rommPlatformCombo
-                        visible: root.activeTab === 1
+                        visible: root.currentPage === "romm"
                         model: rommView.platforms
                         textRole: "name"
                         implicitWidth: Kirigami.Units.gridUnit * 12
@@ -489,7 +552,7 @@ Kirigami.ApplicationWindow {
 
                     QQC2.ToolButton {
                         property bool isRunning: gridView.currentIndex >= 0 && launcher.runningExePaths.indexOf(appModel.getApp(gridView.currentIndex).exePath) >= 0
-                        visible: !root.bigPicture && root.activeTab === 0
+                        visible: !root.bigPicture && root.currentPage === "games"
                         focusPolicy: Qt.NoFocus
                         icon.name: isRunning ? "media-playback-stop" : "media-playback-start"
                         icon.color: root.lightsOut ? root.loText : "transparent"
@@ -502,62 +565,18 @@ Kirigami.ApplicationWindow {
                                 launcher.launchEntry(app);
                         }
                     }
-                }
-            }
 
-            // Tab bar
-            QQC2.TabBar {
-                id: mainTabBar
-                Layout.fillWidth: true
-                currentIndex: root.activeTab
-                Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
-                Kirigami.Theme.inherit: false
-                // AppImage hack
-                palette.highlightedText: root.lightsOut ? root.loText : undefined
-                palette.button: root.lightsOut ? root.loMid : undefined
-                palette.buttonText: root.lightsOut ? root.loText : undefined
-                palette.window: root.lightsOut ? root.loBase : undefined
-                palette.windowText: root.lightsOut ? root.loText : undefined
-                palette.base: root.lightsOut ? root.loBase : undefined
-                palette.text: root.lightsOut ? root.loText : undefined
-                palette.placeholderText: root.lightsOut ? root.loSubText : undefined
-
-                visible: root.enabledTabCount > 1 && !root.tabsInDrawer
-
-                background: Rectangle {
-                    color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
-                }
-
-                onCurrentIndexChanged: root.selectTab(currentIndex)
-
-                Repeater {
-                    model: root.tabModel
-                    QQC2.TabButton {
-                        text: modelData.name
-                        enabled: modelData.enabled
-                        visible: modelData.enabled
-                        background: Rectangle {
-                            color: root.lightsOut ? (parent.checked ? root.loBase : parent.hovered ? Qt.lighter(root.loMid, 1.15) : root.loMid) : (parent.checked ? Kirigami.Theme.backgroundColor : Qt.darker(Kirigami.Theme.backgroundColor, 1.05))
-                            topLeftRadius: Kirigami.Units.cornerRadius
-                            topRightRadius: Kirigami.Units.cornerRadius
-                            border.width: 1
-                            border.color: Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
-                            Rectangle {
-                                anchors {
-                                    top: parent.top
-                                    left: parent.left
-                                    right: parent.right
-                                }
-                                height: 2
-                                color: root.lightsOut ? root.loHighlight : Kirigami.Theme.highlightColor
-                                visible: parent.parent.checked
-                            }
-                        }
-                        contentItem: Text {
-                            text: parent.text
-                            color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
+                    QQC2.ToolButton {
+                        visible: root.currentPage === "settings"
+                        focusPolicy: Qt.NoFocus
+                        icon.name: "document-save"
+                        text: i18n("Save")
+                        display: QQC2.AbstractButton.TextBesideIcon
+                        icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                        palette.buttonText: root.lightsOut ? root.loText : undefined
+                        onClicked: {
+                            settingsPage.save();
+                            root.navigate(root.previousPage);
                         }
                     }
                 }
@@ -572,12 +591,12 @@ Kirigami.ApplicationWindow {
 
             StackLayout {
                 anchors.fill: parent
-                currentIndex: root.activeTab
+                currentIndex: root.currentPageIndex
 
                 AppGridView {
                     id: gridView
                     lightsOut: root.lightsOut
-                    active: root.activeTab === 0
+                    active: root.currentPage === "games"
                 }
 
                 RommView {
@@ -586,6 +605,14 @@ Kirigami.ApplicationWindow {
                     viewType: gridView.viewType
                     scaleFactor: gridView.scaleFactor
                     showNames: gridView.showNames
+                }
+
+                FormCard.AboutPage {
+                    aboutData: About
+                }
+
+                SettingsDialog {
+                    id: settingsPage
                 }
             }
         }
@@ -763,10 +790,6 @@ Kirigami.ApplicationWindow {
         ]
     }
 
-    SettingsDialog {
-        id: settingsDialog
-    }
-
     Kirigami.PromptDialog {
         id: welcomeDialog
         title: i18n("Welcome to Vermouth")
@@ -797,13 +820,6 @@ Kirigami.ApplicationWindow {
         standardButtons: Kirigami.Dialog.Ok
     }
 
-    Component {
-        id: aboutPage
-        Kirigami.AboutPage {
-            aboutData: About
-        }
-    }
-
     function focusFirstDrawerItem() {
         function findFocusable(item) {
             if (!item)
@@ -824,13 +840,17 @@ Kirigami.ApplicationWindow {
     }
 
     function updateFooterStatus() {
-        if (root.activeTab === 1) {
+        if (root.currentPage === "romm") {
             if (rommModel.statusText !== "")
                 footerStatusText.text = rommModel.statusText;
             else if (rommModel.count > 0)
                 footerStatusText.text = i18n("%1 ROMs", rommModel.count);
             else
                 footerStatusText.text = "";
+            return;
+        }
+        if (root.currentPage !== "games") {
+            footerStatusText.text = "";
             return;
         }
         if (gridView.currentIndex < 0) {
@@ -917,7 +937,7 @@ Kirigami.ApplicationWindow {
                 return;
             if (globalDrawer.drawerOpen) {
                 globalDrawer.close();
-                root.activeGridView().forceActiveFocus();
+                root.currentView().forceActiveFocus();
             } else {
                 globalDrawer.open();
             }
@@ -934,13 +954,13 @@ Kirigami.ApplicationWindow {
         function onBPressed() {
             if (rommPlatformCombo.popup.visible) {
                 rommPlatformCombo.popup.close();
-                root.activeGridView().forceActiveFocus();
+                root.currentView().forceActiveFocus();
             } else if (globalDrawer.drawerOpen) {
                 globalDrawer.close();
-                root.activeGridView().forceActiveFocus();
+                root.currentView().forceActiveFocus();
             } else {
                 gridView.currentIndex = -1;
-                root.activeGridView().forceActiveFocus();
+                root.currentView().forceActiveFocus();
             }
         }
 
@@ -980,21 +1000,19 @@ Kirigami.ApplicationWindow {
         }
 
         function onL1Pressed() {
-            if (root.enabledTabCount > 1)
-                root.selectTab(Math.max(0, root.activeTab - 1));
+            root.cycleNavPage(-1);
         }
 
         function onR1Pressed() {
-            if (root.enabledTabCount > 1)
-                root.selectTab(Math.min(root.tabModel.length - 1, root.activeTab + 1));
+            root.cycleNavPage(1);
         }
 
         function onR2Pressed() {
-            if (root.activeTab === 1 && rommPlatformCombo.visible) {
+            if (root.currentPage === "romm" && rommPlatformCombo.visible) {
                 if (rommPlatformCombo.popup.visible) {
                     rommPlatformCombo.popup.close();
                     rommPlatformCombo.popup.contentItem.currentIndex = 0;
-                    root.activeGridView().forceActiveFocus();
+                    root.currentView().forceActiveFocus();
                 } else {
                     rommPlatformCombo.popup.open();
                     Qt.callLater(function () {
@@ -1013,7 +1031,7 @@ Kirigami.ApplicationWindow {
                 drawerFocusTimer.start();
             } else if (!globalDrawer.drawerOpen) {
                 drawerFocusTimer.stop();
-                root.activeGridView().forceActiveFocus();
+                root.currentView().forceActiveFocus();
             }
         }
     }
@@ -1048,16 +1066,16 @@ Kirigami.ApplicationWindow {
     Connections {
         target: rommModel
         function onCountChanged() {
-            if (root.activeTab === 1)
+            if (root.currentPage === "romm")
                 root.updateFooterStatus();
         }
         function onStatusTextChanged() {
-            if (root.activeTab === 1)
+            if (root.currentPage === "romm")
                 root.updateFooterStatus();
         }
     }
 
-    onActiveTabChanged: root.updateFooterStatus()
+    onCurrentPageChanged: root.updateFooterStatus()
 
     Connections {
         target: steamGridDb

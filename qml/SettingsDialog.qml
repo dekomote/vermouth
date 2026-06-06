@@ -4,14 +4,11 @@ import QtQuick.Layouts
 import QtQuick.Dialogs
 import org.kde.kirigami as Kirigami
 
-Kirigami.PromptDialog {
-    id: dialog
+Kirigami.ScrollablePage {
+    id: settingsPage
     title: i18n("Settings")
-    preferredWidth: Kirigami.Units.gridUnit * 30
-    bottomPadding: 30
-    leftPadding: Kirigami.Units.largeSpacing * 2
-    standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
-    onAccepted: {
+
+    function save() {
         settingsManager.setUmuPath(umuPathField.text);
         settingsManager.setDefaultPrefixDir(prefixDirField.text);
         settingsManager.setDefaultGamePrefix(gamePrefixField.text);
@@ -33,7 +30,7 @@ Kirigami.PromptDialog {
         settingsManager.setGlobalEnvVars(vars);
     }
 
-    function openDialog() {
+    function load() {
         umuPathField.text = settingsManager.umuPath;
         prefixDirField.text = settingsManager.defaultPrefixDir;
         gamePrefixField.text = settingsManager.defaultGamePrefix;
@@ -66,7 +63,6 @@ Kirigami.PromptDialog {
             });
         }
         defaultRuntimePicker.reset();
-        dialog.open();
     }
 
     ListModel {
@@ -469,18 +465,6 @@ Kirigami.PromptDialog {
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
                 Kirigami.FormData.label: i18n("Appearance")
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("Tab bar:")
-                QQC2.Switch {
-                    checked: settingsManager.showTabBar
-                    onToggled: settingsManager.setShowTabBar(checked)
-                }
-                Kirigami.ContextualHelpButton {
-                    toolTipText: i18n("Show Games/RomM tabs as a top bar; otherwise they appear in the sidebar.")
-                }
             }
 
             RowLayout {

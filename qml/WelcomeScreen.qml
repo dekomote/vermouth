@@ -8,6 +8,7 @@ ColumnLayout {
     spacing: Kirigami.Units.mediumSpacing
 
     property int refresh: 0
+    signal openSettingsRequested
 
     Component.onCompleted: defaultRuntimePicker.reset()
 
