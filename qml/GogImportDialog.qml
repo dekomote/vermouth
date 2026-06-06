@@ -74,7 +74,7 @@ Kirigami.Dialog {
             var g = gogModel.getGame(i);
             if (appModel.getAppByExePath(g.exePath).id !== undefined)
                 continue;
-            var appId = generateUUID();
+            var appId = appModel.generateUUID();
             var protonPrefix = g.isWindows ? prefixBase + "/" + g.name.replace(/[^a-zA-Z0-9_-]/g, "_") : "";
             appModel.addApp({
                 "appId": appId,
@@ -128,13 +128,6 @@ Kirigami.Dialog {
             }
             startNextDownload();
         }
-    }
-
-    function generateUUID() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
     }
 
     ColumnLayout {

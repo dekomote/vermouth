@@ -47,7 +47,7 @@ Kirigami.ApplicationWindow {
             rommView.applySearch(text);
         }
     }
-    readonly property bool searchInSidebar: !globalDrawer.modal && !root.bigPicture
+    readonly property bool sidebarPinned: !globalDrawer.modal && !root.bigPicture
 
     readonly property real headerHeight: Math.max(searchField.implicitHeight, rommPlatformCombo.implicitHeight, addBtn.implicitHeight) + Kirigami.Units.largeSpacing * 2
 
@@ -64,7 +64,7 @@ Kirigami.ApplicationWindow {
         }
     ]
     readonly property int enabledTabCount: tabModel.filter(t => t.enabled).length
-    readonly property bool tabsInDrawer: enabledTabCount > 1 && (searchInSidebar || !settingsManager.showTabBar)
+    readonly property bool tabsInDrawer: enabledTabCount > 1 && (sidebarPinned || !settingsManager.showTabBar)
 
     function selectTab(index) {
         if (root.activeTab === index)
@@ -72,7 +72,6 @@ Kirigami.ApplicationWindow {
         root.activeTab = index;
         root.searchQuery = "";
         searchField.text = "";
-        sidebarSearch.text = "";
         if (index === 0) {
             appModel.setFilterString("");
             gridView.searchActive = false;
@@ -133,7 +132,7 @@ Kirigami.ApplicationWindow {
         Kirigami.Theme.colorSet: modal ? Kirigami.Theme.Window : Kirigami.Theme.View
 
         header: Kirigami.AbstractApplicationHeader {
-            visible: root.searchInSidebar
+            visible: root.sidebarPinned
             preferredHeight: root.headerHeight
             Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Header
             Kirigami.Theme.inherit: false
@@ -141,28 +140,103 @@ Kirigami.ApplicationWindow {
                 color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
             }
 
-            contentItem: Kirigami.SearchField {
-                id: sidebarSearch
+            contentItem: RowLayout {
+                spacing: 0
                 anchors {
                     left: parent.left
-                    right: parent.right
                     verticalCenter: parent.verticalCenter
                     leftMargin: Kirigami.Units.smallSpacing
-                    rightMargin: Kirigami.Units.smallSpacing
                 }
-                text: root.searchQuery
-                onTextChanged: root.updateSearch(text)
-                onVisibleChanged: if (visible)
-                    text = Qt.binding(() => root.searchQuery)
-                Kirigami.Theme.colorSet: Kirigami.Theme.View
-                Kirigami.Theme.inherit: false
-                color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
-                placeholderTextColor: root.lightsOut ? root.loSubText : Kirigami.Theme.disabledTextColor
-                background: Rectangle {
-                    color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
-                    radius: Kirigami.Units.cornerRadius
-                    border.width: 1
-                    border.color: sidebarSearch.hovered || sidebarSearch.activeFocus ? Kirigami.Theme.focusColor : Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
+
+                QQC2.ToolButton {
+                    id: viewIconBtn
+                    focusPolicy: Qt.NoFocus
+                    readonly property var viewOrder: ["icon", "grid", "hero"]
+                    icon.name: viewMenu.viewIcons[gridView.viewType]
+                    icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                    onClicked: gridView.viewType = viewOrder[(viewOrder.indexOf(gridView.viewType) + 1) % viewOrder.length]
+                    QQC2.ToolTip.text: i18n("Switch view type")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                }
+
+                QQC2.ToolButton {
+                    focusPolicy: Qt.NoFocus
+                    icon.name: "arrow-down"
+                    icon.width: Kirigami.Units.iconSizes.small
+                    icon.height: Kirigami.Units.iconSizes.small
+                    icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                    onClicked: viewMenu.popup(viewIconBtn, 0, viewIconBtn.height)
+                    QQC2.ToolTip.text: i18n("Switch view type")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                }
+
+                QQC2.Menu {
+                    id: viewMenu
+                    readonly property var viewIcons: ({
+                            "icon": "view-list-icons",
+                            "grid": "view-preview",
+                            "hero": "image-x-generic"
+                        })
+                    QQC2.MenuItem {
+                        text: i18n("Icon view")
+                        icon.name: "view-list-icons"
+                        checkable: true
+                        checked: gridView.viewType === "icon"
+                        onTriggered: gridView.viewType = "icon"
+                    }
+                    QQC2.MenuItem {
+                        text: i18n("Cover art view")
+                        icon.name: "view-preview"
+                        checkable: true
+                        checked: gridView.viewType === "grid"
+                        onTriggered: gridView.viewType = "grid"
+                    }
+                    QQC2.MenuItem {
+                        text: i18n("Hero art view")
+                        icon.name: "image-x-generic"
+                        checkable: true
+                        checked: gridView.viewType === "hero"
+                        onTriggered: gridView.viewType = "hero"
+                    }
+                    QQC2.MenuSeparator {}
+                    QQC2.MenuItem {
+                        text: i18n("Show names")
+                        icon.name: "tag"
+                        checkable: true
+                        checked: gridView.showNames
+                        onTriggered: gridView.showNames = checked
+                    }
+                    QQC2.MenuSeparator {}
+                    RowLayout {
+                        spacing: Kirigami.Units.smallSpacing
+                        QQC2.ToolButton {
+                            Layout.leftMargin: Kirigami.Units.smallSpacing
+                            icon.name: "zoom-out"
+                            focusPolicy: Qt.NoFocus
+                            flat: true
+                            enabled: gridView.scaleFactor > 0.8
+                            onClicked: gridView.scaleFactor = Math.max(0.8, gridView.scaleFactor - 0.2)
+                        }
+                        QQC2.Slider {
+                            focusPolicy: Qt.NoFocus
+                            from: 0.8
+                            to: 1.8
+                            stepSize: 0.2
+                            value: gridView.scaleFactor
+                            onMoved: gridView.scaleFactor = value
+                            Layout.preferredWidth: Kirigami.Units.gridUnit * 6
+                        }
+                        QQC2.ToolButton {
+                            Layout.rightMargin: Kirigami.Units.smallSpacing
+                            icon.name: "zoom-in"
+                            focusPolicy: Qt.NoFocus
+                            flat: true
+                            enabled: gridView.scaleFactor < 1.8
+                            onClicked: gridView.scaleFactor = Math.min(1.8, gridView.scaleFactor + 0.2)
+                        }
+                    }
                 }
             }
         }
@@ -303,6 +377,7 @@ Kirigami.ApplicationWindow {
                 Layout.preferredHeight: root.headerHeight
                 topPadding: Kirigami.Units.largeSpacing
                 bottomPadding: Kirigami.Units.largeSpacing
+                leftPadding: Kirigami.Units.largeSpacing
                 background: Rectangle {
                     color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
                 }
@@ -335,7 +410,6 @@ Kirigami.ApplicationWindow {
 
                     Kirigami.SearchField {
                         id: searchField
-                        visible: !root.searchInSidebar
                         Layout.fillWidth: !root.bigPicture
                         Layout.preferredWidth: root.bigPicture ? Kirigami.Units.gridUnit * 28 : -1
                         font.pixelSize: root.bigPicture ? Math.round(Kirigami.Theme.defaultFont.pixelSize * 1.8) : Kirigami.Theme.defaultFont.pixelSize
@@ -360,17 +434,12 @@ Kirigami.ApplicationWindow {
                         visible: root.bigPicture
                     }
 
-                    Item {
-                        Layout.fillWidth: true
-                        visible: root.searchInSidebar
-                    }
-
                     QQC2.ToolButton {
                         id: addBtn
                         icon.name: "list-add"
                         focusPolicy: Qt.NoFocus
                         icon.color: root.lightsOut ? root.loText : "transparent"
-                        visible: !root.bigPicture && root.activeTab === 0
+                        visible: !root.bigPicture && root.activeTab === 0 && !root.sidebarPinned
                         onClicked: addDialog.openForNew()
                     }
 
@@ -498,7 +567,7 @@ Kirigami.ApplicationWindow {
         // Main content switcher
         Rectangle {
             anchors.fill: parent
-            Kirigami.Theme.colorSet: Kirigami.Theme.View
+            Kirigami.Theme.colorSet: settingsManager.gridAltBackground ? Kirigami.Theme.View : Kirigami.Theme.Window
             color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
 
             StackLayout {

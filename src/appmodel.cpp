@@ -249,6 +249,11 @@ QVariantMap AppModel::getAppByExePath(const QString &exePath) const
     return {};
 }
 
+QString AppModel::generateUUID() const
+{
+    return QUuid::createUuid().toString(QUuid::WithoutBraces);
+}
+
 bool AppModel::hasSteamApp(int appId) const
 {
     for (const auto &e : m_entries) {

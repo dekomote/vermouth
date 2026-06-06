@@ -31,6 +31,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(bool firstRunComplete READ firstRunComplete WRITE setFirstRunComplete NOTIFY firstRunCompleteChanged)
     Q_PROPERTY(bool showTips READ showTips WRITE setShowTips NOTIFY showTipsChanged)
     Q_PROPERTY(bool sleepInhibited READ sleepInhibited WRITE setSleepInhibited NOTIFY sleepInhibitedChanged)
+    Q_PROPERTY(bool gridAltBackground READ gridAltBackground WRITE setGridAltBackground NOTIFY gridAltBackgroundChanged)
 
 public:
     explicit SettingsManager(QObject *parent = nullptr);
@@ -107,6 +108,9 @@ public:
     bool sleepInhibited() const;
     Q_INVOKABLE void setSleepInhibited(bool inhibited);
 
+    bool gridAltBackground() const;
+    Q_INVOKABLE void setGridAltBackground(bool enabled);
+
     QVariantMap rommCoreMap() const;
     Q_INVOKABLE QString rommCore(const QString &platformSlug) const;
     Q_INVOKABLE void setRommCore(const QString &platformSlug, const QString &corePath);
@@ -138,6 +142,7 @@ Q_SIGNALS:
     void firstRunCompleteChanged();
     void showTipsChanged();
     void sleepInhibitedChanged();
+    void gridAltBackgroundChanged();
     void rommCoreMapChanged();
     void rommGameCoreMapChanged();
 

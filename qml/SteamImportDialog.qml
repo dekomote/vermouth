@@ -59,7 +59,7 @@ Kirigami.Dialog {
                 var g = steamModel.getGame(i);
                 if (appModel.hasSteamApp(g.steamId))
                     continue;
-                var appId = generateUUID();
+                var appId = appModel.generateUUID();
                 var missingArt = g.gridPath === "" || g.heroPath === "" || g.logoPath === "";
                 appModel.addApp({
                     "appId": appId,
@@ -93,13 +93,6 @@ Kirigami.Dialog {
         } else {
             dialog.close();
         }
-    }
-
-    function generateUUID() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
     }
 
     function startNextDownload() {

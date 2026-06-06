@@ -485,6 +485,18 @@ Kirigami.PromptDialog {
 
             RowLayout {
                 Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Alt. Grid background:")
+                QQC2.Switch {
+                    checked: settingsManager.gridAltBackground
+                    onToggled: settingsManager.setGridAltBackground(checked)
+                }
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Use the alternative background color for the grid view. It's lighter on Breeze light and darker on Breeze dark.")
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Lights Out:")
                 QQC2.Switch {
                     checked: settingsManager.lightsOut

@@ -324,6 +324,19 @@ void SettingsManager::setSleepInhibited(bool inhibited)
     Q_EMIT sleepInhibitedChanged();
 }
 
+bool SettingsManager::gridAltBackground() const
+{
+    return m_settings.value(QStringLiteral("gridAltBackground"), true).toBool();
+}
+
+void SettingsManager::setGridAltBackground(bool enabled)
+{
+    if (gridAltBackground() == enabled)
+        return;
+    m_settings.setValue(QStringLiteral("gridAltBackground"), enabled);
+    Q_EMIT gridAltBackgroundChanged();
+}
+
 bool SettingsManager::showTips() const
 {
     return m_settings.value(QStringLiteral("showTips"), true).toBool();
