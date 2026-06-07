@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(vermouth VERSION 1.8.5 LANGUAGES CXX)
+project(vermouth VERSION 1.9.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -30,7 +30,7 @@ include(KDECompilerSettings NO_POLICY_SCOPE)
 include(ECMFindQmlModule)
 include(ECMQmlModule)
 
-find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core Quick Gui Widgets QuickControls2 Network DBus)
+find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core Quick Gui Widgets QuickControls2 Network DBus Concurrent)
 find_package(SDL2 QUIET)
 find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Kirigami CoreAddons I18n QQC2DesktopStyle)
 
@@ -87,6 +87,7 @@ qt_add_qml_module(vermouth
         qml/CorePickerDialog.qml
         qml/RommView.qml
         qml/DownloaderProgress.qml
+        qml/FlatpakHostHint.qml
     NO_RESOURCE_TARGET_PATH
 )
 
@@ -98,6 +99,7 @@ target_link_libraries(vermouth PRIVATE
     Qt6::QuickControls2
     Qt6::Network
     Qt6::DBus
+    Qt6::Concurrent
     KF6::Kirigami
     KF6::CoreAddons
     KF6::I18n

@@ -1,5 +1,6 @@
 #include "appmodel.h"
 #include "desktopfilewriter.h"
+#include "flatpakutils.h"
 #include "gamepadhandler.h"
 #include "gogmodel.h"
 #include "iconextractor.h"
@@ -290,6 +291,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("gamepadHandler"), &gamepadHandler);
     engine.rootContext()->setContextProperty(QStringLiteral("openExePath"), openExePath);
     engine.rootContext()->setContextProperty(QStringLiteral("launchBigPicture"), parser.isSet(bigPictureOpt));
+    engine.rootContext()->setContextProperty(QStringLiteral("isFlatpak"), isInsideFlatpak());
 
     engine.load(QUrl(QStringLiteral("qrc:/qt/qml/qml/Main.qml")));
 

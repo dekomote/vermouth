@@ -1,6 +1,7 @@
 #include "umudownloader.h"
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QProcess>
 #include <QTemporaryFile>
 
@@ -160,7 +161,7 @@ void UmuDownloader::startTarExtraction(QTemporaryFile *archiveFile)
         if (QFile::exists(foundPath)) {
             QFile::remove(umuBinPath);
             QFile::copy(foundPath, umuBinPath);
-            QFile(umuBinPath).setPermissions(QFile::permissions(umuBinPath) | QFile::ExeOwner | QFile::ExeGroup | QFile::ExeOther);
+            QFile(umuBinPath).setPermissions(QFileInfo(umuBinPath).permissions() | QFile::ExeOwner | QFile::ExeGroup | QFile::ExeOther);
         }
         QDir(*tmpExtractDir).removeRecursively();
         delete tmpExtractDir;

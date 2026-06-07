@@ -167,7 +167,7 @@ void SettingsManager::setLightsOut(bool enabled)
 
 QString SettingsManager::lightsOutColor() const
 {
-    return m_settings.value(QStringLiteral("lightsOutColor"), QStringLiteral("#0d1b3e")).toString();
+    return m_settings.value(QStringLiteral("lightsOutColor"), QStringLiteral("#2A2E32")).toString();
 }
 
 void SettingsManager::setLightsOutColor(const QString &color)
@@ -189,19 +189,6 @@ void SettingsManager::setDrawerPinned(bool pinned)
         return;
     m_settings.setValue(QStringLiteral("drawerPinned"), pinned);
     Q_EMIT drawerPinnedChanged();
-}
-
-bool SettingsManager::showTabBar() const
-{
-    return m_settings.value(QStringLiteral("showTabBar"), true).toBool();
-}
-
-void SettingsManager::setShowTabBar(bool show)
-{
-    if (showTabBar() == show)
-        return;
-    m_settings.setValue(QStringLiteral("showTabBar"), show);
-    Q_EMIT showTabBarChanged();
 }
 
 bool SettingsManager::bigPicture() const

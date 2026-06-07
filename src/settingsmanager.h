@@ -16,7 +16,6 @@ class SettingsManager : public QObject
     Q_PROPERTY(QString defaultProtonPath READ defaultProtonPath WRITE setDefaultProtonPath NOTIFY defaultRuntimeChanged)
     Q_PROPERTY(QString defaultWineBinary READ defaultWineBinary WRITE setDefaultWineBinary NOTIFY defaultRuntimeChanged)
     Q_PROPERTY(bool drawerPinned READ drawerPinned WRITE setDrawerPinned NOTIFY drawerPinnedChanged)
-    Q_PROPERTY(bool showTabBar READ showTabBar WRITE setShowTabBar NOTIFY showTabBarChanged)
     Q_PROPERTY(QString umuPath READ umuPath WRITE setUmuPath NOTIFY umuPathChanged)
     Q_PROPERTY(QStringList globalEnvVars READ globalEnvVars WRITE setGlobalEnvVars NOTIFY globalEnvVarsChanged)
     Q_PROPERTY(bool lightsOut READ lightsOut WRITE setLightsOut NOTIFY lightsOutChanged)
@@ -65,9 +64,6 @@ public:
 
     bool drawerPinned() const;
     Q_INVOKABLE void setDrawerPinned(bool pinned);
-
-    bool showTabBar() const;
-    Q_INVOKABLE void setShowTabBar(bool show);
 
     QString umuPath() const;
     Q_INVOKABLE void setUmuPath(const QString &path);
@@ -127,7 +123,6 @@ Q_SIGNALS:
     void extraProtonPathsChanged();
     void defaultRuntimeChanged();
     void drawerPinnedChanged();
-    void showTabBarChanged();
     void umuPathChanged();
     void globalEnvVarsChanged();
     void lightsOutChanged();

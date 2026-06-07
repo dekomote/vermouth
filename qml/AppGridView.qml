@@ -296,13 +296,65 @@ GameGridView {
     Kirigami.PromptDialog {
         id: confirmDeleteDialog
         property var payload
-        title: i18n("Delete both app and prefix?")
-        subtitle: i18n("This will delete both the app and the prefix?")
-        onAccepted: {
-            desktopWriter.removeShortcuts(appModel.getApp(payload));
-            appModel.removeAndCleanApp(payload);
+        readonly property string prefixPath: {
+            var app = payload !== undefined ? appModel.getApp(payload) : null;
+            if (!app)
+                return "";
+            return app.winePrefix !== "" ? app.winePrefix : app.protonPrefix;
         }
-        standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
+        title: i18n("Delete app and prefix?")
+        standardButtons: Kirigami.Dialog.NoButton
+
+        // Reset the confirmation field each time the dialog is shown.
+        onVisibleChanged: if (visible)
+            deleteConfirmField.text = ""
+
+        ColumnLayout {
+            spacing: Kirigami.Units.smallSpacing
+
+            QQC2.Label {
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+                text: i18n("This permanently deletes the app and its prefix folder. This cannot be undone.")
+            }
+            QQC2.TextField {
+                Layout.fillWidth: true
+                readOnly: true
+                visible: confirmDeleteDialog.prefixPath !== ""
+                text: confirmDeleteDialog.prefixPath
+            }
+            QQC2.Label {
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+                text: i18n("Type DELETE to confirm.")
+            }
+            QQC2.TextField {
+                id: deleteConfirmField
+                Layout.fillWidth: true
+                placeholderText: i18n("DELETE")
+                onAccepted: if (text === "DELETE")
+                    confirmDeleteAction.trigger()
+            }
+        }
+
+        customFooterActions: [
+            Kirigami.Action {
+                id: confirmDeleteAction
+                text: i18n("Delete")
+                icon.name: "delete"
+                enabled: deleteConfirmField.text === "DELETE"
+                onTriggered: {
+                    desktopWriter.removeShortcuts(appModel.getApp(confirmDeleteDialog.payload));
+                    appModel.removeAndCleanApp(confirmDeleteDialog.payload);
+                    confirmDeleteDialog.close();
+                }
+            },
+            Kirigami.Action {
+                text: i18n("Cancel")
+                icon.name: "dialog-cancel"
+                onTriggered: confirmDeleteDialog.close()
+            }
+        ]
     }
 
     Kirigami.PromptDialog {
