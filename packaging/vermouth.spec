@@ -74,7 +74,7 @@ RomM library with RetroArch - all from one place.
 %{_datadir}/locale/*/LC_MESSAGES/vermouth.mo
 
 %changelog
-* Thu Jun 4 2026 Dejan Noveski <deko@duck.com> - 1.9.1-1
+* Sun Jun 6 2026 Dejan Noveski <deko@duck.com> - 1.9.1-1
 - UI/UX Improvements, code cleanup
 * Thu Jun 4 2026 Dejan Noveski <deko@duck.com> - 1.8.5-1
 - Gog games import
