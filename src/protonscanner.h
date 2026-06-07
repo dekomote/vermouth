@@ -22,7 +22,6 @@ public:
     void setCustomPrefixBasePath(const QString &path);
 
 private:
-    QStringList steamPaths() const;
     QStringList m_extraProtonPaths;
     QString m_customPrefixBasePath;
 };

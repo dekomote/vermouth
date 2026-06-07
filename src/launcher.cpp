@@ -325,13 +325,6 @@ QString Launcher::logDir() const
     return m_logDir;
 }
 
-static QString shellQuote(const QString &s)
-{
-    QString quoted = s;
-    quoted.replace(QLatin1Char('\''), QStringLiteral("'\\''"));
-    return QLatin1Char('\'') + quoted + QLatin1Char('\'');
-}
-
 qint64 Launcher::launch(const QString &binary,
                         const QStringList &baseArgs,
                         const QString &exePath,
@@ -371,11 +364,11 @@ qint64 Launcher::launch(const QString &binary,
     }
 
     if (!launchOptions.trimmed().isEmpty()) {
-        QString baseCmd = shellQuote(binary);
+        QString baseCmd = shellQuoted(binary);
         for (const auto &a : baseArgs)
-            baseCmd += QStringLiteral(" ") + shellQuote(a);
+            baseCmd += QStringLiteral(" ") + shellQuoted(a);
         if (!exePath.isEmpty() && appendExe)
-            baseCmd += QStringLiteral(" ") + shellQuote(exePath);
+            baseCmd += QStringLiteral(" ") + shellQuoted(exePath);
 
         QString opts = launchOptions.trimmed();
         QString fullCmd;

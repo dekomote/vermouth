@@ -453,6 +453,8 @@ void SteamGridDB::autoDownloadFromBottles(const QString &gameName, const QString
             // Copy grid as hero
             QString ext = gridPath.section(QLatin1Char('.'), -1);
             m_autoHeroPath = m_autoAssetsPath + QLatin1Char('/') + m_autoSafeName + QStringLiteral("_hero.") + ext;
+            // QFile::copy won't overwrite, so clear any stale hero first.
+            QFile::remove(m_autoHeroPath);
             QFile::copy(gridPath, m_autoHeroPath);
 
             m_autoBusy = false;
