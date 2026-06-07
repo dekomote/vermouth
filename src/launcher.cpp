@@ -615,7 +615,8 @@ void Launcher::toggleSleepInhibit()
         return;
     }
 
-    if (isInsideFlatpak()) {
+    // Try the portal first (works in Flatpak and on any modern desktop with xdg-desktop-portal)
+    {
         QDBusInterface portal(QStringLiteral("org.freedesktop.portal.Desktop"),
                               QStringLiteral("/org/freedesktop/portal/desktop"),
                               QStringLiteral("org.freedesktop.portal.Inhibit"),
@@ -638,7 +639,7 @@ void Launcher::toggleSleepInhibit()
         }
     }
 
-    // Native install (or portal unavailable) - use logind on the system bus
+    // Portal unavailable — fall back to logind on the system bus
     QDBusInterface manager(QStringLiteral("org.freedesktop.login1"),
                            QStringLiteral("/org/freedesktop/login1"),
                            QStringLiteral("org.freedesktop.login1.Manager"),
