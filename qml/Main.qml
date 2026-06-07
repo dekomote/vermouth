@@ -32,9 +32,7 @@ Kirigami.ApplicationWindow {
     property double prevScaleFactor: 1
     property bool prevLightsOut: false
     property bool prevDrawerPinned: false
-    // Declarative page registry. The order here defines the StackLayout child
-    // order, so keep the views in that layout in the same order. `nav` pages are
-    // listed in the sidebar; `search` pages get the header search field.
+
     readonly property var pages: [
         {
             key: "games",
@@ -108,7 +106,8 @@ Kirigami.ApplicationWindow {
             if (settingsManager.rommServerUrl !== "" && rommView.platforms.length === 0 && !rommModel.busy)
                 rommView.refresh();
         }
-        Qt.callLater(() => root.currentView().forceActiveFocus());
+        if (root.pageViews[key])
+            Qt.callLater(() => root.currentView().forceActiveFocus());
     }
 
     // Step through the sidebar nav pages, used by the gamepad shoulder buttons.
@@ -579,7 +578,7 @@ Kirigami.ApplicationWindow {
                         visible: root.currentPage === "settings"
                         focusPolicy: Qt.NoFocus
                         icon.name: "document-save"
-                        text: root.lightsOut ? null : i18n("Save")
+                        text: root.lightsOut ? "" : i18n("Save")
                         icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                         onClicked: {
                             settingsPage.save();
@@ -627,7 +626,6 @@ Kirigami.ApplicationWindow {
                 }
 
                 WelcomeScreen {
-                    id: welcomePage
                     Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
                     Kirigami.Theme.inherit: false
                 }
