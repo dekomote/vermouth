@@ -633,8 +633,6 @@ Kirigami.ApplicationWindow {
 
         footer: QQC2.ToolBar {
             position: QQC2.ToolBar.Footer
-            topPadding: Kirigami.Units.medium
-            bottomPadding: Kirigami.Units.medium
             Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
             Kirigami.Theme.inherit: false
             background: Rectangle {
@@ -945,7 +943,8 @@ Kirigami.ApplicationWindow {
         }
 
         function onYPressed() {
-            if (globalDrawer.drawerOpen)
+            // Only a modal drawer should be closed; a pinned sidebar stays put.
+            if (globalDrawer.modal && globalDrawer.drawerOpen)
                 globalDrawer.close();
             searchField.forceActiveFocus();
             gridView.currentIndex = -1;
@@ -956,7 +955,7 @@ Kirigami.ApplicationWindow {
             if (rommPlatformCombo.popup.visible) {
                 rommPlatformCombo.popup.close();
                 root.currentView().forceActiveFocus();
-            } else if (globalDrawer.drawerOpen) {
+            } else if (globalDrawer.modal && globalDrawer.drawerOpen) {
                 globalDrawer.close();
                 root.currentView().forceActiveFocus();
             } else {
