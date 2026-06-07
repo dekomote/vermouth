@@ -336,6 +336,12 @@ Kirigami.ScrollablePage {
                 color: Kirigami.Theme.disabledTextColor
             }
 
+            FlatpakHostHint {
+                Kirigami.FormData.label: ""
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+            }
+
             RowLayout {
                 Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("RetroArch binary:")
@@ -515,7 +521,7 @@ Kirigami.ScrollablePage {
                 QQC2.Button {
                     text: i18n("Reset")
                     enabled: settingsManager.lightsOut
-                    onClicked: settingsManager.setLightsOutColor("#0d1b3e")
+                    onClicked: settingsManager.setLightsOutColor("#2A2E32")
                 }
             }
 

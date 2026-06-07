@@ -167,7 +167,7 @@ void SettingsManager::setLightsOut(bool enabled)
 
 QString SettingsManager::lightsOutColor() const
 {
-    return m_settings.value(QStringLiteral("lightsOutColor"), QStringLiteral("#0d1b3e")).toString();
+    return m_settings.value(QStringLiteral("lightsOutColor"), QStringLiteral("#2A2E32")).toString();
 }
 
 void SettingsManager::setLightsOutColor(const QString &color)

@@ -11,7 +11,7 @@ Kirigami.ApplicationWindow {
     id: root
     width: 800
     height: 800
-    minimumWidth: 700
+    minimumWidth: root.sidebarPinned ? 900 : 700
     minimumHeight: 800
     visibility: settingsManager.bigPicture ? Window.FullScreen : Window.Windowed
 
@@ -64,6 +64,14 @@ Kirigami.ApplicationWindow {
             key: "settings",
             name: i18n("Settings"),
             icon: "configure",
+            enabled: true,
+            nav: false,
+            search: false
+        },
+        {
+            key: "welcome",
+            name: i18n("Welcome to Vermouth"),
+            icon: "help-about",
             enabled: true,
             nav: false,
             search: false
@@ -617,6 +625,12 @@ Kirigami.ApplicationWindow {
                     Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
                     Kirigami.Theme.inherit: false
                 }
+
+                WelcomeScreen {
+                    id: welcomePage
+                    Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
+                    Kirigami.Theme.inherit: false
+                }
             }
         }
 
@@ -794,28 +808,6 @@ Kirigami.ApplicationWindow {
     }
 
     Kirigami.PromptDialog {
-        id: welcomeDialog
-        title: i18n("Welcome to Vermouth")
-        standardButtons: Kirigami.Dialog.NoButton
-        spacing: Kirigami.Units.mediumSpacing
-        customFooterActions: [
-            Kirigami.Action {
-                text: i18n("Don't show me tips")
-                checkable: true
-                checked: !settingsManager.showTips
-                onTriggered: settingsManager.setShowTips(!checked)
-            },
-            Kirigami.Action {
-                text: i18n("Close")
-                icon.name: "dialog-cancel"
-                onTriggered: welcomeDialog.close()
-            }
-        ]
-
-        WelcomeScreen {}
-    }
-
-    Kirigami.PromptDialog {
         id: prefixNotReadyDialog
         property string appName
         title: i18n("Prefix not ready")
@@ -918,7 +910,7 @@ Kirigami.ApplicationWindow {
             return;
         if (appModel.count > 0)
             return;
-        welcomeDialog.open();
+        root.navigate("welcome");
     }
 
     Connections {

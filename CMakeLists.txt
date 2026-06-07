@@ -87,6 +87,7 @@ qt_add_qml_module(vermouth
         qml/CorePickerDialog.qml
         qml/RommView.qml
         qml/DownloaderProgress.qml
+        qml/FlatpakHostHint.qml
     NO_RESOURCE_TARGET_PATH
 )
 
