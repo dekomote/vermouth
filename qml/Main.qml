@@ -4,7 +4,6 @@ import QtQuick.Layouts
 import QtQuick.Window
 import QtCore
 import org.kde.kirigami as Kirigami
-import org.kde.kirigamiaddons.formcard as FormCard
 import com.dekomote.vermouth 1.0
 
 Kirigami.ApplicationWindow {
@@ -613,7 +612,7 @@ Kirigami.ApplicationWindow {
                     showNames: gridView.showNames
                 }
 
-                FormCard.AboutPage {
+                Kirigami.AboutPage {
                     aboutData: About
                     Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
                     Kirigami.Theme.inherit: false
@@ -634,12 +633,21 @@ Kirigami.ApplicationWindow {
 
         footer: QQC2.ToolBar {
             position: QQC2.ToolBar.Footer
-            topPadding: Kirigami.Units.largeSpacing
-            bottomPadding: Kirigami.Units.largeSpacing
+            topPadding: Kirigami.Units.medium
+            bottomPadding: Kirigami.Units.medium
             Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
             Kirigami.Theme.inherit: false
             background: Rectangle {
                 color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
+                Rectangle {
+                    anchors {
+                        left: parent.left
+                        right: parent.right
+                        top: parent.top
+                    }
+                    height: 1
+                    color: root.lightsOut ? Qt.rgba(1, 1, 1, 0.12) : Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
+                }
             }
             // AppImage hack
             palette.highlightedText: root.lightsOut ? root.loText : undefined
