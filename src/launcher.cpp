@@ -506,7 +506,6 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         }
         return launch(app[QStringLiteral("wineBinary")].toString(), {}, exePath, env, opts, logging, name);
     }
-    return -1;
 }
 
 void Launcher::stopEntry(const QVariantMap &app)
@@ -622,8 +621,7 @@ void Launcher::toggleSleepInhibit()
         return;
     }
 
-    // Try the portal first (works in Flatpak and on any modern desktop with xdg-desktop-portal)
-    {
+    if (isInsideFlatpak()) {
         QDBusInterface portal(QStringLiteral("org.freedesktop.portal.Desktop"),
                               QStringLiteral("/org/freedesktop/portal/desktop"),
                               QStringLiteral("org.freedesktop.portal.Inhibit"),
@@ -646,7 +644,7 @@ void Launcher::toggleSleepInhibit()
         }
     }
 
-    // Portal unavailable — fall back to logind on the system bus
+    // Native install (or portal unavailable) - use logind on the system bus
     QDBusInterface manager(QStringLiteral("org.freedesktop.login1"),
                            QStringLiteral("/org/freedesktop/login1"),
                            QStringLiteral("org.freedesktop.login1.Manager"),
