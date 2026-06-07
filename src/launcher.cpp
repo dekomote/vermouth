@@ -391,6 +391,7 @@ qint64 Launcher::launch(const QString &binary,
         m_runningProcesses.remove(exePath);
         Q_EMIT runningExePathsChanged();
         Q_EMIT launchError(exePath, proc->errorString());
+        delete timer;
         proc->deleteLater();
         return -1;
     } else {

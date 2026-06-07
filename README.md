@@ -18,10 +18,10 @@
 KDE-first, lightweight, no frills.</p>
 
 <p align="center">
-  <img src="assets/screen1.png?t=1.8" alt="Game library with sidebar menu open" width="400"><br>
-  <img src="assets/screen2.png?t=1.8" alt="Game settings" width="400">
-  <img src="assets/screen4.png?t=1.8" alt="Right-click context menu with launch and Wine utility options" width="400">
-  <img src="assets/screen3.png?t=1.8" alt="Settings dialog showing umu-launcher, Proton, SteamGridDB and RomM configuration" width="400"><br>
+  <img src="assets/screen1.png?t=1.9" alt="Game library" width="400">
+  <img src="assets/screen2.png?t=1.9" alt="Game settings" width="400"><br>
+  <img src="assets/screen3.png?t=1.9" alt="Settings dialog showing umu-launcher, Proton, SteamGridDB and RomM configuration" width="400">
+  <img src="assets/screen4.png?t=1.9" alt="Right-click context menu with launch and Wine utility options" width="400">
 </p>
 
 ---

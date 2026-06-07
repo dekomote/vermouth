@@ -23,23 +23,39 @@
   <screenshots>
     <screenshot type="default">
       <caption>Main game library view</caption>
-      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen1-fh.png</image>
+      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen1.png</image>
     </screenshot>
     <screenshot>
       <caption>Game and runtime settings</caption>
-      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen2-fh.png</image>
+      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen2.png</image>
     </screenshot>
     <screenshot>
       <caption>Application settings</caption>
-      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen3-fh.png</image>
+      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen3.png</image>
     </screenshot>
     <screenshot>
       <caption>Utilities</caption>
-      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen4-fh.png</image>
+      <image>https://raw.githubusercontent.com/dekomote/vermouth/v@PROJECT_VERSION@/assets/screen4.png</image>
     </screenshot>
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="1.9.1" date="2026-06-07">
+        <description>
+          <p>This release is focused on UI/UX improvements, code cleanup and optimizations.</p>
+          <ul>
+            <li>UI tweaks to make it even more in line with KDE apps/Kirigami</li>
+            <li>Settings, About and Welcome are now full pages instead of pop-up dialogs</li>
+            <li>Reworked pinnable, resizable sidebar</li>
+            <li>New "Alternative grid background" appearance option</li>
+            <li>Deleting an app and its prefix now shows the path and asks you to type DELETE to confirm</li>
+            <li>Steam/GOG import: add Select All / Deselect All buttons</li>
+            <li>The status bar correctly shows the runner and executable path</li>
+            <li>Prevent Sleep now works on non-Flatpak installs</li>
+            <li>Re-downloading cover art now correctly replaces the existing image</li>
+          </ul>
+        </description>
+    </release>
     <release version="1.8.5" date="2026-06-04">
         <description>
           <p>This release adds the functionality to import installed GOG games.
