@@ -114,7 +114,8 @@ void GogLibraryModel::fetchLibrary(const QString &search, int page)
 {
     if (!m_client)
         return;
-    m_currentPage = page;
+    // m_currentPage advances only on success, in onLibraryFetched, so a failed
+    // page doesn't cause fetchNextPage to skip it on retry.
     m_client->fetchLibrary(search, page);
 }
 
@@ -132,6 +133,7 @@ void GogLibraryModel::clear()
     beginResetModel();
     m_entries.clear();
     endResetModel();
+    m_sizeQueue.clear();
     m_currentPage = 1;
     m_totalPages = 1;
     Q_EMIT countChanged();
@@ -235,6 +237,7 @@ void GogLibraryModel::onLibraryFetched(const QVariantList &items, int totalPages
     if (page <= 1) {
         beginResetModel();
         m_entries.clear();
+        m_sizeQueue.clear();
         for (const auto &var : items)
             m_entries.append(buildEntry(var));
         endResetModel();
@@ -258,27 +261,51 @@ void GogLibraryModel::onLibraryFetched(const QVariantList &items, int totalPages
 
 void GogLibraryModel::onSizeFetched(const QString &gameId, double bytes)
 {
-    for (int i = 0; i < m_entries.size(); ++i) {
-        if (m_entries[i].id == gameId) {
-            m_entries[i].sizeBytes = bytes;
-            auto idx = index(i, 0);
-            Q_EMIT dataChanged(idx, idx, {SizeTextRole});
-            return;
-        }
+    m_sizeInFlight.remove(gameId);
+    int idx = indexOfGame(gameId);
+    if (idx >= 0 && bytes >= 0) {
+        m_entries[idx].sizeBytes = bytes;
+        auto i = index(idx, 0);
+        Q_EMIT dataChanged(i, i, {SizeTextRole});
     }
+    pumpSizes();
 }
 
 void GogLibraryModel::requestSizes()
 {
     if (!m_client)
         return;
-    // -1 = not requested, -2 = request in flight, >=0 = known.
+    // -1 = not requested, -2 = queued/in flight, >=0 = known.
     for (auto &e : m_entries) {
         if (e.sizeBytes == -1) {
             e.sizeBytes = -2;
-            m_client->fetchGameSize(e.id, e.worksOnLinux);
+            m_sizeQueue.append(e.id);
         }
     }
+    pumpSizes();
+}
+
+void GogLibraryModel::pumpSizes()
+{
+    if (!m_client)
+        return;
+    while (m_sizeInFlight.size() < kMaxConcurrentSizes && !m_sizeQueue.isEmpty()) {
+        const QString id = m_sizeQueue.takeFirst();
+        int idx = indexOfGame(id);
+        if (idx < 0)
+            continue;
+        m_sizeInFlight.insert(id);
+        m_client->fetchGameSize(id, m_entries[idx].worksOnLinux);
+    }
+}
+
+int GogLibraryModel::indexOfGame(const QString &id) const
+{
+    for (int i = 0; i < m_entries.size(); ++i) {
+        if (m_entries[i].id == id)
+            return i;
+    }
+    return -1;
 }
 
 void GogLibraryModel::requestCovers()

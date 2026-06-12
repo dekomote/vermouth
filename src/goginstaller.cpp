@@ -155,7 +155,6 @@ QVariantMap GogInstaller::findInstalledWindowsGame(const QString &prefix, const 
 
     QVector<GogEntry> all;
     for (const QString &root : roots) {
-        qInfo() << root;
         for (const GogEntry &e : GogLibrary::scan(root)) {
             if (e.isWindows && !e.exePath.isEmpty())
                 all.append(e);

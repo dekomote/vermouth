@@ -291,7 +291,10 @@ void GogClient::fetchLibrary(const QString &search, int page)
                 if (!image.isEmpty()) {
                     if (image.startsWith(QStringLiteral("//")))
                         image = QStringLiteral("https:") + image;
-                    g[QStringLiteral("coverUrl")] = QString(image + QStringLiteral(".jpg"));
+                    QString lower = image.toLower();
+                    bool hasExt = lower.endsWith(QStringLiteral(".jpg")) || lower.endsWith(QStringLiteral(".jpeg")) || lower.endsWith(QStringLiteral(".png"))
+                        || lower.endsWith(QStringLiteral(".webp")) || lower.endsWith(QStringLiteral(".gif"));
+                    g[QStringLiteral("coverUrl")] = hasExt ? image : QString(image + QStringLiteral(".jpg"));
                 } else {
                     g[QStringLiteral("coverUrl")] = QString();
                 }
@@ -374,6 +377,8 @@ void GogClient::fetchGameSize(const QString &gameId, bool preferLinux)
     url.setQuery(q);
 
     // Runs quietly in the background (no busy/status flips) like cover fetching.
+    // Always emits exactly one sizeFetched (bytes < 0 means unknown) so callers
+    // can throttle a queue without it stalling on errors.
     authedGet(
         url,
         [this, gameId, preferLinux](const QByteArray &data) {
@@ -381,17 +386,16 @@ void GogClient::fetchGameSize(const QString &gameId, bool preferLinux)
             auto installers = root[QStringLiteral("downloads")].toObject()[QStringLiteral("installers")].toArray();
             bool isWindows = false;
             QJsonObject chosen = pickInstaller(installers, preferLinux, isWindows);
-            if (chosen.isEmpty())
-                return;
             double bytes = chosen[QStringLiteral("total_size")].toVariant().toDouble();
             if (bytes <= 0) {
-                // Some payloads only carry per-file sizes; sum them as a fallback.
                 for (const auto &fval : chosen[QStringLiteral("files")].toArray())
                     bytes += fval.toObject()[QStringLiteral("size")].toVariant().toDouble();
             }
-            Q_EMIT sizeFetched(gameId, bytes);
+            Q_EMIT sizeFetched(gameId, bytes > 0 ? bytes : -1);
         },
-        [](const QString &) {});
+        [this, gameId](const QString &) {
+            Q_EMIT sizeFetched(gameId, -1);
+        });
 }
 
 void GogClient::resolveNextDownlink(const QString &gameId, QStringList pending, QStringList resolved, bool isWindows)

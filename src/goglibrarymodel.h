@@ -2,6 +2,8 @@
 
 #include <QAbstractListModel>
 #include <QHash>
+#include <QSet>
+#include <QStringList>
 #include <QVariantList>
 #include <QVector>
 
@@ -71,17 +73,23 @@ private:
     };
 
     bool isInstalled(const QString &id) const;
+    int indexOfGame(const QString &id) const;
     void onLibraryFetched(const QVariantList &items, int totalPages, int page);
     void onSizeFetched(const QString &gameId, double bytes);
     void setBusy(bool b);
     void setStatusText(const QString &s);
     void requestCovers();
     void requestSizes();
+    void pumpSizes();
+
+    static constexpr int kMaxConcurrentSizes = 5;
 
     GogClient *m_client = nullptr;
     GogCoverCache *m_coverCache = nullptr;
     QVector<GameEntry> m_entries;
     QHash<QString, QString> m_installed;
+    QStringList m_sizeQueue;
+    QSet<QString> m_sizeInFlight;
     int m_currentPage = 1;
     int m_totalPages = 1;
     bool m_busy = false;
