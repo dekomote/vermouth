@@ -25,6 +25,10 @@ class SettingsManager : public QObject
     Q_PROPERTY(bool autoDownloadArt READ autoDownloadArt WRITE setAutoDownloadArt NOTIFY autoDownloadArtChanged)
     Q_PROPERTY(QString rommServerUrl READ rommServerUrl WRITE setRommServerUrl NOTIFY rommServerUrlChanged)
     Q_PROPERTY(QString rommApiKey READ rommApiKey WRITE setRommApiKey NOTIFY rommApiKeyChanged)
+    Q_PROPERTY(QString gogRefreshToken READ gogRefreshToken WRITE setGogRefreshToken NOTIFY gogRefreshTokenChanged)
+    Q_PROPERTY(QString gogUsername READ gogUsername WRITE setGogUsername NOTIFY gogUsernameChanged)
+    Q_PROPERTY(QString gogCacheDir READ gogCacheDir WRITE setGogCacheDir NOTIFY gogCacheDirChanged)
+    Q_PROPERTY(QString gogInstallDir READ gogInstallDir WRITE setGogInstallDir NOTIFY gogInstallDirChanged)
     Q_PROPERTY(QString retroarchPath READ retroarchPath WRITE setRetroarchPath NOTIFY retroarchPathChanged)
     Q_PROPERTY(QString romCacheDir READ romCacheDir WRITE setRomCacheDir NOTIFY romCacheDirChanged)
     Q_PROPERTY(bool firstRunComplete READ firstRunComplete WRITE setFirstRunComplete NOTIFY firstRunCompleteChanged)
@@ -95,6 +99,19 @@ public:
     QString romCacheDir() const;
     Q_INVOKABLE void setRomCacheDir(const QString &dir);
 
+    QString gogRefreshToken() const;
+    Q_INVOKABLE void setGogRefreshToken(const QString &token);
+    QString gogUsername() const;
+    Q_INVOKABLE void setGogUsername(const QString &name);
+    QString gogCacheDir() const;
+    Q_INVOKABLE void setGogCacheDir(const QString &dir);
+    QString gogInstallDir() const;
+    Q_INVOKABLE void setGogInstallDir(const QString &dir);
+
+    QVariantMap gogInstalledGames() const;
+    Q_INVOKABLE void setGogInstalledGame(const QString &gameId, const QString &exePath);
+    Q_INVOKABLE void removeGogInstalledGame(const QString &gameId);
+
     bool firstRunComplete() const;
     Q_INVOKABLE void setFirstRunComplete(bool complete);
 
@@ -132,6 +149,11 @@ Q_SIGNALS:
     void autoDownloadArtChanged();
     void rommServerUrlChanged();
     void rommApiKeyChanged();
+    void gogRefreshTokenChanged();
+    void gogUsernameChanged();
+    void gogCacheDirChanged();
+    void gogInstallDirChanged();
+    void gogInstalledGamesChanged();
     void retroarchPathChanged();
     void romCacheDirChanged();
     void firstRunCompleteChanged();

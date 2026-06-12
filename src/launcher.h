@@ -32,6 +32,7 @@ public:
     Q_INVOKABLE QStringList availableCoresForPlatform(const QString &platformSlug) const;
     Q_INVOKABLE QString buildRomLaunchCommand(const QVariantMap &rom) const;
     Q_INVOKABLE void copyToClipboard(const QString &text) const;
+    Q_INVOKABLE void openExternalUrl(const QString &url) const;
     Q_INVOKABLE void stopEntry(const QVariantMap &app);
     Q_INVOKABLE qint64 runInPrefix(const QVariantMap &app, const QString &exePath);
     Q_INVOKABLE qint64 runningPidForExe(const QString &exePath) const;

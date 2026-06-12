@@ -1,4 +1,5 @@
 #include "settingsmanager.h"
+#include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QStandardPaths>
@@ -283,6 +284,89 @@ void SettingsManager::setRomCacheDir(const QString &dir)
         return;
     m_settings.setValue(QStringLiteral("romCacheDir"), dir);
     Q_EMIT romCacheDirChanged();
+}
+
+QString SettingsManager::gogRefreshToken() const
+{
+    return m_settings.value(QStringLiteral("gogRefreshToken")).toString();
+}
+
+void SettingsManager::setGogRefreshToken(const QString &token)
+{
+    if (gogRefreshToken() == token)
+        return;
+    m_settings.setValue(QStringLiteral("gogRefreshToken"), token);
+    Q_EMIT gogRefreshTokenChanged();
+}
+
+QString SettingsManager::gogUsername() const
+{
+    return m_settings.value(QStringLiteral("gogUsername")).toString();
+}
+
+void SettingsManager::setGogUsername(const QString &name)
+{
+    if (gogUsername() == name)
+        return;
+    m_settings.setValue(QStringLiteral("gogUsername"), name);
+    Q_EMIT gogUsernameChanged();
+}
+
+QString SettingsManager::gogCacheDir() const
+{
+    QString stored = m_settings.value(QStringLiteral("gogCacheDir")).toString();
+    if (!stored.isEmpty())
+        return stored;
+    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/gog");
+}
+
+void SettingsManager::setGogCacheDir(const QString &dir)
+{
+    if (m_settings.value(QStringLiteral("gogCacheDir")).toString() == dir)
+        return;
+    m_settings.setValue(QStringLiteral("gogCacheDir"), dir);
+    Q_EMIT gogCacheDirChanged();
+}
+
+QString SettingsManager::gogInstallDir() const
+{
+    QString stored = m_settings.value(QStringLiteral("gogInstallDir")).toString();
+    if (!stored.isEmpty())
+        return stored;
+    return QDir::homePath() + QStringLiteral("/GOG Games");
+}
+
+void SettingsManager::setGogInstallDir(const QString &dir)
+{
+    if (m_settings.value(QStringLiteral("gogInstallDir")).toString() == dir)
+        return;
+    m_settings.setValue(QStringLiteral("gogInstallDir"), dir);
+    Q_EMIT gogInstallDirChanged();
+}
+
+QVariantMap SettingsManager::gogInstalledGames() const
+{
+    QString json = m_settings.value(QStringLiteral("gogInstalledGames")).toString();
+    if (json.isEmpty())
+        return {};
+    return QJsonDocument::fromJson(json.toUtf8()).object().toVariantMap();
+}
+
+void SettingsManager::setGogInstalledGame(const QString &gameId, const QString &exePath)
+{
+    QVariantMap map = gogInstalledGames();
+    map[gameId] = exePath;
+    m_settings.setValue(QStringLiteral("gogInstalledGames"), QString::fromUtf8(QJsonDocument::fromVariant(map).toJson(QJsonDocument::Compact)));
+    Q_EMIT gogInstalledGamesChanged();
+}
+
+void SettingsManager::removeGogInstalledGame(const QString &gameId)
+{
+    QVariantMap map = gogInstalledGames();
+    if (!map.remove(gameId))
+        return;
+    m_settings.setValue(QStringLiteral("gogInstalledGames"), QString::fromUtf8(QJsonDocument::fromVariant(map).toJson(QJsonDocument::Compact)));
+    Q_EMIT gogInstalledGamesChanged();
 }
 
 bool SettingsManager::firstRunComplete() const

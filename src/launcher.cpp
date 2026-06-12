@@ -218,6 +218,11 @@ void Launcher::copyToClipboard(const QString &text) const
     QGuiApplication::clipboard()->setText(text);
 }
 
+void Launcher::openExternalUrl(const QString &url) const
+{
+    QProcess::startDetached(QStringLiteral("xdg-open"), {url});
+}
+
 QString Launcher::detectRetroarchPath() const
 {
     if (isInsideFlatpak()) {

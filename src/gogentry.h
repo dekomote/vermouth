@@ -7,5 +7,6 @@ struct GogEntry {
     QString name;
     QString exePath;
     QString iconPath;
+    QString arguments;
     bool isWindows = true;
 };
