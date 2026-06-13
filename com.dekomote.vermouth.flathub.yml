@@ -57,5 +57,5 @@ modules:
     sources:
       - type: git
         url: https://github.com/dekomote/vermouth.git
-        tag: v1.9.1
+        tag: v1.9.2
         commit: 88dae3a40e3a25adeccc946056454e32e286d03a

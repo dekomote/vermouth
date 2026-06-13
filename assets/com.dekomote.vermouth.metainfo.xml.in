@@ -40,6 +40,13 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="1.9.2" date="2026-06-13">
+        <description>
+          <p>This release adds the Gog Store integration.</p>
+          <p>Browse, download and play your Gog games directly from Vermouth. Additionally,
+          32 bit support has been added to the flatpak for 32 bit games.</p>
+        </description>
+    </release>
     <release version="1.9.1" date="2026-06-07">
         <description>
           <p>This release is focused on UI/UX improvements, code cleanup and optimizations.</p>
