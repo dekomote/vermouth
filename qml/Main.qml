@@ -50,6 +50,14 @@ Kirigami.ApplicationWindow {
             search: true
         },
         {
+            key: "gog",
+            name: i18n("GOG Library (Beta)"),
+            icon: "applications-games",
+            enabled: true,
+            nav: true,
+            search: true
+        },
+        {
             key: "about",
             name: i18n("About Vermouth"),
             icon: "help-about",
@@ -81,7 +89,8 @@ Kirigami.ApplicationWindow {
     readonly property int currentPageIndex: pages.findIndex(p => p.key === root.currentPage)
     readonly property var pageViews: ({
             "games": gridView,
-            "romm": rommView
+            "romm": rommView,
+            "gog": gogView
         })
     function currentView() {
         return root.pageViews[root.currentPage] ?? gridView;
@@ -104,6 +113,12 @@ Kirigami.ApplicationWindow {
             rommView.searchText = "";
             if (settingsManager.rommServerUrl !== "" && rommView.platforms.length === 0 && !rommModel.busy)
                 rommView.refresh();
+        } else if (key === "gog") {
+            var gogWasSearching = gogView.searchText !== "";
+            gogView.searchText = "";
+            gogLibraryModel.revalidateInstalled();
+            if (gogClient.authenticated && !gogLibraryModel.busy && (gogWasSearching || gogLibraryModel.count === 0))
+                gogView.refresh();
         }
         if (root.pageViews[key])
             Qt.callLater(() => root.currentView().forceActiveFocus());
@@ -129,6 +144,8 @@ Kirigami.ApplicationWindow {
             gridView.searchActive = text !== "";
         } else if (root.currentPage === "romm") {
             rommView.applySearch(text);
+        } else if (root.currentPage === "gog") {
+            gogView.applySearch(text);
         }
     }
     readonly property bool sidebarPinned: !globalDrawer.modal && !root.bigPicture
@@ -612,6 +629,14 @@ Kirigami.ApplicationWindow {
                     showNames: gridView.showNames
                 }
 
+                GogView {
+                    id: gogView
+                    lightsOut: root.lightsOut
+                    viewType: gridView.viewType
+                    scaleFactor: gridView.scaleFactor
+                    showNames: gridView.showNames
+                }
+
                 Kirigami.AboutPage {
                     aboutData: About
                     Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
@@ -848,6 +873,15 @@ Kirigami.ApplicationWindow {
                 footerStatusText.text = "";
             return;
         }
+        if (root.currentPage === "gog") {
+            if (gogLibraryModel.statusText !== "")
+                footerStatusText.text = gogLibraryModel.statusText;
+            else if (gogClient.username !== "")
+                footerStatusText.text = gogLibraryModel.count > 0 ? i18n("%1 — %2 games", gogClient.username, gogLibraryModel.count) : gogClient.username;
+            else
+                footerStatusText.text = "";
+            return;
+        }
         if (root.currentPage !== "games") {
             footerStatusText.text = "";
             return;
@@ -1072,6 +1106,30 @@ Kirigami.ApplicationWindow {
         function onStatusTextChanged() {
             if (root.currentPage === "romm")
                 root.updateFooterStatus();
+        }
+    }
+
+    Connections {
+        target: gogLibraryModel
+        function onCountChanged() {
+            if (root.currentPage === "gog")
+                root.updateFooterStatus();
+        }
+        function onStatusTextChanged() {
+            if (root.currentPage === "gog")
+                root.updateFooterStatus();
+        }
+    }
+
+    Connections {
+        target: gogClient
+        function onUsernameChanged() {
+            if (root.currentPage === "gog")
+                root.updateFooterStatus();
+        }
+        function onAuthenticatedChanged() {
+            if (root.currentPage === "gog" && gogClient.authenticated && gogLibraryModel.count === 0 && !gogLibraryModel.busy)
+                gogView.refresh();
         }
     }
 

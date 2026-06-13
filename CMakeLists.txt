@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(vermouth VERSION 1.9.1 LANGUAGES CXX)
+project(vermouth VERSION 1.9.2 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -57,6 +57,11 @@ qt_add_executable(vermouth
     src/steammodel.cpp
     src/goglibrary.cpp
     src/gogmodel.cpp
+    src/gogclient.cpp
+    src/gogcovercache.cpp
+    src/goglibrarymodel.cpp
+    src/gogdownloader.cpp
+    src/goginstaller.cpp
     src/runtimetypemodel.cpp
     src/rommclient.cpp
     src/rommcovercache.cpp
@@ -86,6 +91,7 @@ qt_add_qml_module(vermouth
         qml/GogImportDialog.qml
         qml/CorePickerDialog.qml
         qml/RommView.qml
+        qml/GogView.qml
         qml/DownloaderProgress.qml
         qml/FlatpakHostHint.qml
     NO_RESOURCE_TARGET_PATH

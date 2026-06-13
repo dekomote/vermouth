@@ -7,6 +7,34 @@
 #include <QJsonObject>
 #include <QTextStream>
 
+static QString resolveCaseInsensitivePath(const QDir &base, const QString &relPath)
+{
+    QString direct = base.absoluteFilePath(relPath);
+    if (QFileInfo::exists(direct))
+        return direct;
+
+    QDir current = base;
+    const QStringList parts = relPath.split(QLatin1Char('/'), Qt::SkipEmptyParts);
+    for (int i = 0; i < parts.size(); ++i) {
+        const bool last = (i == parts.size() - 1);
+        QString match;
+        const QStringList entries = current.entryList(QDir::NoDotAndDotDot | (last ? (QDir::Files | QDir::Dirs) : QDir::Dirs));
+        for (const QString &e : entries) {
+            if (e.compare(parts[i], Qt::CaseInsensitive) == 0) {
+                match = e;
+                break;
+            }
+        }
+        if (match.isEmpty())
+            return {};
+        QString abs = current.absoluteFilePath(match);
+        if (last)
+            return abs;
+        current = QDir(abs);
+    }
+    return {};
+}
+
 static GogEntry tryParseWindows(const QDir &gameDir)
 {
     for (const QString &infoFile : gameDir.entryList({QStringLiteral("goggame-*.info")}, QDir::Files)) {
@@ -24,6 +52,7 @@ static GogEntry tryParseWindows(const QDir &gameDir)
             continue;
 
         QString exeRelPath;
+        QString arguments;
         bool foundPrimary = false;
         for (const QJsonValue &val : obj[QStringLiteral("playTasks")].toArray()) {
             QJsonObject t = val.toObject();
@@ -37,6 +66,7 @@ static GogEntry tryParseWindows(const QDir &gameDir)
             bool primary = t[QStringLiteral("isPrimary")].toBool();
             if (exeRelPath.isEmpty() || (!foundPrimary && primary)) {
                 exeRelPath = path;
+                arguments = t[QStringLiteral("arguments")].toString();
                 foundPrimary = primary;
             }
         }
@@ -44,8 +74,8 @@ static GogEntry tryParseWindows(const QDir &gameDir)
         if (exeRelPath.isEmpty())
             continue;
 
-        QString exePath = gameDir.absoluteFilePath(exeRelPath);
-        if (!QFileInfo::exists(exePath))
+        QString exePath = resolveCaseInsensitivePath(gameDir, exeRelPath);
+        if (exePath.isEmpty())
             continue;
 
         QString iconPath;
@@ -58,6 +88,7 @@ static GogEntry tryParseWindows(const QDir &gameDir)
         entry.name = name;
         entry.exePath = exePath;
         entry.iconPath = iconPath;
+        entry.arguments = arguments;
         entry.isWindows = true;
         return entry;
     }

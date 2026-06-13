@@ -2,6 +2,11 @@
 #include "desktopfilewriter.h"
 #include "flatpakutils.h"
 #include "gamepadhandler.h"
+#include "gogclient.h"
+#include "gogcovercache.h"
+#include "gogdownloader.h"
+#include "goginstaller.h"
+#include "goglibrarymodel.h"
 #include "gogmodel.h"
 #include "iconextractor.h"
 #include "launcher.h"
@@ -266,6 +271,41 @@ int main(int argc, char *argv[])
     });
     QObject::connect(&rommCoverCache, &RommCoverCache::coverReady, &rommModel, &RommModel::notifyCoverCached);
 
+    // GOG
+    GogClient gogClient;
+    gogClient.setRefreshToken(settingsManager.gogRefreshToken());
+
+    GogCoverCache gogCoverCache;
+    gogCoverCache.setCacheDir(settingsManager.gogCacheDir() + QStringLiteral("/covers"));
+
+    GogLibraryModel gogLibraryModel;
+    gogLibraryModel.setClient(&gogClient);
+    gogLibraryModel.setCoverCache(&gogCoverCache);
+    gogLibraryModel.setInstalledMap(settingsManager.gogInstalledGames());
+
+    GogDownloader gogDownloader;
+    gogDownloader.setCacheDir(settingsManager.gogCacheDir());
+
+    GogInstaller gogInstaller;
+    gogInstaller.setUmuPath(settingsManager.umuPath());
+
+    QObject::connect(&gogClient, &GogClient::refreshTokenObtained, &settingsManager, &SettingsManager::setGogRefreshToken);
+    QObject::connect(&gogClient, &GogClient::usernameChanged, &settingsManager, [&]() {
+        settingsManager.setGogUsername(gogClient.username());
+    });
+    QObject::connect(&gogCoverCache, &GogCoverCache::coverReady, &gogLibraryModel, &GogLibraryModel::notifyCoverCached);
+    QObject::connect(&settingsManager, &SettingsManager::umuPathChanged, &gogInstaller, [&]() {
+        gogInstaller.setUmuPath(settingsManager.umuPath());
+    });
+    QObject::connect(&settingsManager, &SettingsManager::gogCacheDirChanged, &gogCoverCache, [&]() {
+        gogCoverCache.setCacheDir(settingsManager.gogCacheDir() + QStringLiteral("/covers"));
+        gogDownloader.setCacheDir(settingsManager.gogCacheDir());
+    });
+
+    // Restore the GOG session at startup if we have a stored refresh token.
+    if (!settingsManager.gogRefreshToken().isEmpty())
+        gogClient.refreshSession();
+
     QQmlApplicationEngine engine;
     engine.addImageProvider(QStringLiteral("icon"), new IconImageProvider);
     engine.rootContext()->setContextObject(new KLocalizedContext(&engine));
@@ -282,6 +322,11 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("steamGridDb"), &steamGridDb);
     engine.rootContext()->setContextProperty(QStringLiteral("steamModel"), &steamModel);
     engine.rootContext()->setContextProperty(QStringLiteral("gogModel"), &gogModel);
+    engine.rootContext()->setContextProperty(QStringLiteral("gogClient"), &gogClient);
+    engine.rootContext()->setContextProperty(QStringLiteral("gogLibraryModel"), &gogLibraryModel);
+    engine.rootContext()->setContextProperty(QStringLiteral("gogCoverCache"), &gogCoverCache);
+    engine.rootContext()->setContextProperty(QStringLiteral("gogDownloader"), &gogDownloader);
+    engine.rootContext()->setContextProperty(QStringLiteral("gogInstaller"), &gogInstaller);
     engine.rootContext()->setContextProperty(QStringLiteral("runtimeModel"), &runtimeTypeModel);
     engine.rootContext()->setContextProperty(QStringLiteral("rommClient"), &rommClient);
     engine.rootContext()->setContextProperty(QStringLiteral("rommModel"), &rommModel);

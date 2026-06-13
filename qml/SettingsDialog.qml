@@ -19,6 +19,8 @@ Kirigami.ScrollablePage {
         settingsManager.setRommApiKey(rommApiKeyField.text);
         settingsManager.setRetroarchPath(retroarchPathField.text);
         settingsManager.setRomCacheDir(romCacheDirField.text);
+        settingsManager.setGogCacheDir(gogCacheDirField.text);
+        settingsManager.setGogInstallDir(gogInstallDirField.text);
         defaultRuntimePicker.saveToSettings();
         var vars = [];
         for (var i = 0; i < envModel.count; i++) {
@@ -46,6 +48,8 @@ Kirigami.ScrollablePage {
         rommApiKeyField.text = settingsManager.rommApiKey;
         retroarchPathField.text = settingsManager.retroarchPath;
         romCacheDirField.text = settingsManager.romCacheDir;
+        gogCacheDirField.text = settingsManager.gogCacheDir;
+        gogInstallDirField.text = settingsManager.gogInstallDir;
         pathsModel.clear();
         var paths = settingsManager.extraProtonPaths;
         for (var i = 0; i < paths.length; i++) {
@@ -317,6 +321,72 @@ Kirigami.ScrollablePage {
                 QQC2.ToolButton {
                     icon.name: "document-open"
                     onClicked: romCacheFolderDialog.open()
+                }
+            }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("GOG")
+            }
+
+            QQC2.Label {
+                Kirigami.FormData.label: ""
+                text: i18n("Log in from the GOG Library tab to browse and install your owned GOG games.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
+                font.italic: true
+                color: Kirigami.Theme.disabledTextColor
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Account:")
+                QQC2.Label {
+                    Layout.fillWidth: true
+                    elide: Text.ElideRight
+                    text: gogClient.authenticated ? (gogClient.username !== "" ? i18n("Logged in as %1", gogClient.username) : i18n("Logged in")) : i18n("Not logged in")
+                }
+                QQC2.Button {
+                    text: i18n("Log out")
+                    icon.name: "system-log-out"
+                    enabled: gogClient.authenticated
+                    onClicked: gogClient.logout()
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Download Folder:")
+                QQC2.TextField {
+                    id: gogCacheDirField
+                    Layout.fillWidth: true
+                    placeholderText: i18n("Default: ~/Gog Games/.cache")
+                }
+                QQC2.ToolButton {
+                    icon.name: "document-open"
+                    onClicked: gogCacheFolderDialog.open()
+                }
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Where GOG installers are downloaded before installation.")
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Install Folder:")
+                QQC2.TextField {
+                    id: gogInstallDirField
+                    Layout.fillWidth: true
+                    placeholderText: i18n("Default: ~/GOG Games")
+                }
+                QQC2.ToolButton {
+                    icon.name: "document-open"
+                    onClicked: gogInstallFolderDialog.open()
+                }
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Where GOG games are installed.")
                 }
             }
 
@@ -623,6 +693,20 @@ Kirigami.ScrollablePage {
         title: i18n("Select ROM Cache Folder")
         currentFolder: "file://" + protonScanner.homePath()
         onAccepted: romCacheDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
+    }
+
+    FolderDialog {
+        id: gogCacheFolderDialog
+        title: i18n("Select GOG Download Folder")
+        currentFolder: "file://" + protonScanner.homePath()
+        onAccepted: gogCacheDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
+    }
+
+    FolderDialog {
+        id: gogInstallFolderDialog
+        title: i18n("Select GOG Install Folder")
+        currentFolder: "file://" + protonScanner.homePath()
+        onAccepted: gogInstallDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
     }
 
     ColorDialog {
