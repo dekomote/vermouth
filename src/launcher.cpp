@@ -220,7 +220,7 @@ void Launcher::copyToClipboard(const QString &text) const
 
 void Launcher::openExternalUrl(const QString &url) const
 {
-    QProcess::startDetached(QStringLiteral("xdg-open"), {url});
+    QDesktopServices::openUrl(QUrl(url));
 }
 
 QString Launcher::detectRetroarchPath() const

@@ -63,7 +63,8 @@ void GogInstaller::installWindows(const QString &gameId,
                                   const QString &installerExe,
                                   const QString &runtimeType,
                                   const QString &runtimePath,
-                                  const QString &prefix)
+                                  const QString &prefix,
+                                  bool silent)
 {
     if (!QFileInfo::exists(installerExe)) {
         Q_EMIT installError(gameId, QStringLiteral("Installer not found: %1").arg(installerExe));
@@ -74,41 +75,27 @@ void GogInstaller::installWindows(const QString &gameId,
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     QString workingDir = QFileInfo(installerExe).absolutePath();
 
-    // InnoSetup unattended flags (same as minigalaxy). Installs into C:\game
-    // inside the prefix; we scan there afterwards.
-    const QStringList innoArgs = {
-        QStringLiteral("/DIR=c:\\game"),
-        QStringLiteral("/LANG=english"),
-        QStringLiteral("/LOG=c:\\install.log"),
-        QStringLiteral("/SAVEINF=c:\\setup.inf"),
-        QStringLiteral("/SP-"),
-        QStringLiteral("/SILENT"),
-        QStringLiteral("/NORESTART"),
-        QStringLiteral("/SUPPRESSMSGBOXES"),
-    };
+    QStringList args;
+    if (silent) {
+        args = {
+            QStringLiteral("/DIR=c:\\game"),
+            QStringLiteral("/LANG=en-US"),
+            QStringLiteral("/SP-"),
+            QStringLiteral("/SILENT"),
+            QStringLiteral("/NORESTART"),
+            QStringLiteral("/SUPPRESSMSGBOXES"),
+        };
+    }
 
     if (runtimeType == QStringLiteral("wine")) {
         env.insert(QStringLiteral("WINEPREFIX"), prefix);
-        runProcess(gameId, runtimePath, QStringList{installerExe} + innoArgs, env, workingDir);
+        runProcess(gameId, runtimePath, QStringList{installerExe} + args, env, workingDir);
         return;
     }
 
-    // Proton (default), preferring umu-run like the launcher does.
-    QString umuBin = m_umuPath;
-    if (umuBin.isEmpty())
-        umuBin = QStandardPaths::findExecutable(QStringLiteral("umu-run"));
-
-    if (!umuBin.isEmpty()) {
-        env.insert(QStringLiteral("PROTONPATH"), runtimePath);
-        env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
-        env.insert(QStringLiteral("GAMEID"), QStringLiteral("0"));
-        env.insert(QStringLiteral("WINEPREFIX"), prefix);
-        runProcess(gameId, umuBin, QStringList{installerExe} + innoArgs, env, workingDir);
-    } else {
-        env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
-        env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
-        runProcess(gameId, runtimePath + QStringLiteral("/proton"), QStringList{QStringLiteral("run"), installerExe} + innoArgs, env, workingDir);
-    }
+    env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
+    env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
+    runProcess(gameId, runtimePath + QStringLiteral("/proton"), QStringList{QStringLiteral("run"), installerExe} + args, env, workingDir);
 }
 
 void GogInstaller::installLinux(const QString &gameId, const QString &installerSh, const QString &destDir)
@@ -119,10 +106,6 @@ void GogInstaller::installLinux(const QString &gameId, const QString &installerS
     }
     QDir().mkpath(destDir);
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    // GOG Linux installers are MojoSetup/makeself archives: a zip with a shell
-    // script prepended. unzip extracts them directly (it warns about the extra
-    // leading bytes and exits 1, but still extracts correctly). Game files land
-    // under <destDir>/data/noarch.
     runProcess(gameId,
                QStringLiteral("unzip"),
                {QStringLiteral("-o"), QStringLiteral("-qq"), installerSh, QStringLiteral("-d"), destDir},

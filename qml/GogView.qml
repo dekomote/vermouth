@@ -19,11 +19,15 @@ GameGridView {
     property string pendingPrefix: ""
     property string pendingRuntimeType: "proton"
     property string pendingRuntimePath: ""
+    property string pendingInstallerPath: ""
+    property bool pendingManual: false
     property string artAppId: ""
 
     function resetPending() {
         pendingGameId = "";
         pendingPhase = "";
+        pendingInstallerPath = "";
+        pendingManual = false;
     }
 
     function sanitize(name) {
@@ -61,15 +65,25 @@ GameGridView {
         startInstall(g);
     }
 
-    function startInstall(g) {
+    function startInstall(g, manual) {
         if (gogDownloader.busy || gogInstaller.busy || pendingGameId !== "") {
             showPassiveNotification(i18n("A download or install is already in progress"), 3000);
             return;
         }
         pendingGameId = g.gameId;
         pendingGameName = g.title;
+        pendingManual = manual === true;
         pendingPhase = "resolve";
-        gogClient.fetchDownloadInfo(g.gameId, g.worksOnLinux === true);
+        gogClient.fetchDownloadInfo(g.gameId, !pendingManual && g.worksOnLinux === true);
+    }
+
+    function promptManualInstall() {
+        manualInstallDialog.open();
+    }
+
+    function doManualInstall() {
+        pendingPhase = "install";
+        gogInstaller.installWindows(pendingGameId, pendingInstallerPath, pendingRuntimeType, pendingRuntimePath, pendingPrefix, false);
     }
 
     function resolveWindowsRuntime() {
@@ -166,12 +180,16 @@ GameGridView {
                 showPassiveNotification(i18n("Download produced no installer file"), 5000);
                 return;
             }
+            gogGrid.pendingInstallerPath = primaryPath;
             gogGrid.pendingPhase = "install";
             if (isWindows) {
                 if (!gogGrid.resolveWindowsRuntime())
                     return;
-                gogGrid.pendingPrefix = (gogGrid.pendingRuntimeType === "wine" ? protonScanner.winePrefixBasePath() : protonScanner.prefixBasePath()) + "/" + gogGrid.sanitize(gogGrid.pendingGameName);
-                gogInstaller.installWindows(gameId, primaryPath, gogGrid.pendingRuntimeType, gogGrid.pendingRuntimePath, gogGrid.pendingPrefix);
+                gogGrid.pendingPrefix = settingsManager.gogInstallDir + "/" + gogGrid.sanitize(gogGrid.pendingGameName);
+                if (gogGrid.pendingManual)
+                    gogGrid.promptManualInstall();
+                else
+                    gogInstaller.installWindows(gameId, primaryPath, gogGrid.pendingRuntimeType, gogGrid.pendingRuntimePath, gogGrid.pendingPrefix, true);
             } else {
                 gogGrid.pendingRuntimeType = "native";
                 gogGrid.pendingRuntimePath = "";
@@ -196,8 +214,14 @@ GameGridView {
             var info = gogGrid.pendingIsWindows ? gogInstaller.findInstalledWindowsGame(gogGrid.pendingPrefix, gogGrid.pendingGameName, gogGrid.pendingRuntimeType) : gogInstaller.findInstalledLinuxGame(gogGrid.pendingPrefix);
 
             if (!info || info.exePath === undefined || info.exePath === "") {
+                // Silent install left nothing behind: fall back to a manual run once.
+                if (gogGrid.pendingIsWindows && !gogGrid.pendingManual) {
+                    gogGrid.pendingManual = true;
+                    gogGrid.promptManualInstall();
+                    return;
+                }
+                showPassiveNotification(i18n("%1 was not installed.", gogGrid.pendingGameName), 7000);
                 gogGrid.resetPending();
-                showPassiveNotification(i18n("Could not locate the installed game files."), 7000);
                 return;
             }
 
@@ -229,6 +253,7 @@ GameGridView {
 
             settingsManager.setGogInstalledGame(gameId, info.exePath);
             gogLibraryModel.markInstalled(gameId, info.exePath);
+            gogDownloader.clearDownload(gameId);
             showPassiveNotification(i18n("%1 installed", gogGrid.pendingGameName), 4000);
 
             // Kick off artwork download if configured.
@@ -408,6 +433,14 @@ GameGridView {
                 }
             }
             QQC2.MenuItem {
+                text: i18n("Custom install…")
+                icon.name: "run-install"
+                visible: !cardFrame.installed && cardFrame.worksOnWindows
+                height: visible ? implicitHeight : 0
+                enabled: !cardFrame.busyCard && !gogDownloader.busy && !gogInstaller.busy && gogGrid.pendingGameId === ""
+                onTriggered: gogGrid.startInstall(gogLibraryModel.getGame(cardFrame.index), true)
+            }
+            QQC2.MenuItem {
                 text: i18n("Cancel download")
                 icon.name: "dialog-cancel"
                 visible: cardFrame.busyCard && gogGrid.pendingPhase === "download"
@@ -461,6 +494,15 @@ GameGridView {
     }
 
     Kirigami.PromptDialog {
+        id: manualInstallDialog
+        title: i18n("Manual installation")
+        subtitle: i18n("%1 will open its installer. Keep the default location (C:\\GOG Games) or use C:\\game so it can be imported automatically.", gogGrid.pendingGameName)
+        standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
+        onAccepted: gogGrid.doManualInstall()
+        onRejected: gogGrid.resetPending()
+    }
+
+    Kirigami.PromptDialog {
         id: loginDialog
         title: i18n("Log in to GOG")
         standardButtons: Kirigami.Dialog.NoButton
@@ -481,6 +523,25 @@ GameGridView {
                 text: i18n("Open GOG login page")
                 icon.name: "internet-web-browser"
                 onClicked: launcher.openExternalUrl(gogClient.loginUrl())
+            }
+
+            QQC2.Label {
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+                text: i18n("or if it doesn't open:")
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                color: Kirigami.Theme.disabledTextColor
+            }
+
+            QQC2.Button {
+                Layout.fillWidth: true
+                Layout.preferredWidth: Kirigami.Units.gridUnit * 26
+                text: i18n("Copy login URL to clipboard")
+                icon.name: "edit-copy"
+                onClicked: {
+                    launcher.copyToClipboard(gogClient.loginUrl());
+                    showPassiveNotification(i18n("Login URL copied to clipboard"), 3000);
+                }
             }
 
             QQC2.Label {

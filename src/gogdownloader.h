@@ -17,6 +17,8 @@ public:
 
     Q_INVOKABLE void download(const QString &gameId, const QStringList &urls, bool isWindows);
     Q_INVOKABLE void cancel();
+    // Remove the cached installer files for a game (call after a successful install).
+    Q_INVOKABLE void clearDownload(const QString &gameId);
 
 Q_SIGNALS:
     void downloadFinished(const QString &gameId, const QString &primaryFilePath, bool isWindows);

@@ -82,6 +82,18 @@ void GogDownloader::startNextFile()
 
     int completed = m_done.size();
     QString url = m_pending.takeFirst();
+
+    QString existingName = QFileInfo(QUrl(url).path()).fileName();
+    if (!existingName.isEmpty()) {
+        QString existingPath = m_saveDir + QLatin1Char('/') + existingName;
+        if (QFileInfo::exists(existingPath)) {
+            m_done << existingPath;
+            setProgress(static_cast<double>(m_done.size()) / m_totalFiles);
+            startNextFile();
+            return;
+        }
+    }
+
     // Stable per-part temp name so a partial download can be resumed later.
     m_tempPath = m_saveDir + QStringLiteral("/.part_%1.download").arg(completed);
     m_existingBytes = QFileInfo::exists(m_tempPath) ? QFileInfo(m_tempPath).size() : 0;
@@ -155,6 +167,13 @@ void GogDownloader::startNextFile()
         m_done << finalPath;
         startNextFile();
     });
+}
+
+void GogDownloader::clearDownload(const QString &gameId)
+{
+    if (m_cacheDir.isEmpty() || gameId.isEmpty())
+        return;
+    QDir(m_cacheDir + QStringLiteral("/installers/") + gameId).removeRecursively();
 }
 
 void GogDownloader::cleanupReply()
