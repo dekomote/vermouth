@@ -85,20 +85,24 @@ GameGridView {
         runWindowsInstaller(false);
     }
 
+    function installWineBinary() {
+        var bin = settingsManager.defaultWineBinary;
+        if (bin !== "" && wineScanner.isInstalled(bin))
+            return bin;
+        var wv = wineScanner.findWineVersions();
+        return wv.length > 0 ? wv[0].path : "";
+    }
+
     function runWindowsInstaller(silent) {
-        pendingPhase = "install";
-        var installType = pendingRuntimeType;
-        var installPath = pendingRuntimePath;
-        var installPrefix = pendingPrefix;
-        if (isFlatpak) {
-            var wv = wineScanner.findWineVersions();
-            if (wv.length > 0) {
-                installType = "wine";
-                installPath = wv[0].path;
-                installPrefix = pendingRuntimeType === "proton" ? pendingPrefix + "/pfx" : pendingPrefix;
-            }
+        var wineBin = installWineBinary();
+        if (wineBin === "") {
+            resetPending();
+            noWineDialog.open();
+            return;
         }
-        gogInstaller.installWindows(pendingGameId, pendingInstallerPath, installType, installPath, installPrefix, silent);
+        pendingPhase = "install";
+        var installPrefix = pendingRuntimeType === "proton" ? pendingPrefix + "/pfx" : pendingPrefix;
+        gogInstaller.installWindows(pendingGameId, pendingInstallerPath, "wine", wineBin, installPrefix, silent);
     }
 
     function resolveWindowsRuntime() {
@@ -515,6 +519,61 @@ GameGridView {
         standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
         onAccepted: gogGrid.doManualInstall()
         onRejected: gogGrid.resetPending()
+    }
+
+    Kirigami.PromptDialog {
+        id: noWineDialog
+        title: i18n("Wine required")
+        standardButtons: Kirigami.Dialog.Cancel
+
+        ColumnLayout {
+            spacing: Kirigami.Units.smallSpacing
+
+            QQC2.Label {
+                Layout.fillWidth: true
+                Layout.preferredWidth: Kirigami.Units.gridUnit * 22
+                wrapMode: Text.WordWrap
+                text: i18n("Installing GOG games needs Wine, but none was found. Download a build to continue, then start the installation again.")
+            }
+            QQC2.Button {
+                Layout.fillWidth: true
+                text: i18n("Download Wine (Wow64)")
+                icon.name: "download"
+                enabled: !wineDownloader.busy
+                onClicked: wineDownloader.downloadLatest("wow64")
+            }
+            QQC2.Button {
+                Layout.fillWidth: true
+                text: i18n("Download Wine (regular)")
+                icon.name: "download"
+                enabled: !wineDownloader.busy
+                onClicked: wineDownloader.downloadLatest("regular")
+            }
+            QQC2.ProgressBar {
+                Layout.fillWidth: true
+                visible: wineDownloader.busy
+                from: 0
+                to: 1
+                value: wineDownloader.progress
+            }
+            QQC2.Label {
+                Layout.fillWidth: true
+                visible: wineDownloader.busy
+                wrapMode: Text.WordWrap
+                color: Kirigami.Theme.disabledTextColor
+                text: wineDownloader.statusText
+            }
+        }
+    }
+
+    Connections {
+        target: wineDownloader
+        function onFinished(path) {
+            if (noWineDialog.visible) {
+                noWineDialog.close();
+                showPassiveNotification(i18n("Wine downloaded - start the installation again."), 5000);
+            }
+        }
     }
 
     Kirigami.PromptDialog {
