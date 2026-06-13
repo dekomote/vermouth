@@ -36,7 +36,12 @@ Q_SIGNALS:
     void installError(const QString &gameId, const QString &message);
 
 private:
-    void runProcess(const QString &gameId, const QString &program, const QStringList &args, const QProcessEnvironment &env, const QString &workingDir);
+    void runProcess(const QString &gameId,
+                    const QString &program,
+                    const QStringList &args,
+                    const QProcessEnvironment &env,
+                    const QString &workingDir,
+                    const QString &logPath = QString());
 
     QString m_umuPath;
     bool m_busy = false;

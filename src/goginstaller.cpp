@@ -21,7 +21,12 @@ bool GogInstaller::busy() const
     return m_busy;
 }
 
-void GogInstaller::runProcess(const QString &gameId, const QString &program, const QStringList &args, const QProcessEnvironment &env, const QString &workingDir)
+void GogInstaller::runProcess(const QString &gameId,
+                              const QString &program,
+                              const QStringList &args,
+                              const QProcessEnvironment &env,
+                              const QString &workingDir,
+                              const QString &logPath)
 {
     if (m_busy) {
         Q_EMIT installError(gameId, QStringLiteral("An installation is already in progress"));
@@ -35,6 +40,12 @@ void GogInstaller::runProcess(const QString &gameId, const QString &program, con
     proc->setProcessEnvironment(env);
     if (!workingDir.isEmpty())
         proc->setWorkingDirectory(workingDir);
+
+    // Capture the installer's stdout+stderr so failed installs can be diagnosed.
+    if (!logPath.isEmpty()) {
+        proc->setProcessChannelMode(QProcess::MergedChannels);
+        proc->setStandardOutputFile(logPath, QIODevice::Truncate);
+    }
 
     connect(proc, &QProcess::finished, this, [this, proc, gameId](int exitCode) {
         m_busy = false;
@@ -74,6 +85,7 @@ void GogInstaller::installWindows(const QString &gameId,
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     QString workingDir = QFileInfo(installerExe).absolutePath();
+    const QString logPath = prefix + QStringLiteral("/installer.log");
 
     QStringList args;
     if (silent) {
@@ -90,7 +102,7 @@ void GogInstaller::installWindows(const QString &gameId,
     if (runtimeType == QStringLiteral("wine")) {
         env.insert(QStringLiteral("WINEPREFIX"), prefix);
         env.insert(QStringLiteral("WINEDLLOVERRIDES"), QStringLiteral("mscoree=;mshtml="));
-        runProcess(gameId, runtimePath, QStringList{installerExe} + args, env, workingDir);
+        runProcess(gameId, runtimePath, QStringList{installerExe} + args, env, workingDir, logPath);
         return;
     }
 
@@ -103,11 +115,11 @@ void GogInstaller::installWindows(const QString &gameId,
         env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
         env.insert(QStringLiteral("GAMEID"), QStringLiteral("0"));
         env.insert(QStringLiteral("WINEPREFIX"), prefix);
-        runProcess(gameId, umuBin, QStringList{installerExe} + args, env, workingDir);
+        runProcess(gameId, umuBin, QStringList{installerExe} + args, env, workingDir, logPath);
     } else {
         env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
         env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
-        runProcess(gameId, runtimePath + QStringLiteral("/proton"), QStringList{QStringLiteral("run"), installerExe} + args, env, workingDir);
+        runProcess(gameId, runtimePath + QStringLiteral("/proton"), QStringList{QStringLiteral("run"), installerExe} + args, env, workingDir, logPath);
     }
 }
 
