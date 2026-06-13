@@ -375,7 +375,7 @@ Kirigami.ScrollablePage {
 
             RowLayout {
                 Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("Linux Install Folder:")
+                Kirigami.FormData.label: i18n("Install Folder:")
                 QQC2.TextField {
                     id: gogInstallDirField
                     Layout.fillWidth: true
@@ -386,7 +386,7 @@ Kirigami.ScrollablePage {
                     onClicked: gogInstallFolderDialog.open()
                 }
                 Kirigami.ContextualHelpButton {
-                    toolTipText: i18n("Where native Linux GOG games are installed. Windows games install into a Proton or Wine prefix.")
+                    toolTipText: i18n("Where GOG games are installed.")
                 }
             }
 
@@ -704,7 +704,7 @@ Kirigami.ScrollablePage {
 
     FolderDialog {
         id: gogInstallFolderDialog
-        title: i18n("Select GOG Linux Install Folder")
+        title: i18n("Select GOG Install Folder")
         currentFolder: "file://" + protonScanner.homePath()
         onAccepted: gogInstallDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
     }
