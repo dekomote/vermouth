@@ -114,9 +114,10 @@ Kirigami.ApplicationWindow {
             if (settingsManager.rommServerUrl !== "" && rommView.platforms.length === 0 && !rommModel.busy)
                 rommView.refresh();
         } else if (key === "gog") {
+            var gogWasSearching = gogView.searchText !== "";
             gogView.searchText = "";
             gogLibraryModel.revalidateInstalled();
-            if (gogClient.authenticated && gogLibraryModel.count === 0 && !gogLibraryModel.busy)
+            if (gogClient.authenticated && !gogLibraryModel.busy && (gogWasSearching || gogLibraryModel.count === 0))
                 gogView.refresh();
         }
         if (root.pageViews[key])
