@@ -3,6 +3,8 @@ runtime: org.kde.Platform
 runtime-version: '6.10'
 sdk: org.kde.Sdk
 command: vermouth
+base: org.winehq.Wine
+base-version: stable-25.08
 
 finish-args:
   - --share=ipc
@@ -18,7 +20,24 @@ finish-args:
   - --filesystem=/mnt
   - --filesystem=/run/media
 
+inherit-extensions:
+  - org.freedesktop.Platform.GL32
+  - org.freedesktop.Platform.Compat.i386
+
 modules:
+  - name: bundle-setup
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/i386-linux-gnu
+      - mkdir -p /app/lib/i386-linux-gnu/GL
+      - install -Dm644 ld.so.conf /app/etc/ld.so.conf
+    sources:
+      - type: inline
+        dest-filename: ld.so.conf
+        contents: |
+          /app/lib32
+          /app/lib/i386-linux-gnu
+
   - name: vermouth
     buildsystem: cmake-ninja
     config-opts:

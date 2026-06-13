@@ -89,13 +89,26 @@ void GogInstaller::installWindows(const QString &gameId,
 
     if (runtimeType == QStringLiteral("wine")) {
         env.insert(QStringLiteral("WINEPREFIX"), prefix);
+        env.insert(QStringLiteral("WINEDLLOVERRIDES"), QStringLiteral("mscoree=;mshtml="));
         runProcess(gameId, runtimePath, QStringList{installerExe} + args, env, workingDir);
         return;
     }
 
-    env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
-    env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
-    runProcess(gameId, runtimePath + QStringLiteral("/proton"), QStringList{QStringLiteral("run"), installerExe} + args, env, workingDir);
+    QString umuBin = m_umuPath;
+    if (umuBin.isEmpty())
+        umuBin = QStandardPaths::findExecutable(QStringLiteral("umu-run"));
+
+    if (!umuBin.isEmpty()) {
+        env.insert(QStringLiteral("PROTONPATH"), runtimePath);
+        env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
+        env.insert(QStringLiteral("GAMEID"), QStringLiteral("0"));
+        env.insert(QStringLiteral("WINEPREFIX"), prefix);
+        runProcess(gameId, umuBin, QStringList{installerExe} + args, env, workingDir);
+    } else {
+        env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
+        env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
+        runProcess(gameId, runtimePath + QStringLiteral("/proton"), QStringList{QStringLiteral("run"), installerExe} + args, env, workingDir);
+    }
 }
 
 void GogInstaller::installLinux(const QString &gameId, const QString &installerSh, const QString &destDir)

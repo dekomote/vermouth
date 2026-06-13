@@ -82,8 +82,23 @@ GameGridView {
     }
 
     function doManualInstall() {
+        runWindowsInstaller(false);
+    }
+
+    function runWindowsInstaller(silent) {
         pendingPhase = "install";
-        gogInstaller.installWindows(pendingGameId, pendingInstallerPath, pendingRuntimeType, pendingRuntimePath, pendingPrefix, false);
+        var installType = pendingRuntimeType;
+        var installPath = pendingRuntimePath;
+        var installPrefix = pendingPrefix;
+        if (isFlatpak) {
+            var wv = wineScanner.findWineVersions();
+            if (wv.length > 0) {
+                installType = "wine";
+                installPath = wv[0].path;
+                installPrefix = pendingRuntimeType === "proton" ? pendingPrefix + "/pfx" : pendingPrefix;
+            }
+        }
+        gogInstaller.installWindows(pendingGameId, pendingInstallerPath, installType, installPath, installPrefix, silent);
     }
 
     function resolveWindowsRuntime() {
@@ -189,7 +204,7 @@ GameGridView {
                 if (gogGrid.pendingManual)
                     gogGrid.promptManualInstall();
                 else
-                    gogInstaller.installWindows(gameId, primaryPath, gogGrid.pendingRuntimeType, gogGrid.pendingRuntimePath, gogGrid.pendingPrefix, true);
+                    gogGrid.runWindowsInstaller(true);
             } else {
                 gogGrid.pendingRuntimeType = "native";
                 gogGrid.pendingRuntimePath = "";

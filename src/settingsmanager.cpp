@@ -317,7 +317,7 @@ QString SettingsManager::gogCacheDir() const
     QString stored = m_settings.value(QStringLiteral("gogCacheDir")).toString();
     if (!stored.isEmpty())
         return stored;
-    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/gog");
+    return gogInstallDir() + QStringLiteral("/.cache");
 }
 
 void SettingsManager::setGogCacheDir(const QString &dir)
