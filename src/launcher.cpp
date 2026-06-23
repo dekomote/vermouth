@@ -555,15 +555,20 @@ void Launcher::runWinetricks(const QVariantMap &app)
             proc->deleteLater();
             return;
         }
-        QString protonPath = app[QStringLiteral("protonPath")].toString();
         env.insert(QStringLiteral("WINEPREFIX"), pfxDir);
+        QString protonPath = app[QStringLiteral("protonPath")].toString();
         QString wine64 = protonPath + QStringLiteral("/files/bin/wine64");
         QString wineBin = QFileInfo::exists(wine64) ? wine64 : protonPath + QStringLiteral("/files/bin/wine");
         env.insert(QStringLiteral("WINE"), wineBin);
         env.insert(QStringLiteral("WINESERVER"), protonPath + QStringLiteral("/files/bin/wineserver"));
     } else {
         prefix = app[QStringLiteral("winePrefix")].toString();
+        env.insert(QStringLiteral("WINE"), app[QStringLiteral("wineBinary")].toString());
         env.insert(QStringLiteral("WINEPREFIX"), prefix);
+    }
+
+    if (env.value(QStringLiteral("DISPLAY")).isEmpty() && !env.value(QStringLiteral("WAYLAND_DISPLAY")).isEmpty()) {
+        env.insert(QStringLiteral("DISPLAY"), QStringLiteral(":0"));
     }
 
     proc->setProcessEnvironment(env);

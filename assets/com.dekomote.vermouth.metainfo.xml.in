@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="1.9.3" date="2026-06-23">
+        <description>
+          <p>This release fixes the winetricks integration.</p>
+        </description>
+    </release>
     <release version="1.9.2" date="2026-06-13">
         <description>
           <p>This release adds the Gog Store integration.</p>

@@ -50,6 +50,47 @@ modules:
           /app/lib32
           /app/lib/i386-linux-gnu
 
+  - name: winetricks
+    no-autogen: true
+    make-install-args:
+      - PREFIX=/app
+    sources:
+      - type: git
+        url: https://github.com/Winetricks/winetricks.git
+        tag: '20260125'
+        commit: b76e1ee79ac57d7aceb384f74518fc423265810c
+
+    modules:
+      - name: 7zip
+        buildsystem: simple
+        subdir: CPP/7zip/Bundles/Alone2
+        build-commands:
+          - make -j $FLATPAK_BUILDER_N_JOBS -f makefile.gcc
+          - install -Dm755 ./_o/7zz -t /app/bin
+          - ln -s /app/bin/7zz /app/bin/7za
+          - ln -s /app/bin/7zz /app/bin/7z
+        sources:
+          - type: git
+            url: https://github.com/ip7z/7zip.git
+            tag: '26.01'
+            commit: 8c63d71ff886bda90c86db28466287f977374237
+            x-checker-data:
+              type: git
+              tag-pattern: ^([\d.]+)$
+
+      - name: cabextract
+        sources:
+          - type: archive
+            url: https://www.cabextract.org.uk/cabextract-1.11.tar.gz
+            mirror-urls:
+              - http://deb.debian.org/debian/pool/main/c/cabextract/cabextract_1.11.orig.tar.gz
+            sha256: b5546db1155e4c718ff3d4b278573604f30dd64c3c5bfd4657cd089b823a3ac6
+            x-checker-data:
+              type: anitya
+              project-id: 245
+              stable-only: true
+              url-template: https://www.cabextract.org.uk/cabextract-$version.tar.gz
+
   - name: vermouth
     buildsystem: cmake-ninja
     config-opts:
