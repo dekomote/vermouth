@@ -36,7 +36,6 @@ Item {
         anchors.margins: Kirigami.Units.mediumSpacing
         radius: Kirigami.Units.cornerRadius
         color: "transparent"
-        layer.enabled: frameRoot.gv && frameRoot.gv.viewType !== "icon"
         scale: frameRoot.isSelected ? 1.03 : frameRoot.hovered ? 1.02 : 1.0
         z: frameRoot.isSelected ? 2 : 0
 
