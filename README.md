@@ -367,7 +367,7 @@ Vermouth uses the KDE i18n system (gettext `.po` files). To add or update a tran
 To update an existing translation after new strings have been added:
 
 ```bash
-sh po/Messages.sh       # regenerate vermouth.pot from source
+sh po/update-pot.sh     # regenerate vermouth.pot from source
 sh po/update-po.sh      # merge new strings into all .po files
 ```
 

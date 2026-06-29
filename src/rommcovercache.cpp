@@ -14,7 +14,6 @@ RommCoverCache::RommCoverCache(QObject *parent)
 void RommCoverCache::setCacheDir(const QString &dir)
 {
     m_cacheDir = dir;
-    QDir().mkpath(dir);
     scanExisting();
 }
 
@@ -79,6 +78,7 @@ void RommCoverCache::requestCover(int romId, const QString &coverUrl)
         if (reply->error() != QNetworkReply::NoError)
             return;
 
+        QDir().mkpath(m_cacheDir);
         QFile f(savePath);
         if (!f.open(QIODevice::WriteOnly))
             return;

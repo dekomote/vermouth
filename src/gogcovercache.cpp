@@ -14,7 +14,6 @@ GogCoverCache::GogCoverCache(QObject *parent)
 void GogCoverCache::setCacheDir(const QString &dir)
 {
     m_cacheDir = dir;
-    QDir().mkpath(dir);
     scanExisting();
 }
 
@@ -65,6 +64,7 @@ void GogCoverCache::requestCover(const QString &gameId, const QString &coverUrl)
         if (reply->error() != QNetworkReply::NoError)
             return;
 
+        QDir().mkpath(m_cacheDir);
         QFile f(savePath);
         if (!f.open(QIODevice::WriteOnly))
             return;
