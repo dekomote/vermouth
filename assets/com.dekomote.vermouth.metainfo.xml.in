@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="1.9.5" date="2026-06-29">
+        <description>
+          <p>This release fixes the issue where Vermouth creates the cover cache dirs on launch, even when they aren't needed.</p>
+        </description>
+    </release>
     <release version="1.9.4" date="2026-06-26">
         <description>
           <p>This release improves the hero art view and includes minor fixes.</p>
@@ -70,24 +75,6 @@
             <li>The status bar correctly shows the runner and executable path</li>
             <li>Prevent Sleep now works on non-Flatpak installs</li>
             <li>Re-downloading cover art now correctly replaces the existing image</li>
-          </ul>
-        </description>
-    </release>
-    <release version="1.8.5" date="2026-06-04">
-        <description>
-          <p>This release adds the functionality to import installed GOG games.
-          Supports both manual and minigalaxy installed games, Windows or native Linux.</p>
-        </description>
-    </release>
-    <release version="1.8.4" date="2026-05-31">
-        <description>
-          <p>This release focuses on Flatpak polish and runtime management.</p>
-          <ul>
-            <li>Welcome screen now has a default runtime picker</li>
-            <li>Reusable download progress bar across Proton/Wine/umu</li>
-            <li>Submenus for shortcuts and folders in the app context menu</li>
-            <li>Fixes for RetroArch launching from the Flatpak build</li>
-            <li>Desktop entries use the app icon when none is set</li>
           </ul>
         </description>
     </release>
