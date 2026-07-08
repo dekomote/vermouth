@@ -169,6 +169,7 @@ Kirigami.ScrollablePage {
                 }
                 Kirigami.ContextualHelpButton {
                     toolTipText: i18n("This is the folder where Vermouth stores all the created prefixes by default.")
+                    icon.name: "help-about-symbolic"
                 }
             }
 
@@ -186,6 +187,7 @@ Kirigami.ScrollablePage {
                 }
                 Kirigami.ContextualHelpButton {
                     toolTipText: i18n("Set this if you want all Proton games to share a single prefix (e.g. one Proton environment for everything). Leave empty to auto-generate a separate prefix per game. You can still use separate prefix per game, but you have to set it explicitly.")
+                    icon.name: "help-about-symbolic"
                 }
             }
 
@@ -203,6 +205,7 @@ Kirigami.ScrollablePage {
                 }
                 Kirigami.ContextualHelpButton {
                     toolTipText: i18n("Set this if you want all Wine games to share a single prefix. Leave empty to auto-generate a separate Wine prefix per game under the 'wines/' subfolder.")
+                    icon.name: "help-about-symbolic"
                 }
             }
 
@@ -276,6 +279,7 @@ Kirigami.ScrollablePage {
                 }
                 Kirigami.ContextualHelpButton {
                     toolTipText: i18n("Automatically download icon, grid, hero and logo when adding a game.")
+                    icon.name: "help-about-symbolic"
                 }
             }
 
@@ -370,6 +374,7 @@ Kirigami.ScrollablePage {
                 }
                 Kirigami.ContextualHelpButton {
                     toolTipText: i18n("Where GOG installers are downloaded before installation.")
+                    icon.name: "help-about-symbolic"
                 }
             }
 
@@ -387,6 +392,7 @@ Kirigami.ScrollablePage {
                 }
                 Kirigami.ContextualHelpButton {
                     toolTipText: i18n("Where GOG games are installed.")
+                    icon.name: "help-about-symbolic"
                 }
             }
 
@@ -552,6 +558,7 @@ Kirigami.ScrollablePage {
                 }
                 Kirigami.ContextualHelpButton {
                     toolTipText: i18n("Use the alternative background color for the grid view. It's lighter on Breeze light and darker on Breeze dark.")
+                    icon.name: "help-about-symbolic"
                 }
             }
 
@@ -609,6 +616,7 @@ Kirigami.ScrollablePage {
                 }
                 Kirigami.ContextualHelpButton {
                     toolTipText: i18n("Show helpful prompts like the Steam import suggestion on first launch.")
+                    icon.name: "help-about-symbolic"
                 }
             }
 
