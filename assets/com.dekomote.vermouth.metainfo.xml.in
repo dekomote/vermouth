@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="1.9.6" date="2026-07-08">
+        <description>
+          <p>This release fixes few UI issues - icon consistencies across desktop environments and button alignments.</p>
+        </description>
+    </release>
     <release version="1.9.5" date="2026-06-29">
         <description>
           <p>This release fixes the issue where Vermouth creates the cover cache dirs on launch, even when they aren't needed.</p>
