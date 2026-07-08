@@ -143,7 +143,7 @@ GameGridView {
                 visible: cardFrame.runtimeType !== "steam"
                 height: visible ? implicitHeight : 0
                 text: i18n("Launch with logging")
-                icon.name: "text-x-generic"
+                icon.name: "utilities-terminal-symbolic"
                 onTriggered: {
                     cardFrame.playLaunchAnimation();
                     var app = appModel.getApp(cardFrame.index);

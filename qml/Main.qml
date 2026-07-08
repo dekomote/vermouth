@@ -246,7 +246,7 @@ Kirigami.ApplicationWindow {
                     readonly property var viewIcons: ({
                             "icon": "view-app-grid-symbolic",
                             "grid": "folder-pictures-symbolic",
-                            "hero": "image-x-generic"
+                            "hero": "image-x-generic-symbolic"
                         })
                     QQC2.MenuItem {
                         text: i18n("Icon view")
@@ -264,7 +264,7 @@ Kirigami.ApplicationWindow {
                     }
                     QQC2.MenuItem {
                         text: i18n("Hero art view")
-                        icon.name: "image-x-generic"
+                        icon.name: "image-x-generic-symbolic"
                         checkable: true
                         checked: gridView.viewType === "hero"
                         onTriggered: gridView.viewType = "hero"
@@ -272,7 +272,7 @@ Kirigami.ApplicationWindow {
                     QQC2.MenuSeparator {}
                     QQC2.MenuItem {
                         text: i18n("Show names")
-                        icon.name: "document-edit-symbolic"
+                        icon.name: "media-view-subtitles-symbolic"
                         checkable: true
                         checked: gridView.showNames
                         onTriggered: gridView.showNames = checked
@@ -745,7 +745,7 @@ Kirigami.ApplicationWindow {
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
                 QQC2.ToolButton {
-                    icon.name: "image-x-generic"
+                    icon.name: "image-x-generic-symbolic"
                     focusPolicy: Qt.NoFocus
                     flat: true
                     highlighted: gridView.viewType === "hero"
@@ -756,7 +756,7 @@ Kirigami.ApplicationWindow {
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
                 QQC2.ToolButton {
-                    icon.name: "document-edit-symbolic"
+                    icon.name: "media-view-subtitles-symbolic"
                     focusPolicy: Qt.NoFocus
                     flat: true
                     highlighted: gridView.showNames
