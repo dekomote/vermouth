@@ -29,7 +29,7 @@ ColumnLayout {
             text: root.command
         }
         QQC2.ToolButton {
-            icon.name: "edit-copy"
+            icon.name: "edit-copy-symbolic"
             QQC2.ToolTip.text: i18n("Copy command")
             QQC2.ToolTip.visible: hovered
             QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay

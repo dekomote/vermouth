@@ -204,7 +204,7 @@ GameGridView {
             QQC2.MenuItem {
                 readonly property string _firstCached: rommFileDownloader.cachedRomPath(cardFrame.romId, cardFrame.fileName)
                 text: _firstCached !== "" ? i18n("ROM cached locally") : i18n("Download ROM (%1 MB)").arg((cardFrame.fileSizeBytes / (1024 * 1024)).toFixed(1))
-                icon.name: "download"
+                icon.name: "folder-download-symbolic"
                 enabled: _firstCached === "" && !rommFileDownloader.busy
                 onTriggered: {
                     var rom = rommModel.getRom(cardFrame.index);
@@ -229,12 +229,12 @@ GameGridView {
             }
             QQC2.MenuItem {
                 text: i18n("Open log folder")
-                icon.name: "folder-open"
+                icon.name: "folder-open-symbolic"
                 onTriggered: Qt.openUrlExternally("file://" + launcher.logDir())
             }
             QQC2.MenuItem {
                 text: i18n("Copy Launch Command")
-                icon.name: "edit-copy"
+                icon.name: "edit-copy-symbolic"
                 onTriggered: {
                     var rom = rommModel.getRom(cardFrame.index);
                     var cached = rommFileDownloader.cachedRomPath(cardFrame.romId, cardFrame.fileName);

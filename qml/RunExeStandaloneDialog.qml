@@ -100,7 +100,7 @@ Kirigami.Dialog {
                     placeholderText: "/path/to/game"
                 }
                 QQC2.Button {
-                    icon.name: "document-open"
+                    icon.name: "document-open-symbolic"
                     onClicked: exeFileDialog.open()
                 }
             }

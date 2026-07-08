@@ -272,13 +272,13 @@ Kirigami.Dialog {
                     placeholderText: runtimePicker.runtimeType === "retroarch" ? "/path/to/rom.sfc" : runtimePicker.runtimeType === "native" ? "/path/to/app.AppImage" : "/path/to/game.exe"
                 }
                 QQC2.ToolButton {
-                    icon.name: "document-open"
+                    icon.name: "document-open-symbolic"
                     onClicked: runtimePicker.runtimeType === "retroarch" ? romFileDialog.open() : exeFileDialog.open()
                 }
                 QQC2.ToolButton {
                     visible: runtimePicker.runtimeType === "wine" || runtimePicker.runtimeType === "proton"
                     enabled: nameField.text.trim() !== "" && !dialog.installerRunning && runtimePicker.runtimeType !== "" && runtimePicker.protonPath !== ""
-                    icon.name: dialog.installerRunning ? "content-loading-symbolic" : "system-run"
+                    icon.name: dialog.installerRunning ? "content-loading-symbolic" : "system-run-symbolic"
                     QQC2.ToolTip.text: {
                         if (nameField.text.trim() === "")
                             return i18n("Please enter the game name before running an installer");
@@ -347,7 +347,7 @@ Kirigami.Dialog {
                     }
                 }
                 QQC2.ToolButton {
-                    icon.name: "search"
+                    icon.name: "system-search-symbolic"
                     enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy && !steamGridDb.autoDownloading
                     QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Search SteamGridDB to set the ID")
                     QQC2.ToolTip.visible: hovered
@@ -355,7 +355,7 @@ Kirigami.Dialog {
                     onClicked: steamGridDbPicker.openPickerForId(nameField.text, settingsManager.steamGridDbApiKey)
                 }
                 QQC2.ToolButton {
-                    icon.name: "download"
+                    icon.name: "folder-download-symbolic"
                     enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.autoDownloading && !steamGridDb.busy
                     QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Auto-download all art from SteamGridDB")
                     QQC2.ToolTip.visible: hovered
@@ -391,11 +391,11 @@ Kirigami.Dialog {
                     placeholderText: "/path/to/icon.png"
                 }
                 QQC2.ToolButton {
-                    icon.name: "document-open"
+                    icon.name: "document-open-symbolic"
                     onClicked: iconFileDialog.open()
                 }
                 QQC2.ToolButton {
-                    icon.name: "download"
+                    icon.name: "folder-download-symbolic"
                     enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
                     QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download icon from SteamGridDB")
                     QQC2.ToolTip.visible: hovered
@@ -413,7 +413,7 @@ Kirigami.Dialog {
             QQC2.Button {
                 Kirigami.FormData.label: ""
                 text: artSection.expanded ? i18n("Hide Grid / Hero / Logo Art") : i18n("Show Grid / Hero / Logo Art")
-                icon.name: artSection.expanded ? "arrow-up" : "arrow-down"
+                icon.name: artSection.expanded ? "go-up-symbolic" : "go-down-symbolic"
                 flat: true
                 onClicked: artSection.expanded = !artSection.expanded
             }
@@ -434,11 +434,11 @@ Kirigami.Dialog {
                         placeholderText: "/path/to/grid.png"
                     }
                     QQC2.ToolButton {
-                        icon.name: "document-open"
+                        icon.name: "document-open-symbolic"
                         onClicked: gridFileDialog.open()
                     }
                     QQC2.ToolButton {
-                        icon.name: "download"
+                        icon.name: "folder-download-symbolic"
                         enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
                         QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download grid from SteamGridDB")
                         QQC2.ToolTip.visible: hovered
@@ -462,11 +462,11 @@ Kirigami.Dialog {
                         placeholderText: "/path/to/hero.png"
                     }
                     QQC2.ToolButton {
-                        icon.name: "document-open"
+                        icon.name: "document-open-symbolic"
                         onClicked: heroFileDialog.open()
                     }
                     QQC2.ToolButton {
-                        icon.name: "download"
+                        icon.name: "folder-download-symbolic"
                         enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
                         QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download hero from SteamGridDB")
                         QQC2.ToolTip.visible: hovered
@@ -490,11 +490,11 @@ Kirigami.Dialog {
                         placeholderText: "/path/to/logo.png"
                     }
                     QQC2.ToolButton {
-                        icon.name: "document-open"
+                        icon.name: "document-open-symbolic"
                         onClicked: logoFileDialog.open()
                     }
                     QQC2.ToolButton {
-                        icon.name: "download"
+                        icon.name: "folder-download-symbolic"
                         enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
                         QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download logo from SteamGridDB")
                         QQC2.ToolTip.visible: hovered
@@ -531,7 +531,7 @@ Kirigami.Dialog {
                     placeholderText: settingsManager.defaultGamePrefix !== "" ? settingsManager.defaultGamePrefix : dialog.prefixBasePath + "/mygame"
                 }
                 QQC2.ToolButton {
-                    icon.name: "document-open"
+                    icon.name: "document-open-symbolic"
                     onClicked: prefixFolderDialog.open()
                 }
             }
@@ -546,7 +546,7 @@ Kirigami.Dialog {
                     placeholderText: settingsManager.defaultWinePrefix !== "" ? settingsManager.defaultWinePrefix : protonScanner.winePrefixBasePath() + "/mygame"
                 }
                 QQC2.ToolButton {
-                    icon.name: "document-open"
+                    icon.name: "document-open-symbolic"
                     onClicked: winePrefixFolderDialog.open()
                 }
             }

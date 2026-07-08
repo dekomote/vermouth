@@ -355,7 +355,7 @@ Kirigami.Dialog {
         QQC2.Button {
             visible: dialog.pickerState === "noResults" || dialog.pickerState === "noArt" || dialog.pickerState === "error"
             text: i18n("Close")
-            icon.name: "dialog-close"
+            icon.name: "window-close-symbolic"
             Layout.alignment: Qt.AlignHCenter
             onClicked: dialog.close()
         }

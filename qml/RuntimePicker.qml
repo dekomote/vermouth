@@ -225,20 +225,20 @@ ColumnLayout {
                 }
             }
             QQC2.ToolButton {
-                icon.name: "folder-open"
+                icon.name: "folder-open-symbolic"
                 QQC2.ToolTip.visible: hovered
                 QQC2.ToolTip.text: i18n("Open Vermouth Proton folder (%1)", protonScanner.localProtonPath())
                 onClicked: Qt.openUrlExternally("file://" + protonScanner.localProtonPath())
             }
             QQC2.ToolButton {
-                icon.name: "view-refresh"
+                icon.name: "view-refresh-symbolic"
                 QQC2.ToolTip.visible: hovered
                 QQC2.ToolTip.text: i18n("Refresh Proton versions")
                 onClicked: root.refreshProton()
             }
             QQC2.ToolButton {
                 id: protonDownloadButton
-                icon.name: "download"
+                icon.name: "folder-download-symbolic"
                 enabled: !protonDownloader.busy
                 QQC2.ToolTip.visible: hovered
                 QQC2.ToolTip.text: protonDownloader.statusText ? protonDownloader.statusText : i18n("Download Proton build")
@@ -286,20 +286,20 @@ ColumnLayout {
                 }
             }
             QQC2.ToolButton {
-                icon.name: "folder-open"
+                icon.name: "folder-open-symbolic"
                 QQC2.ToolTip.visible: hovered
                 QQC2.ToolTip.text: i18n("Open Vermouth Wine folder (%1)", wineScanner.localWinePath())
                 onClicked: Qt.openUrlExternally("file://" + wineScanner.localWinePath())
             }
             QQC2.ToolButton {
-                icon.name: "view-refresh"
+                icon.name: "view-refresh-symbolic"
                 QQC2.ToolTip.visible: hovered
                 QQC2.ToolTip.text: i18n("Refresh Wine versions")
                 onClicked: root.refreshWine()
             }
             QQC2.ToolButton {
                 id: wineDownloadButton
-                icon.name: "download"
+                icon.name: "folder-download-symbolic"
                 enabled: !wineDownloader.busy
                 QQC2.ToolTip.visible: hovered
                 QQC2.ToolTip.text: wineDownloader.statusText ? wineDownloader.statusText : i18n("Download Wine build")

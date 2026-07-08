@@ -305,7 +305,7 @@ GameGridView {
         width: parent.width - Kirigami.Units.gridUnit * 4
         visible: !gogClient.authenticated && !gogClient.busy
         text: i18n("Log in to your GOG account to see your library")
-        icon.name: "applications-games"
+        icon.name: "applications-games-symbolic"
         helpfulAction: Kirigami.Action {
             text: i18n("Log in to GOG")
             onTriggered: loginDialog.open()
@@ -316,7 +316,7 @@ GameGridView {
         width: parent.width - Kirigami.Units.gridUnit * 4
         visible: gogClient.authenticated && !gogLibraryModel.busy && gogLibraryModel.count === 0
         text: gogGrid.searchText !== "" ? i18n("No games match your search") : i18n("No games in your GOG library")
-        icon.name: "applications-games"
+        icon.name: "applications-games-symbolic"
     }
 
     Keys.onReturnPressed: {
@@ -444,7 +444,7 @@ GameGridView {
             id: gogContextMenu
             QQC2.MenuItem {
                 text: cardFrame.installed ? i18n("Play") : i18n("Install")
-                icon.name: cardFrame.installed ? "media-playback-start" : "download"
+                icon.name: cardFrame.installed ? "media-playback-start-symbolic" : "folder-download-symbolic"
                 enabled: !cardFrame.busyCard && (cardFrame.installed || (!gogDownloader.busy && !gogInstaller.busy && gogGrid.pendingGameId === ""))
                 onTriggered: {
                     cardFrame.playLaunchAnimation();
@@ -453,7 +453,7 @@ GameGridView {
             }
             QQC2.MenuItem {
                 text: i18n("Custom install…")
-                icon.name: "run-install"
+                icon.name: "system-run-symbolic"
                 visible: !cardFrame.installed && cardFrame.worksOnWindows
                 height: visible ? implicitHeight : 0
                 enabled: !cardFrame.busyCard && !gogDownloader.busy && !gogInstaller.busy && gogGrid.pendingGameId === ""
@@ -538,14 +538,14 @@ GameGridView {
             QQC2.Button {
                 Layout.fillWidth: true
                 text: i18n("Download Wine (Wow64)")
-                icon.name: "download"
+                icon.name: "folder-download-symbolic"
                 enabled: !wineDownloader.busy
                 onClicked: wineDownloader.downloadLatest("wow64")
             }
             QQC2.Button {
                 Layout.fillWidth: true
                 text: i18n("Download Wine (regular)")
-                icon.name: "download"
+                icon.name: "folder-download-symbolic"
                 enabled: !wineDownloader.busy
                 onClicked: wineDownloader.downloadLatest("regular")
             }
@@ -611,7 +611,7 @@ GameGridView {
                 Layout.fillWidth: true
                 Layout.preferredWidth: Kirigami.Units.gridUnit * 26
                 text: i18n("Copy login URL to clipboard")
-                icon.name: "edit-copy"
+                icon.name: "edit-copy-symbolic"
                 onClicked: {
                     launcher.copyToClipboard(gogClient.loginUrl());
                     showPassiveNotification(i18n("Login URL copied to clipboard"), 3000);

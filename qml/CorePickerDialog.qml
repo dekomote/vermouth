@@ -97,7 +97,7 @@ Kirigami.PromptDialog {
                 onTextEdited: dialog.customCorePath = text.trim()
             }
             QQC2.Button {
-                icon.name: "document-open"
+                icon.name: "document-open-symbolic"
                 onClicked: coreFileDialog.open()
             }
         }

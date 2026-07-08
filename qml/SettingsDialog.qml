@@ -115,11 +115,11 @@ Kirigami.ScrollablePage {
                     placeholderText: i18n("Auto-detect (umu-run in PATH)")
                 }
                 QQC2.ToolButton {
-                    icon.name: "document-open"
+                    icon.name: "document-open-symbolic"
                     onClicked: umuFilePicker.open()
                 }
                 QQC2.ToolButton {
-                    icon.name: "download"
+                    icon.name: "folder-download-symbolic"
                     enabled: !umuDownloader.busy
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.text: umuDownloader.statusText ? umuDownloader.statusText : i18n("Download latest umu-launcher")
@@ -164,7 +164,7 @@ Kirigami.ScrollablePage {
                     placeholderText: protonScanner.prefixBasePath()
                 }
                 QQC2.ToolButton {
-                    icon.name: "document-open"
+                    icon.name: "document-open-symbolic"
                     onClicked: prefixDirFolderDialog.open()
                 }
                 Kirigami.ContextualHelpButton {
@@ -181,7 +181,7 @@ Kirigami.ScrollablePage {
                     placeholderText: i18n("Auto-generate per Proton game")
                 }
                 QQC2.ToolButton {
-                    icon.name: "document-open"
+                    icon.name: "document-open-symbolic"
                     onClicked: gamePrefixFolderDialog.open()
                 }
                 Kirigami.ContextualHelpButton {
@@ -198,7 +198,7 @@ Kirigami.ScrollablePage {
                     placeholderText: i18n("Auto-generate per Wine game")
                 }
                 QQC2.ToolButton {
-                    icon.name: "document-open"
+                    icon.name: "document-open-symbolic"
                     onClicked: winePrefixFolderDialog.open()
                 }
                 Kirigami.ContextualHelpButton {
@@ -226,7 +226,7 @@ Kirigami.ScrollablePage {
                 Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("GE Proton:")
                 QQC2.Button {
-                    icon.name: "folder-open"
+                    icon.name: "folder-open-symbolic"
                     text: i18n("Open Vermouth Proton folder")
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.text: protonScanner.localProtonPath()
@@ -234,7 +234,7 @@ Kirigami.ScrollablePage {
                 }
                 QQC2.Button {
                     text: i18n("Download Latest GE Proton")
-                    icon.name: "download"
+                    icon.name: "folder-download-symbolic"
                     enabled: !protonDownloader.busy
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.text: protonDownloader.statusText ? protonDownloader.statusText : i18n("Download latest GE Proton")
@@ -319,7 +319,7 @@ Kirigami.ScrollablePage {
                     placeholderText: i18n("Default: AppData/romm")
                 }
                 QQC2.ToolButton {
-                    icon.name: "document-open"
+                    icon.name: "document-open-symbolic"
                     onClicked: romCacheFolderDialog.open()
                 }
             }
@@ -350,7 +350,7 @@ Kirigami.ScrollablePage {
                 }
                 QQC2.Button {
                     text: i18n("Log out")
-                    icon.name: "system-log-out"
+                    icon.name: "system-log-out-symbolic"
                     enabled: gogClient.authenticated
                     onClicked: gogClient.logout()
                 }
@@ -365,7 +365,7 @@ Kirigami.ScrollablePage {
                     placeholderText: i18n("Default: ~/Gog Games/.cache")
                 }
                 QQC2.ToolButton {
-                    icon.name: "document-open"
+                    icon.name: "document-open-symbolic"
                     onClicked: gogCacheFolderDialog.open()
                 }
                 Kirigami.ContextualHelpButton {
@@ -382,7 +382,7 @@ Kirigami.ScrollablePage {
                     placeholderText: i18n("Default: ~/GOG Games")
                 }
                 QQC2.ToolButton {
-                    icon.name: "document-open"
+                    icon.name: "document-open-symbolic"
                     onClicked: gogInstallFolderDialog.open()
                 }
                 Kirigami.ContextualHelpButton {
@@ -421,11 +421,11 @@ Kirigami.ScrollablePage {
                     placeholderText: i18n("Auto-detect")
                 }
                 QQC2.ToolButton {
-                    icon.name: "document-open"
+                    icon.name: "document-open-symbolic"
                     onClicked: retroarchFilePicker.open()
                 }
                 QQC2.ToolButton {
-                    icon.name: "view-refresh"
+                    icon.name: "view-refresh-symbolic"
                     QQC2.ToolTip.text: i18n("Auto-detect RetroArch")
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
@@ -477,7 +477,7 @@ Kirigami.ScrollablePage {
 
                 QQC2.Button {
                     text: i18n("Add Path...")
-                    icon.name: "list-add"
+                    icon.name: "list-add-symbolic"
                     onClicked: protonPathFolderDialog.open()
                 }
             }
@@ -530,7 +530,7 @@ Kirigami.ScrollablePage {
 
                 QQC2.Button {
                     text: i18n("Add Variable")
-                    icon.name: "list-add"
+                    icon.name: "list-add-symbolic"
                     onClicked: envModel.append({
                         "key": "",
                         "value": ""
