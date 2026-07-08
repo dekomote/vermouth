@@ -411,22 +411,28 @@ Kirigami.ApplicationWindow {
             }
         ]
 
-        footer: RowLayout {
-            Item {
-                Layout.fillWidth: true
+        footer: QQC2.ToolBar {
+            position: QQC2.ToolBar.Footer
+            background: Rectangle {
+                color: "transparent"
             }
-            QQC2.ToolButton {
-                icon.name: "sidebar-show-symbolic"
-                focusPolicy: Qt.NoFocus
-                checkable: true
-                checked: settingsManager.drawerPinned
-                // Pinning is a light-mode feature; disabled while in dark mode.
-                enabled: !root.lightsOut
-                flat: true
-                onClicked: settingsManager.setDrawerPinned(!settingsManager.drawerPinned)
-                QQC2.ToolTip.text: settingsManager.drawerPinned ? i18n("Unpin sidebar") : i18n("Pin sidebar")
-                QQC2.ToolTip.visible: hovered
-                QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+            contentItem: RowLayout {
+                Item {
+                    Layout.fillWidth: true
+                }
+                QQC2.ToolButton {
+                    icon.name: "sidebar-show-symbolic"
+                    focusPolicy: Qt.NoFocus
+                    checkable: true
+                    checked: settingsManager.drawerPinned
+                    // Pinning is a light-mode feature; disabled while in dark mode.
+                    enabled: !root.lightsOut
+                    flat: true
+                    onClicked: settingsManager.setDrawerPinned(!settingsManager.drawerPinned)
+                    QQC2.ToolTip.text: settingsManager.drawerPinned ? i18n("Unpin sidebar") : i18n("Pin sidebar")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                }
             }
         }
     }
