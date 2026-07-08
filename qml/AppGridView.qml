@@ -89,7 +89,7 @@ GameGridView {
             QQC2.MenuItem {
                 property bool isRunning: launcher.runningExePaths.indexOf(cardFrame.exePath) >= 0
                 text: isRunning ? i18n("Stop") : i18n("Launch")
-                icon.name: isRunning ? "media-playback-stop" : "media-playback-start"
+                icon.name: isRunning ? "media-playback-stop-symbolic" : "media-playback-start-symbolic"
                 onTriggered: {
                     var app = appModel.getApp(cardFrame.index);
                     if (isRunning) {
@@ -111,7 +111,7 @@ GameGridView {
                 visible: cardFrame.runtimeType === "retroarch"
                 height: visible ? implicitHeight : 0
                 text: i18n("Change Core…")
-                icon.name: "media-record"
+                icon.name: "media-playback-start-symbolic"
                 onTriggered: {
                     mainCorePicker.platformSlug = cardFrame.platformSlug;
                     mainCorePicker.pendingRom = null;
@@ -124,7 +124,7 @@ GameGridView {
                 visible: cardFrame.runtimeType === "retroarch"
                 height: visible ? implicitHeight : 0
                 text: i18n("Copy Launch Command")
-                icon.name: "edit-copy"
+                icon.name: "edit-copy-symbolic"
                 onTriggered: {
                     var app = appModel.getApp(cardFrame.index);
                     var rom = {
@@ -143,7 +143,7 @@ GameGridView {
                 visible: cardFrame.runtimeType !== "steam"
                 height: visible ? implicitHeight : 0
                 text: i18n("Launch with logging")
-                icon.name: "text-x-log"
+                icon.name: "utilities-terminal-symbolic"
                 onTriggered: {
                     cardFrame.playLaunchAnimation();
                     var app = appModel.getApp(cardFrame.index);
@@ -157,7 +157,7 @@ GameGridView {
                 visible: cardFrame.hasPrefix
                 height: visible ? implicitHeight : 0
                 text: i18n("Run another EXE in this prefix")
-                icon.name: "system-run"
+                icon.name: "system-run-symbolic"
                 onTriggered: {
                     runExeDialog.appIndex = cardFrame.index;
                     runExeDialog.open();
@@ -169,11 +169,11 @@ GameGridView {
             }
             QQC2.Menu {
                 title: i18n("Create shortcut")
-                icon.name: "application-menu"
+                icon.name: "open-menu-symbolic"
 
                 QQC2.MenuItem {
                     text: i18n("Create start menu entry")
-                    icon.name: "application-menu"
+                    icon.name: "open-menu-symbolic"
                     onTriggered: {
                         var app = appModel.getApp(cardFrame.index);
                         desktopWriter.createStartMenuEntry(app);
@@ -203,7 +203,7 @@ GameGridView {
                 }
                 QQC2.MenuItem {
                     text: i18n("Run Regedit")
-                    icon.name: "document-edit"
+                    icon.name: "document-edit-symbolic"
                     onTriggered: {
                         var app = appModel.getApp(cardFrame.index);
                         launcher.runRegedit(app);
@@ -225,13 +225,13 @@ GameGridView {
             QQC2.MenuSeparator {}
             QQC2.Menu {
                 title: i18n("Folders")
-                icon.name: "folder-open"
+                icon.name: "folder-open-symbolic"
 
                 QQC2.MenuItem {
                     visible: cardFrame.runtimeType !== "steam"
                     height: visible ? implicitHeight : 0
                     text: i18n("Open install folder")
-                    icon.name: "folder-open"
+                    icon.name: "folder-open-symbolic"
                     onTriggered: {
                         var exePath = cardFrame.exePath;
                         var lastSlash = exePath.lastIndexOf('/');
@@ -241,14 +241,14 @@ GameGridView {
                 }
                 QQC2.MenuItem {
                     text: i18n("Open log folder")
-                    icon.name: "folder-open"
+                    icon.name: "folder-open-symbolic"
                     onTriggered: Qt.openUrlExternally("file://" + launcher.logDir())
                 }
                 QQC2.MenuItem {
                     visible: cardFrame.hasPrefix
                     height: visible ? implicitHeight : 0
                     text: i18n("Open prefix folder")
-                    icon.name: "folder-open"
+                    icon.name: "folder-open-symbolic"
                     onTriggered: {
                         var prefix = cardFrame.runtimeType === "proton" ? cardFrame.protonPrefix : cardFrame.winePrefix;
                         if (prefix !== "")
@@ -260,12 +260,12 @@ GameGridView {
             QQC2.MenuSeparator {}
             QQC2.MenuItem {
                 text: i18n("Edit")
-                icon.name: "document-edit"
+                icon.name: "document-edit-symbolic"
                 onTriggered: addDialog.openForEdit(cardFrame.index)
             }
             QQC2.MenuItem {
                 text: i18n("Remove")
-                icon.name: "edit-delete"
+                icon.name: "edit-delete-symbolic"
                 onTriggered: {
                     confirmDeleteAppDialog.runtimeType = cardFrame.runtimeType;
                     confirmDeleteAppDialog.payload = cardFrame.index;
@@ -276,7 +276,7 @@ GameGridView {
                 visible: cardFrame.hasPrefix
                 height: visible ? implicitHeight : 0
                 text: i18n("Remove and Delete Prefix")
-                icon.name: "edit-delete"
+                icon.name: "edit-delete-symbolic"
                 onTriggered: {
                     confirmDeleteDialog.payload = cardFrame.index;
                     confirmDeleteDialog.open();
@@ -341,7 +341,7 @@ GameGridView {
             Kirigami.Action {
                 id: confirmDeleteAction
                 text: i18n("Delete")
-                icon.name: "delete"
+                icon.name: "edit-delete-symbolic"
                 enabled: deleteConfirmField.text === "DELETE"
                 onTriggered: {
                     desktopWriter.removeShortcuts(appModel.getApp(confirmDeleteDialog.payload));

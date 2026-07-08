@@ -14,13 +14,13 @@ Kirigami.Dialog {
     customFooterActions: [
         Kirigami.Action {
             text: i18n("Import Selected")
-            icon.name: "list-add"
+            icon.name: "list-add-symbolic"
             enabled: selectedCount > 0 && !importing
             onTriggered: doImport()
         },
         Kirigami.Action {
             text: i18n("Close")
-            icon.name: "dialog-close"
+            icon.name: "window-close-symbolic"
             onTriggered: dialog.close()
         }
     ]

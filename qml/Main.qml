@@ -231,7 +231,7 @@ Kirigami.ApplicationWindow {
 
                 QQC2.ToolButton {
                     focusPolicy: Qt.NoFocus
-                    icon.name: "arrow-down"
+                    icon.name: "go-down-symbolic"
                     icon.width: Kirigami.Units.iconSizes.small
                     icon.height: Kirigami.Units.iconSizes.small
                     icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
@@ -244,27 +244,27 @@ Kirigami.ApplicationWindow {
                 QQC2.Menu {
                     id: viewMenu
                     readonly property var viewIcons: ({
-                            "icon": "view-list-icons",
-                            "grid": "view-preview",
-                            "hero": "image-x-generic"
+                            "icon": "view-app-grid-symbolic",
+                            "grid": "folder-pictures-symbolic",
+                            "hero": "image-x-generic-symbolic"
                         })
                     QQC2.MenuItem {
                         text: i18n("Icon view")
-                        icon.name: "view-list-icons"
+                        icon.name: "view-app-grid-symbolic"
                         checkable: true
                         checked: gridView.viewType === "icon"
                         onTriggered: gridView.viewType = "icon"
                     }
                     QQC2.MenuItem {
                         text: i18n("Cover art view")
-                        icon.name: "view-preview"
+                        icon.name: "folder-pictures-symbolic"
                         checkable: true
                         checked: gridView.viewType === "grid"
                         onTriggered: gridView.viewType = "grid"
                     }
                     QQC2.MenuItem {
                         text: i18n("Hero art view")
-                        icon.name: "image-x-generic"
+                        icon.name: "image-x-generic-symbolic"
                         checkable: true
                         checked: gridView.viewType === "hero"
                         onTriggered: gridView.viewType = "hero"
@@ -272,7 +272,7 @@ Kirigami.ApplicationWindow {
                     QQC2.MenuSeparator {}
                     QQC2.MenuItem {
                         text: i18n("Show names")
-                        icon.name: "tag"
+                        icon.name: "media-view-subtitles-symbolic"
                         checkable: true
                         checked: gridView.showNames
                         onTriggered: gridView.showNames = checked
@@ -282,7 +282,7 @@ Kirigami.ApplicationWindow {
                         spacing: Kirigami.Units.smallSpacing
                         QQC2.ToolButton {
                             Layout.leftMargin: Kirigami.Units.smallSpacing
-                            icon.name: "zoom-out"
+                            icon.name: "zoom-out-symbolic"
                             focusPolicy: Qt.NoFocus
                             flat: true
                             enabled: gridView.scaleFactor > 0.8
@@ -299,7 +299,7 @@ Kirigami.ApplicationWindow {
                         }
                         QQC2.ToolButton {
                             Layout.rightMargin: Kirigami.Units.smallSpacing
-                            icon.name: "zoom-in"
+                            icon.name: "zoom-in-symbolic"
                             focusPolicy: Qt.NoFocus
                             flat: true
                             enabled: gridView.scaleFactor < 1.8
@@ -335,12 +335,12 @@ Kirigami.ApplicationWindow {
             Kirigami.Action {
                 id: firstDrawerAction
                 text: i18n("Add a Game")
-                icon.name: "list-add"
+                icon.name: "list-add-symbolic"
                 onTriggered: addDialog.openForNew()
             },
             Kirigami.Action {
                 text: i18n("Run a Standalone EXE")
-                icon.name: "system-run"
+                icon.name: "system-run-symbolic"
                 onTriggered: runExeStandaloneDialog.openDialog()
             },
             Kirigami.Action {
@@ -350,30 +350,30 @@ Kirigami.ApplicationWindow {
             },
             Kirigami.Action {
                 text: i18n("Import GOG games")
-                icon.name: "folder-games"
+                icon.name: "applications-games-symbolic"
                 onTriggered: gogImportDialog.openDialog()
             },
             Kirigami.Action {
                 text: launcher.sleepInhibited ? i18n("Allow Sleep") : i18n("Prevent Sleep")
-                icon.name: launcher.sleepInhibited ? "media-playback-pause" : "system-suspend-inhibited"
+                icon.name: launcher.sleepInhibited ? "media-playback-pause-symbolic" : "changes-allow-symbolic"
                 onTriggered: launcher.toggleSleepInhibit()
             },
             Kirigami.Action {
                 text: launcher.hdrEnabled ? i18n("Disable HDR") : i18n("Enable HDR")
-                icon.name: "contrast"
+                icon.name: "semi-starred-symbolic"
                 enabled: launcher.hdrSupported
                 visible: launcher.hdrSupported
                 onTriggered: launcher.toggleHdr()
             },
             Kirigami.Action {
                 text: root.lightsOut ? i18n("Lights On") : i18n("Lights Out")
-                icon.name: root.lightsOut ? "weather-clear" : "weather-clear-night"
+                icon.name: root.lightsOut ? "weather-clear-symbolic" : "weather-clear-night-symbolic"
                 onTriggered: settingsManager.setLightsOut(!root.lightsOut)
             },
             Kirigami.Action {
                 id: bigPictureAction
                 text: root.bigPicture ? i18n("Exit Big Picture") : i18n("Big Picture")
-                icon.name: root.bigPicture ? "view-restore" : "view-fullscreen"
+                icon.name: root.bigPicture ? "view-restore-symbolic" : "view-fullscreen-symbolic"
                 shortcut: "F11"
                 onTriggered: {
                     if (!root.bigPicture) {
@@ -392,7 +392,7 @@ Kirigami.ApplicationWindow {
             },
             Kirigami.Action {
                 text: i18n("&Settings")
-                icon.name: "configure"
+                icon.name: "preferences-system-symbolic"
                 onTriggered: {
                     settingsPage.load();
                     root.navigate("settings");
@@ -400,7 +400,7 @@ Kirigami.ApplicationWindow {
             },
             Kirigami.Action {
                 text: i18n("&About Vermouth")
-                icon.name: "help-about"
+                icon.name: "help-about-symbolic"
                 onTriggered: root.navigate("about")
             },
             Kirigami.Action {
@@ -411,22 +411,28 @@ Kirigami.ApplicationWindow {
             }
         ]
 
-        footer: RowLayout {
-            Item {
-                Layout.fillWidth: true
+        footer: QQC2.ToolBar {
+            position: QQC2.ToolBar.Footer
+            background: Rectangle {
+                color: "transparent"
             }
-            QQC2.ToolButton {
-                icon.name: "pin"
-                focusPolicy: Qt.NoFocus
-                checkable: true
-                checked: settingsManager.drawerPinned
-                // Pinning is a light-mode feature; disabled while in dark mode.
-                enabled: !root.lightsOut
-                flat: true
-                onClicked: settingsManager.setDrawerPinned(!settingsManager.drawerPinned)
-                QQC2.ToolTip.text: settingsManager.drawerPinned ? i18n("Unpin sidebar") : i18n("Pin sidebar")
-                QQC2.ToolTip.visible: hovered
-                QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+            contentItem: RowLayout {
+                Item {
+                    Layout.fillWidth: true
+                }
+                QQC2.ToolButton {
+                    icon.name: "sidebar-show-symbolic"
+                    focusPolicy: Qt.NoFocus
+                    checkable: true
+                    checked: settingsManager.drawerPinned
+                    // Pinning is a light-mode feature; disabled while in dark mode.
+                    enabled: !root.lightsOut
+                    flat: true
+                    onClicked: settingsManager.setDrawerPinned(!settingsManager.drawerPinned)
+                    QQC2.ToolTip.text: settingsManager.drawerPinned ? i18n("Unpin sidebar") : i18n("Pin sidebar")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                }
             }
         }
     }
@@ -463,7 +469,7 @@ Kirigami.ApplicationWindow {
                 contentItem: RowLayout {
                     spacing: Kirigami.Units.mediumSpacing
                     QQC2.ToolButton {
-                        icon.name: "application-menu"
+                        icon.name: "open-menu-symbolic"
                         focusPolicy: Qt.NoFocus
                         visible: globalDrawer.modal
                         onClicked: globalDrawer.open()
@@ -471,7 +477,7 @@ Kirigami.ApplicationWindow {
                     }
 
                     QQC2.ToolButton {
-                        icon.name: "draw-arrow-back"
+                        icon.name: "go-previous-symbolic"
                         focusPolicy: Qt.NoFocus
                         visible: !root.currentPageObject.nav
                         onClicked: root.navigate(root.previousPage)
@@ -523,7 +529,7 @@ Kirigami.ApplicationWindow {
 
                     QQC2.ToolButton {
                         id: addBtn
-                        icon.name: "list-add"
+                        icon.name: "list-add-symbolic"
                         focusPolicy: Qt.NoFocus
                         icon.color: root.lightsOut ? root.loText : "transparent"
                         visible: !root.bigPicture && root.currentPage === "games" && !root.sidebarPinned
@@ -578,7 +584,7 @@ Kirigami.ApplicationWindow {
                         property bool isRunning: gridView.currentIndex >= 0 && launcher.runningExePaths.indexOf(appModel.getApp(gridView.currentIndex).exePath) >= 0
                         visible: !root.bigPicture && root.currentPage === "games"
                         focusPolicy: Qt.NoFocus
-                        icon.name: isRunning ? "media-playback-stop" : "media-playback-start"
+                        icon.name: isRunning ? "media-playback-stop-symbolic" : "media-playback-start-symbolic"
                         icon.color: root.lightsOut ? root.loText : "transparent"
                         enabled: gridView.currentIndex >= 0
                         onClicked: {
@@ -593,7 +599,7 @@ Kirigami.ApplicationWindow {
                     QQC2.ToolButton {
                         visible: root.currentPage === "settings"
                         focusPolicy: Qt.NoFocus
-                        icon.name: "document-save"
+                        icon.name: "document-save-symbolic"
                         text: root.lightsOut ? "" : i18n("Save")
                         icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                         onClicked: {
@@ -691,7 +697,7 @@ Kirigami.ApplicationWindow {
                     Layout.fillWidth: true
                 }
                 QQC2.ToolButton {
-                    icon.name: "system-suspend-inhibited"
+                    icon.name: "changes-allow-symbolic"
                     focusPolicy: Qt.NoFocus
                     checkable: true
                     checked: launcher.sleepInhibited
@@ -703,7 +709,7 @@ Kirigami.ApplicationWindow {
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
                 QQC2.ToolButton {
-                    icon.name: "contrast"
+                    icon.name: "semi-starred-symbolic"
                     focusPolicy: Qt.NoFocus
                     checkable: true
                     checked: launcher.hdrEnabled
@@ -717,7 +723,7 @@ Kirigami.ApplicationWindow {
                 }
                 QQC2.ToolSeparator {}
                 QQC2.ToolButton {
-                    icon.name: "view-list-icons"
+                    icon.name: "view-app-grid-symbolic"
                     focusPolicy: Qt.NoFocus
                     flat: true
                     highlighted: gridView.viewType === "icon"
@@ -728,7 +734,7 @@ Kirigami.ApplicationWindow {
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
                 QQC2.ToolButton {
-                    icon.name: "view-preview"
+                    icon.name: "folder-pictures-symbolic"
                     focusPolicy: Qt.NoFocus
                     flat: true
                     highlighted: gridView.viewType === "grid"
@@ -739,7 +745,7 @@ Kirigami.ApplicationWindow {
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
                 QQC2.ToolButton {
-                    icon.name: "image-x-generic"
+                    icon.name: "image-x-generic-symbolic"
                     focusPolicy: Qt.NoFocus
                     flat: true
                     highlighted: gridView.viewType === "hero"
@@ -750,7 +756,7 @@ Kirigami.ApplicationWindow {
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
                 QQC2.ToolButton {
-                    icon.name: "tag"
+                    icon.name: "media-view-subtitles-symbolic"
                     focusPolicy: Qt.NoFocus
                     flat: true
                     highlighted: gridView.showNames
@@ -762,7 +768,7 @@ Kirigami.ApplicationWindow {
                 }
                 QQC2.ToolSeparator {}
                 QQC2.Button {
-                    icon.name: "zoom-out"
+                    icon.name: "zoom-out-symbolic"
                     focusPolicy: Qt.NoFocus
                     flat: true
                     enabled: gridView.scaleFactor > 0.8
@@ -779,7 +785,7 @@ Kirigami.ApplicationWindow {
                     implicitWidth: Kirigami.Units.gridUnit * 6
                 }
                 QQC2.Button {
-                    icon.name: "zoom-in"
+                    icon.name: "zoom-in-symbolic"
                     focusPolicy: Qt.NoFocus
                     flat: true
                     enabled: gridView.scaleFactor < 1.8
@@ -819,7 +825,7 @@ Kirigami.ApplicationWindow {
         customFooterActions: [
             Kirigami.Action {
                 text: i18n("Run Standalone")
-                icon.name: "media-playback-start"
+                icon.name: "media-playback-start-symbolic"
                 onTriggered: {
                     openExeChoiceDialog.close();
                     runExeStandaloneDialog.openDialog(openExeChoiceDialog.exePath);
@@ -827,7 +833,7 @@ Kirigami.ApplicationWindow {
             },
             Kirigami.Action {
                 text: i18n("Add to Library")
-                icon.name: "list-add"
+                icon.name: "list-add-symbolic"
                 onTriggered: {
                     openExeChoiceDialog.close();
                     addDialog.openForNewWithExe(openExeChoiceDialog.exePath);

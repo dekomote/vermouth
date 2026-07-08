@@ -69,7 +69,7 @@ Kirigami.ScrollablePage {
                 root.refresh;
                 return !hasUmu();
             }
-            icon.name: "download"
+            icon.name: "folder-download-symbolic"
             Layout.alignment: Qt.AlignHCenter
             text: umuDownloader.busy ? i18n("Downloading umu-launcher…") : i18n("Download umu-launcher")
             enabled: !umuDownloader.busy
@@ -128,7 +128,7 @@ Kirigami.ScrollablePage {
             spacing: Kirigami.Units.mediumSpacing
 
             QQC2.Button {
-                icon.name: "list-add"
+                icon.name: "list-add-symbolic"
                 text: i18n("Add a Game")
                 onClicked: addDialog.openForNew()
             }
