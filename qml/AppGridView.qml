@@ -9,6 +9,9 @@ GameGridView {
 
     property bool searchActive: false
 
+    onShowHiddenChanged: appModel.showHidden = showHidden
+    Component.onCompleted: appModel.showHidden = showHidden
+
     Connections {
         target: launcher
         function onRomCoreMissing(platformSlug, rom) {
@@ -81,8 +84,10 @@ GameGridView {
         required property int steamAppId
         required property string platformSlug
         required property string customCorePath
+        required property bool hidden
 
         readonly property bool hasPrefix: runtimeType === "proton" || runtimeType === "wine"
+        opacity: cardFrame.hidden ? 0.6 : 1
 
         QQC2.Menu {
             id: contextMenu
@@ -258,6 +263,15 @@ GameGridView {
                 }
             }
             QQC2.MenuSeparator {}
+            QQC2.MenuItem {
+                text: cardFrame.hidden ? i18n("Unhide") : i18n("Hide")
+                icon.name: cardFrame.hidden ? "view-visible-symbolic" : "view-hidden-symbolic"
+                onTriggered: {
+                    var app = appModel.getApp(cardFrame.index);
+                    app.hidden = !app.hidden;
+                    appModel.editApp(cardFrame.index, app);
+                }
+            }
             QQC2.MenuItem {
                 text: i18n("Edit")
                 icon.name: "document-edit-symbolic"

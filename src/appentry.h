@@ -52,6 +52,7 @@ public:
     QString customCorePath;
     QString launchOptions;
     bool enableLogging = false;
+    bool hidden = false;
 
     QJsonObject toJson() const;
     QVariantMap toVariantMap() const;

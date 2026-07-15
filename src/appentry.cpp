@@ -47,6 +47,7 @@ QJsonObject AppEntry::toJson() const
     obj[QStringLiteral("customCorePath")] = customCorePath;
     obj[QStringLiteral("launchOptions")] = launchOptions;
     obj[QStringLiteral("enableLogging")] = enableLogging;
+    obj[QStringLiteral("hidden")] = hidden;
     return obj;
 }
 
@@ -71,6 +72,7 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("customCorePath"), customCorePath},
         {QStringLiteral("launchOptions"), launchOptions},
         {QStringLiteral("enableLogging"), enableLogging},
+        {QStringLiteral("hidden"), hidden},
     };
 }
 
@@ -98,6 +100,7 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     e.customCorePath = obj[QStringLiteral("customCorePath")].toString();
     e.launchOptions = obj[QStringLiteral("launchOptions")].toString();
     e.enableLogging = obj[QStringLiteral("enableLogging")].toBool(false);
+    e.hidden = obj[QStringLiteral("hidden")].toBool(false);
     return e;
 }
 
@@ -123,4 +126,5 @@ void AppEntry::updateFromVariantMap(const QVariantMap &app)
     customCorePath = app[QStringLiteral("customCorePath")].toString();
     launchOptions = app[QStringLiteral("launchOptions")].toString();
     enableLogging = app.value(QStringLiteral("enableLogging"), false).toBool();
+    hidden = app.value(QStringLiteral("hidden"), false).toBool();
 }

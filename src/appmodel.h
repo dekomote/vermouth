@@ -8,6 +8,7 @@ class AppModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
+    Q_PROPERTY(bool showHidden READ showHidden WRITE setShowHidden NOTIFY showHiddenChanged)
 
 public:
     enum Roles {
@@ -29,6 +30,7 @@ public:
         CustomCorePathRole,
         LaunchOptionsRole,
         EnableLoggingRole,
+        HiddenRole,
     };
 
     explicit AppModel(QObject *parent = nullptr);
@@ -55,11 +57,18 @@ public:
     Q_INVOKABLE void
     updateAppArt(const QString &id, const QString &iconPath, const QString &gridPath, const QString &heroPath, const QString &logoPath, int steamGridDbId = 0);
 
+    bool showHidden() const
+    {
+        return m_showHidden;
+    }
+    void setShowHidden(bool showHidden);
+
     void load();
     void save() const;
 
 Q_SIGNALS:
     void countChanged();
+    void showHiddenChanged();
 
 private:
     int sourceIndex(int filteredIndex) const;
@@ -69,4 +78,5 @@ private:
     QVector<AppEntry> m_entries;
     QVector<int> m_filtered; // indices into m_entries
     QString m_filter;
+    bool m_showHidden = false;
 };

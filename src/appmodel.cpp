@@ -23,12 +23,24 @@ void AppModel::rebuildFilter()
 {
     m_filtered.clear();
     for (int i = 0; i < m_entries.size(); ++i) {
-        if (m_filter.isEmpty() || m_entries[i].name.contains(m_filter, Qt::CaseInsensitive))
+        if ((m_showHidden || !m_entries[i].hidden) && (m_filter.isEmpty() || m_entries[i].name.contains(m_filter, Qt::CaseInsensitive)))
             m_filtered.append(i);
     }
     std::sort(m_filtered.begin(), m_filtered.end(), [this](int a, int b) {
         return m_entries[a].name.compare(m_entries[b].name, Qt::CaseInsensitive) < 0;
     });
+}
+
+void AppModel::setShowHidden(bool showHidden)
+{
+    if (m_showHidden == showHidden)
+        return;
+    m_showHidden = showHidden;
+    beginResetModel();
+    rebuildFilter();
+    endResetModel();
+    Q_EMIT showHiddenChanged();
+    Q_EMIT countChanged();
 }
 
 void AppModel::setFilterString(const QString &filter)
@@ -91,6 +103,8 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.launchOptions;
     case EnableLoggingRole:
         return e.enableLogging;
+    case HiddenRole:
+        return e.hidden;
     }
     return {};
 }
@@ -116,6 +130,7 @@ QHash<int, QByteArray> AppModel::roleNames() const
         {CustomCorePathRole, "customCorePath"},
         {LaunchOptionsRole, "launchOptions"},
         {EnableLoggingRole, "enableLogging"},
+        {HiddenRole, "hidden"},
     };
 }
 

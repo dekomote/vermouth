@@ -10,6 +10,7 @@ GridView {
     property bool showNames: true
     property bool active: true
     property bool lightsOut: false
+    property bool showHidden: true
     topMargin: Kirigami.Units.mediumSpacing
     bottomMargin: Kirigami.Units.mediumSpacing
     leftMargin: Kirigami.Units.mediumSpacing
@@ -21,6 +22,7 @@ GridView {
         property alias scaleFactor: gridView.scaleFactor
         property alias viewType: gridView.viewType
         property alias showNames: gridView.showNames
+        property alias showHidden: gridView.showHidden
     }
 
     cellWidth: {
