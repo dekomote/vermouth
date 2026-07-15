@@ -710,7 +710,7 @@ Kirigami.ApplicationWindow {
                     onClicked: gridView.showHidden = !gridView.showHidden
                     // Unfortunately, appimage won't respect the color scheme so I have to improvise:
                     icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
-                    QQC2.ToolTip.text: gridView.showHidden ? i18n("Show Hidden") : i18n("Hide")
+                    QQC2.ToolTip.text: gridView.showHidden ? i18n("Hide") : i18n("Show Hidden")
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
