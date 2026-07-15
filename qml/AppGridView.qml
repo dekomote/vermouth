@@ -278,22 +278,12 @@ GameGridView {
                 onTriggered: addDialog.openForEdit(cardFrame.index)
             }
             QQC2.MenuItem {
-                text: i18n("Remove")
+                text: i18n("Delete")
                 icon.name: "edit-delete-symbolic"
                 onTriggered: {
-                    confirmDeleteAppDialog.runtimeType = cardFrame.runtimeType;
-                    confirmDeleteAppDialog.payload = cardFrame.index;
-                    confirmDeleteAppDialog.open();
-                }
-            }
-            QQC2.MenuItem {
-                visible: cardFrame.hasPrefix
-                height: visible ? implicitHeight : 0
-                text: i18n("Remove and Delete Prefix")
-                icon.name: "edit-delete-symbolic"
-                onTriggered: {
-                    confirmDeleteDialog.payload = cardFrame.index;
-                    confirmDeleteDialog.open();
+                    deleteChoiceDialog.runtimeType = cardFrame.runtimeType;
+                    deleteChoiceDialog.payload = cardFrame.index;
+                    deleteChoiceDialog.open();
                 }
             }
         }
@@ -367,6 +357,43 @@ GameGridView {
                 text: i18n("Cancel")
                 icon.name: "dialog-cancel"
                 onTriggered: confirmDeleteDialog.close()
+            }
+        ]
+    }
+
+    Kirigami.PromptDialog {
+        id: deleteChoiceDialog
+        property var payload
+        property string runtimeType: ""
+        title: i18n("Delete app?")
+        subtitle: i18n("Choose what to delete.")
+        standardButtons: Kirigami.Dialog.NoButton
+
+        customFooterActions: [
+            Kirigami.Action {
+                text: i18n("Delete App")
+                icon.name: "edit-delete-symbolic"
+                onTriggered: {
+                    confirmDeleteAppDialog.payload = deleteChoiceDialog.payload;
+                    confirmDeleteAppDialog.runtimeType = deleteChoiceDialog.runtimeType;
+                    deleteChoiceDialog.close();
+                    confirmDeleteAppDialog.open();
+                }
+            },
+            Kirigami.Action {
+                text: i18n("Delete App and Prefix")
+                icon.name: "edit-delete-symbolic"
+                visible: deleteChoiceDialog.runtimeType === "proton" || deleteChoiceDialog.runtimeType === "wine"
+                onTriggered: {
+                    confirmDeleteDialog.payload = deleteChoiceDialog.payload;
+                    deleteChoiceDialog.close();
+                    confirmDeleteDialog.open();
+                }
+            },
+            Kirigami.Action {
+                text: i18n("Cancel")
+                icon.name: "dialog-cancel"
+                onTriggered: deleteChoiceDialog.close()
             }
         ]
     }
