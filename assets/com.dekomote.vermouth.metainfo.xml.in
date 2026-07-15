@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="1.9.7" date="2026-07-15">
+        <description>
+          <p>This release adds the Hide feature - the ability to hide games and toggle visibility. It also changes the deletion workflow.</p>
+        </description>
+    </release>
     <release version="1.9.6" date="2026-07-08">
         <description>
           <p>This release fixes few UI issues - icon consistencies across desktop environments and button alignments.</p>
