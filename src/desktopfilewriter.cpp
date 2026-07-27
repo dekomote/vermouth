@@ -25,7 +25,7 @@ bool DesktopFileWriter::writeDesktopFile(const QString &filePath, const QVariant
     QString id = app[QStringLiteral("id")].toString();
 
     QString exec = isInsideFlatpak() ? QStringLiteral("flatpak run com.dekomote.vermouth --launch-id %1").arg(id)
-                                     : QStringLiteral("'%1' --launch-id \"%2\"").arg(QCoreApplication::applicationFilePath(), id);
+                                     : QStringLiteral("vermouth --launch-id %1").arg(id);
 
     QFile f(filePath);
     if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
