@@ -38,6 +38,7 @@ KDE-first, lightweight, no frills.</p>
 - [Steam support](#steam-support)
 - [GOG support](#gog-support)
 - [RetroArch support](#retroarch-support)
+- [UZDOOM support](#uzdoom-support)
 - [RomM support](#romm-support)
 - [Installing](#installing)
   - [Fedora and Nobara](#fedora-and-nobara)
@@ -68,6 +69,7 @@ Vermouth is a KDE-first launcher with four modes:
 - **Steam games** - import your installed Steam library with one click and launch games directly via Steam
 - **GOG games** - log into your GOG account and browse, download, and install your whole library from inside the app (beta), or import games you've already installed from a folder
 - **Retro games** - browse and launch your [RomM](https://github.com/rommapp/romm) library via RetroArch, with platform filtering, cover art, and ROM downloads; or add ROM files directly to your library
+- **Doom engine games** - launch WAD/PK3 files with [UZDOOM](https://github.com/UZDoom/UZDoom) (beta)
 
 It works like Lutris, Heroic, or Bottles, but lighter and KDE-first - less buttons, checks and knobs, just the bare necessities.
 
@@ -98,6 +100,7 @@ It works like Lutris, Heroic, or Bottles, but lighter and KDE-first - less butto
 - **Qt 6.8+** and **KDE Frameworks 6**
 - Proton or Wine for Windows games (GE-Proton can be downloaded from within Vermouth)
 - RetroArch with cores installed for retro games
+- [UZDOOM](https://github.com/UZDoom/UZDoom) AppImage for Doom engine games (can be downloaded from within Vermouth)
 - [umu-launcher](https://github.com/Open-Wine-Components/umu-launcher) recommended for best Windows game compatibility (can be downloaded from within Vermouth)
 - `icoutils` for automatic icon extraction from `.exe` files
 
@@ -109,7 +112,7 @@ Ubuntu 25.04 / Debian Trixie or newer are required on Debian-based systems due t
 
 1. [Install Vermouth](#installing) for your distro
 2. Click **Add Game** and browse for an `.exe`, binary, ROM, or `.desktop` file
-3. Choose a runtime - Proton, Wine, RetroArch, or native
+3. Choose a runtime - Proton, Wine, RetroArch, UZDOOM, or native
 4. Double-click to launch
 
 For Steam games, use **Menu → Import from Steam** if you don't want to search for game IDs.
@@ -127,6 +130,8 @@ The **Launch Options** field wraps the command with tools like `mangohud`, `game
 **GOG games:** Open the **GOG Library** tab to log into your GOG account and download, install, and play your games straight from the app. This is still in beta. If you'd rather use games you already have on disk, click **Menu → Import GOG games** and point Vermouth at the folder where they live. See [GOG support](#gog-support) for the full rundown.
 
 **RetroArch games:** Click **Add Game**, select **RetroArch** as the runtime, choose the ROM file and platform. Vermouth will pick the right core automatically or prompt you to select one.
+
+**UZDOOM games:** Click **Add Game**, select **UZDOOM (beta)** as the runtime, pick a base WAD, and optionally add mods (`.wad` or `.pk3`). The UZDOOM AppImage can be downloaded from the runtime picker or picked manually.
 
 **Retro games via RomM:** Configure your RomM server URL and API key in Settings. Switch to the **RomM** tab, and double-click a ROM to download and launch it. Cores can be overridden per game via right-click.
 
@@ -177,6 +182,20 @@ There are two ways to get your GOG games into Vermouth.
 ROMs can be added to your library directly - no RomM required. Click **Add Game**, select **RetroArch** as the runtime, pick the ROM file and platform, and it will appear in your library alongside your other games.
 
 Vermouth auto-detects RetroArch cores for each platform. You can override the core per entry from the right-click menu → **Change Core**.
+
+---
+
+## UZDOOM support
+
+Vermouth supports [UZDOOM](https://github.com/UZDoom/UZDoom) (beta) for launching Doom engine games from `.wad` and `.pk3` files. UZDOOM is a fork of GZDoom that runs the classic Doom engine games as well as UEngine titles.
+
+Click **Add Game**, select **UZDOOM (beta)** as the runtime, then:
+
+- Pick the **base WAD** (e.g. `doom2.wad`) as the game file
+- Optionally add **mods** - `.wad` or `.pk3` files are supported, loaded in order via `-file`
+- The **UZDOOM AppImage** can be downloaded from the runtime picker with one click, or picked from disk; each game can also override the AppImage path
+
+Launch options (e.g. `+map MAP01`) still work through the **Launch Options** field.
 
 ---
 
