@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vermouth\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-29 13:48+0200\n"
+"POT-Creation-Date: 2026-08-05 12:13+0200\n"
 "PO-Revision-Date: 2026-06-29 13:48+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -79,8 +79,8 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:27 po/../qml/AppGridView.qml:353
-#: po/../qml/RunExeStandaloneDialog.qml:27
+#: po/../qml/AddAppDialog.qml:27 po/../qml/AppGridView.qml:363
+#: po/../qml/AppGridView.qml:400 po/../qml/RunExeStandaloneDialog.qml:27
 #: po/../qml/SteamGridDBPickerDialog.qml:349
 msgid "Cancel"
 msgstr ""
@@ -166,8 +166,8 @@ msgid "optional"
 msgstr ""
 
 #: po/../qml/AddAppDialog.qml:352 po/../qml/AddAppDialog.qml:360
-#: po/../qml/AddAppDialog.qml:400 po/../qml/AddAppDialog.qml:443
-#: po/../qml/AddAppDialog.qml:471 po/../qml/AddAppDialog.qml:499
+#: po/../qml/AddAppDialog.qml:400 po/../qml/AddAppDialog.qml:464
+#: po/../qml/AddAppDialog.qml:492 po/../qml/AddAppDialog.qml:520
 msgid "Set SteamGridDB API key in Settings"
 msgstr ""
 
@@ -195,268 +195,288 @@ msgstr ""
 msgid "Show Grid / Hero / Logo Art"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:430
+#: po/../qml/AddAppDialog.qml:424
+msgid "Refresh artwork"
+msgstr ""
+
+#: po/../qml/AddAppDialog.qml:451
 msgid "Grid (optional):"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:443
+#: po/../qml/AddAppDialog.qml:464
 msgid "Download grid from SteamGridDB"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:458
+#: po/../qml/AddAppDialog.qml:479
 msgid "Hero (optional):"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:471
+#: po/../qml/AddAppDialog.qml:492
 msgid "Download hero from SteamGridDB"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:486
+#: po/../qml/AddAppDialog.qml:507
 msgid "Logo (optional):"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:499
+#: po/../qml/AddAppDialog.qml:520
 msgid "Download logo from SteamGridDB"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:520
+#: po/../qml/AddAppDialog.qml:541
 msgid "Runtime Options"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:527
+#: po/../qml/AddAppDialog.qml:548
 msgid "Proton Prefix (optional):"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:542
+#: po/../qml/AddAppDialog.qml:563
 msgid "Wine Prefix (WINEPREFIX):"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:557 po/../qml/RunExeStandaloneDialog.qml:125
+#: po/../qml/AddAppDialog.qml:578 po/../qml/RunExeStandaloneDialog.qml:125
 msgid "Launch Options (optional):"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:558
+#: po/../qml/AddAppDialog.qml:579
 msgid "e.g. mangohud %command%"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:564
+#: po/../qml/AddAppDialog.qml:585
 msgid "Write output to log file"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:571
+#: po/../qml/AddAppDialog.qml:592
 msgid "Global Env Vars:"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:582 po/../qml/RunExeDialog.qml:53
+#: po/../qml/AddAppDialog.qml:603 po/../qml/RunExeDialog.qml:53
 #: po/../qml/RunExeStandaloneDialog.qml:133
 msgid "Select Executable"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:584 po/../qml/RunExeStandaloneDialog.qml:135
+#: po/../qml/AddAppDialog.qml:605 po/../qml/RunExeStandaloneDialog.qml:135
 msgid ""
 "Binaries, scripts & AppImages (*.sh *.py *.pl *.rb *.run *.bash *.zsh "
 "*.AppImage *.appimage *.desktop)"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:584 po/../qml/AddAppDialog.qml:595
-#: po/../qml/AddAppDialog.qml:625 po/../qml/AddAppDialog.qml:647
-#: po/../qml/AddAppDialog.qml:655 po/../qml/AddAppDialog.qml:663
+#: po/../qml/AddAppDialog.qml:605 po/../qml/AddAppDialog.qml:616
+#: po/../qml/AddAppDialog.qml:646 po/../qml/AddAppDialog.qml:668
+#: po/../qml/AddAppDialog.qml:676 po/../qml/AddAppDialog.qml:684
 #: po/../qml/CorePickerDialog.qml:109 po/../qml/RunExeDialog.qml:55
 #: po/../qml/RunExeStandaloneDialog.qml:135
 msgid "All files (*)"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:584 po/../qml/AddAppDialog.qml:595
+#: po/../qml/AddAppDialog.qml:605 po/../qml/AddAppDialog.qml:616
 #: po/../qml/RunExeDialog.qml:55 po/../qml/RunExeStandaloneDialog.qml:135
 msgid "Executables (*.exe)"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:593
+#: po/../qml/AddAppDialog.qml:614
 msgid "Select installer (exe)"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:609
+#: po/../qml/AddAppDialog.qml:630
 msgid "Select ROM"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:623
+#: po/../qml/AddAppDialog.qml:644
 msgid "Select Icon"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:625
+#: po/../qml/AddAppDialog.qml:646
 msgid "Images (*.png *.svg *.ico *.jpg)"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:631
+#: po/../qml/AddAppDialog.qml:652
 msgid "Select Proton Prefix Folder"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:638
+#: po/../qml/AddAppDialog.qml:659
 msgid "Select Wine Prefix Folder"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:645
+#: po/../qml/AddAppDialog.qml:666
 msgid "Select Grid Image"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:647 po/../qml/AddAppDialog.qml:655
-#: po/../qml/AddAppDialog.qml:663
+#: po/../qml/AddAppDialog.qml:668 po/../qml/AddAppDialog.qml:676
+#: po/../qml/AddAppDialog.qml:684
 msgid "Images (*.png *.jpg *.jpeg *.webp)"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:653
+#: po/../qml/AddAppDialog.qml:674
 msgid "Select Hero Image"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:661
+#: po/../qml/AddAppDialog.qml:682
 msgid "Select Logo Image"
 msgstr ""
 
-#: po/../qml/AddAppDialog.qml:698
+#: po/../qml/AddAppDialog.qml:719
 msgid "Art downloaded!"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:91
+#: po/../qml/AppGridView.qml:102
 msgid "Stop"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:91 po/../qml/RommView.qml:189
+#: po/../qml/AppGridView.qml:102 po/../qml/RommView.qml:189
 msgid "Launch"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:106
+#: po/../qml/AppGridView.qml:117
 msgid "View in Steam"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:113 po/../qml/RommView.qml:219
+#: po/../qml/AppGridView.qml:124 po/../qml/RommView.qml:219
 msgid "Change Core…"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:126 po/../qml/RommView.qml:236
+#: po/../qml/AppGridView.qml:137 po/../qml/RommView.qml:236
 msgid "Copy Launch Command"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:145
+#: po/../qml/AppGridView.qml:156
 msgid "Launch with logging"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:159
+#: po/../qml/AppGridView.qml:170
 msgid "Run another EXE in this prefix"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:171
+#: po/../qml/AppGridView.qml:182
 msgid "Create shortcut"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:175
+#: po/../qml/AppGridView.qml:186
 msgid "Create start menu entry"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:183
+#: po/../qml/AppGridView.qml:194
 msgid "Create desktop shortcut"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:193
+#: po/../qml/AppGridView.qml:204
 msgid "&Wine Utilities"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:197
+#: po/../qml/AppGridView.qml:208
 msgid "Run Winecfg"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:205
+#: po/../qml/AppGridView.qml:216
 msgid "Run Regedit"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:213
+#: po/../qml/AppGridView.qml:224
 msgid "Run Winetricks"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:227
+#: po/../qml/AppGridView.qml:238
 msgid "Folders"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:233
+#: po/../qml/AppGridView.qml:244
 msgid "Open install folder"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:243 po/../qml/RommView.qml:231
+#: po/../qml/AppGridView.qml:254 po/../qml/RommView.qml:231
 msgid "Open log folder"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:250
+#: po/../qml/AppGridView.qml:261
 msgid "Open prefix folder"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:262
+#: po/../qml/AppGridView.qml:273
+msgid "Unhide"
+msgstr ""
+
+#: po/../qml/AppGridView.qml:273 po/../qml/Main.qml:430 po/../qml/Main.qml:749
+msgid "Hide"
+msgstr ""
+
+#: po/../qml/AppGridView.qml:282
 msgid "Edit"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:267
-msgid "Remove"
+#: po/../qml/AppGridView.qml:287 po/../qml/AppGridView.qml:353
+msgid "Delete"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:278
-msgid "Remove and Delete Prefix"
-msgstr ""
-
-#: po/../qml/AppGridView.qml:305
+#: po/../qml/AppGridView.qml:315
 msgid "Delete app and prefix?"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:318
+#: po/../qml/AppGridView.qml:328
 msgid ""
 "This permanently deletes the app and its prefix folder. This cannot be "
 "undone."
 msgstr ""
 
-#: po/../qml/AppGridView.qml:329
+#: po/../qml/AppGridView.qml:339
 msgid "Type DELETE to confirm."
 msgstr ""
 
-#: po/../qml/AppGridView.qml:334
+#: po/../qml/AppGridView.qml:344
 msgid "DELETE"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:343
-msgid "Delete"
-msgstr ""
-
-#: po/../qml/AppGridView.qml:364
-msgid "Delete the app?"
-msgstr ""
-
-#: po/../qml/AppGridView.qml:365
-msgid "This will delete the app from the library."
-msgstr ""
-
-#: po/../qml/AppGridView.qml:365
-msgid "This will delete the app but preserve the prefix folder."
+#: po/../qml/AppGridView.qml:374
+msgid "Delete app?"
 msgstr ""
 
 #: po/../qml/AppGridView.qml:375
+msgid "Choose what to delete."
+msgstr ""
+
+#: po/../qml/AppGridView.qml:380
+msgid "Delete App"
+msgstr ""
+
+#: po/../qml/AppGridView.qml:390
+msgid "Delete App and Prefix"
+msgstr ""
+
+#: po/../qml/AppGridView.qml:411
+msgid "Delete the app?"
+msgstr ""
+
+#: po/../qml/AppGridView.qml:412
+msgid "This will delete the app from the library."
+msgstr ""
+
+#: po/../qml/AppGridView.qml:412
+msgid "This will delete the app but preserve the prefix folder."
+msgstr ""
+
+#: po/../qml/AppGridView.qml:422
 msgid "Winetricks not found"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:376
+#: po/../qml/AppGridView.qml:423
 msgid ""
 "Winetricks is not installed on your system. Please install it using your "
 "package manager."
 msgstr ""
 
-#: po/../qml/AppGridView.qml:384
+#: po/../qml/AppGridView.qml:431
 msgid "No apps or games found"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:384
+#: po/../qml/AppGridView.qml:431
 msgid "No apps or games added yet"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:385
+#: po/../qml/AppGridView.qml:432
 msgid "Try a different search term"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:385
+#: po/../qml/AppGridView.qml:432
 msgid "Click \"Add App/Game\" to get started"
 msgstr ""
 
@@ -504,7 +524,7 @@ msgstr ""
 msgid "Copy command"
 msgstr ""
 
-#: po/../qml/GogImportDialog.qml:10 po/../qml/Main.qml:352
+#: po/../qml/GogImportDialog.qml:10 po/../qml/Main.qml:388
 msgid "Import GOG games"
 msgstr ""
 
@@ -739,7 +759,7 @@ msgstr ""
 msgid "Games"
 msgstr ""
 
-#: po/../qml/Main.qml:46 po/../qml/SettingsDialog.qml:284
+#: po/../qml/Main.qml:46 po/../qml/SettingsDialog.qml:288
 msgid "RomM"
 msgstr ""
 
@@ -763,150 +783,178 @@ msgstr ""
 msgid "Switch view type"
 msgstr ""
 
-#: po/../qml/Main.qml:252 po/../qml/Main.qml:726
+#: po/../qml/Main.qml:252 po/../qml/Main.qml:786
 msgid "Icon view"
 msgstr ""
 
-#: po/../qml/Main.qml:259 po/../qml/Main.qml:737
+#: po/../qml/Main.qml:259 po/../qml/Main.qml:797
 msgid "Cover art view"
 msgstr ""
 
-#: po/../qml/Main.qml:266 po/../qml/Main.qml:748
+#: po/../qml/Main.qml:266 po/../qml/Main.qml:808
 msgid "Hero art view"
 msgstr ""
 
-#: po/../qml/Main.qml:274 po/../qml/Main.qml:759
+#: po/../qml/Main.qml:274 po/../qml/Main.qml:819
 msgid "Show names"
 msgstr ""
 
-#: po/../qml/Main.qml:337 po/../qml/WelcomeScreen.qml:132
+#: po/../qml/Main.qml:311 po/../qml/Main.qml:828 po/../qml/Main.qml:834
+msgid "Sort By"
+msgstr ""
+
+#: po/../qml/Main.qml:314 po/../qml/Main.qml:837
+msgid "Name"
+msgstr ""
+
+#: po/../qml/Main.qml:320 po/../qml/Main.qml:843 po/../qml/RuntimePicker.qml:13
+msgid "Runtime"
+msgstr ""
+
+#: po/../qml/Main.qml:326 po/../qml/Main.qml:849
+msgid "Date Added"
+msgstr ""
+
+#: po/../qml/Main.qml:333 po/../qml/Main.qml:856
+msgid "A–Z"
+msgstr ""
+
+#: po/../qml/Main.qml:339 po/../qml/Main.qml:862
+msgid "Z–A"
+msgstr ""
+
+#: po/../qml/Main.qml:373 po/../qml/WelcomeScreen.qml:132
 msgid "Add a Game"
 msgstr ""
 
-#: po/../qml/Main.qml:342
+#: po/../qml/Main.qml:378
 msgid "Run a Standalone EXE"
 msgstr ""
 
-#: po/../qml/Main.qml:347 po/../qml/SteamImportDialog.qml:8
+#: po/../qml/Main.qml:383 po/../qml/SteamImportDialog.qml:8
 #: po/../qml/WelcomeScreen.qml:137
 msgid "Import from Steam"
 msgstr ""
 
-#: po/../qml/Main.qml:357 po/../qml/Main.qml:701
+#: po/../qml/Main.qml:393 po/../qml/Main.qml:761
 msgid "Allow Sleep"
 msgstr ""
 
-#: po/../qml/Main.qml:357 po/../qml/Main.qml:701
+#: po/../qml/Main.qml:393 po/../qml/Main.qml:761
 msgid "Prevent Sleep"
 msgstr ""
 
-#: po/../qml/Main.qml:362 po/../qml/Main.qml:714
+#: po/../qml/Main.qml:398 po/../qml/Main.qml:774
 msgid "Disable HDR"
 msgstr ""
 
-#: po/../qml/Main.qml:362 po/../qml/Main.qml:714
+#: po/../qml/Main.qml:398 po/../qml/Main.qml:774
 msgid "Enable HDR"
 msgstr ""
 
-#: po/../qml/Main.qml:369
+#: po/../qml/Main.qml:405
 msgid "Lights On"
 msgstr ""
 
-#: po/../qml/Main.qml:369
+#: po/../qml/Main.qml:405
 msgid "Lights Out"
 msgstr ""
 
-#: po/../qml/Main.qml:375
+#: po/../qml/Main.qml:411
 msgid "Exit Big Picture"
 msgstr ""
 
-#: po/../qml/Main.qml:375
+#: po/../qml/Main.qml:411
 msgid "Big Picture"
 msgstr ""
 
-#: po/../qml/Main.qml:394
+#: po/../qml/Main.qml:430 po/../qml/Main.qml:749
+msgid "Show Hidden"
+msgstr ""
+
+#: po/../qml/Main.qml:438
 msgid "&Settings"
 msgstr ""
 
-#: po/../qml/Main.qml:402
+#: po/../qml/Main.qml:446
 msgid "&About Vermouth"
 msgstr ""
 
-#: po/../qml/Main.qml:407
+#: po/../qml/Main.qml:451
 msgid "Quit"
 msgstr ""
 
-#: po/../qml/Main.qml:427
+#: po/../qml/Main.qml:476
 msgid "Unpin sidebar"
 msgstr ""
 
-#: po/../qml/Main.qml:427
+#: po/../qml/Main.qml:476
 msgid "Pin sidebar"
 msgstr ""
 
-#: po/../qml/Main.qml:479 po/../qml/SteamGridDBPickerDialog.qml:336
+#: po/../qml/Main.qml:529 po/../qml/SteamGridDBPickerDialog.qml:336
 msgid "Back"
 msgstr ""
 
-#: po/../qml/Main.qml:539
+#: po/../qml/Main.qml:589
 msgid "Select platform…"
 msgstr ""
 
-#: po/../qml/Main.qml:597
+#: po/../qml/Main.qml:647
 msgid "Save"
 msgstr ""
 
-#: po/../qml/Main.qml:601
+#: po/../qml/Main.qml:651
 msgid "Settings saved"
 msgstr ""
 
-#: po/../qml/Main.qml:759
+#: po/../qml/Main.qml:819
 msgid "Hide names"
 msgstr ""
 
-#: po/../qml/Main.qml:816
+#: po/../qml/Main.qml:922
 msgid "Open Executable"
 msgstr ""
 
-#: po/../qml/Main.qml:821 po/../qml/RunExeStandaloneDialog.qml:9
+#: po/../qml/Main.qml:927 po/../qml/RunExeStandaloneDialog.qml:9
 msgid "Run Standalone"
 msgstr ""
 
-#: po/../qml/Main.qml:829
+#: po/../qml/Main.qml:935
 msgid "Add to Library"
 msgstr ""
 
-#: po/../qml/Main.qml:842
+#: po/../qml/Main.qml:948
 msgid "Prefix not ready"
 msgstr ""
 
-#: po/../qml/Main.qml:843
+#: po/../qml/Main.qml:949
 msgid ""
 "The prefix for \"%1\" has not been created yet. Please launch the game at "
 "least once first."
 msgstr ""
 
-#: po/../qml/Main.qml:871
+#: po/../qml/Main.qml:977
 msgid "%1 ROMs"
 msgstr ""
 
-#: po/../qml/Main.qml:880
+#: po/../qml/Main.qml:986
 msgid "%1 — %2 games"
 msgstr ""
 
-#: po/../qml/Main.qml:902
+#: po/../qml/Main.qml:1008
 msgid "%1 - %2"
 msgstr ""
 
-#: po/../qml/Main.qml:1082
+#: po/../qml/Main.qml:1188
 msgid "Launched: %1"
 msgstr ""
 
-#: po/../qml/Main.qml:1085
+#: po/../qml/Main.qml:1191
 msgid "Error launching: %1"
 msgstr ""
 
-#: po/../qml/Main.qml:1141
+#: po/../qml/Main.qml:1247
 msgid "Auto downloading: %1"
 msgstr ""
 
@@ -1000,10 +1048,6 @@ msgstr ""
 msgid "e.g ENV_VAR1=2"
 msgstr ""
 
-#: po/../qml/RuntimePicker.qml:13
-msgid "Runtime"
-msgstr ""
-
 #: po/../qml/RuntimePicker.qml:90
 msgid "Please select a Proton version."
 msgstr ""
@@ -1038,7 +1082,7 @@ msgstr ""
 msgid "Download Proton build"
 msgstr ""
 
-#: po/../qml/RuntimePicker.qml:250 po/../qml/SettingsDialog.qml:240
+#: po/../qml/RuntimePicker.qml:250 po/../qml/SettingsDialog.qml:243
 msgid "Download latest GE Proton"
 msgstr ""
 
@@ -1122,15 +1166,15 @@ msgid ""
 "This is the folder where Vermouth stores all the created prefixes by default."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:177
+#: po/../qml/SettingsDialog.qml:178
 msgid "Default Proton Prefix:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:181
+#: po/../qml/SettingsDialog.qml:182
 msgid "Auto-generate per Proton game"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:188
+#: po/../qml/SettingsDialog.qml:189
 msgid ""
 "Set this if you want all Proton games to share a single prefix (e.g. one "
 "Proton environment for everything). Leave empty to auto-generate a separate "
@@ -1138,302 +1182,302 @@ msgid ""
 "set it explicitly."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:194
+#: po/../qml/SettingsDialog.qml:196
 msgid "Default Wine Prefix:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:198
+#: po/../qml/SettingsDialog.qml:200
 msgid "Auto-generate per Wine game"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:205
+#: po/../qml/SettingsDialog.qml:207
 msgid ""
 "Set this if you want all Wine games to share a single prefix. Leave empty to "
 "auto-generate a separate Wine prefix per game under the 'wines/' subfolder."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:211
+#: po/../qml/SettingsDialog.qml:214
 msgid "Vermouth Proton Folder"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:216
+#: po/../qml/SettingsDialog.qml:219
 msgid ""
 "Download GE Proton to run most games and apps — no Steam or manual setup "
 "needed."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:227
+#: po/../qml/SettingsDialog.qml:230
 msgid "GE Proton:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:230
+#: po/../qml/SettingsDialog.qml:233
 msgid "Open Vermouth Proton folder"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:236
+#: po/../qml/SettingsDialog.qml:239
 msgid "Download Latest GE Proton"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:247
+#: po/../qml/SettingsDialog.qml:250
 msgid "SteamGridDB"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:252
+#: po/../qml/SettingsDialog.qml:255
 msgid ""
 "SteamGridDB API key is required to download game art. You can get a free key "
 "from steamgriddb.com/profile/preferences/api"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:263 po/../qml/SettingsDialog.qml:307
+#: po/../qml/SettingsDialog.qml:266 po/../qml/SettingsDialog.qml:311
 msgid "API Key:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:266
+#: po/../qml/SettingsDialog.qml:269
 msgid "Paste your SteamGridDB API key"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:271
+#: po/../qml/SettingsDialog.qml:274
 msgid "Auto-download Art:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:278
+#: po/../qml/SettingsDialog.qml:281
 msgid "Automatically download icon, grid, hero and logo when adding a game."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:289
+#: po/../qml/SettingsDialog.qml:293
 msgid ""
 "RomM is a self-hosted ROM manager. Set your server URL and API key to browse "
 "and launch ROMs via RetroArch."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:300
+#: po/../qml/SettingsDialog.qml:304
 msgid "Server URL:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:310
+#: po/../qml/SettingsDialog.qml:314
 msgid "Your RomM API key"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:315
+#: po/../qml/SettingsDialog.qml:319
 msgid "ROM Cache Folder:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:319
+#: po/../qml/SettingsDialog.qml:323
 msgid "Default: AppData/romm"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:329
+#: po/../qml/SettingsDialog.qml:333
 msgid "GOG"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:334
+#: po/../qml/SettingsDialog.qml:338
 msgid ""
 "Log in from the GOG Library tab to browse and install your owned GOG games."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:345
+#: po/../qml/SettingsDialog.qml:349
 msgid "Account:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:349
+#: po/../qml/SettingsDialog.qml:353
 msgid "Logged in as %1"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:349
+#: po/../qml/SettingsDialog.qml:353
 msgid "Logged in"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:349
+#: po/../qml/SettingsDialog.qml:353
 msgid "Not logged in"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:352
+#: po/../qml/SettingsDialog.qml:356
 msgid "Log out"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:361
+#: po/../qml/SettingsDialog.qml:365
 msgid "Download Folder:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:365
+#: po/../qml/SettingsDialog.qml:369
 msgid "Default: ~/Gog Games/.cache"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:372
+#: po/../qml/SettingsDialog.qml:376
 msgid "Where GOG installers are downloaded before installation."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:378
+#: po/../qml/SettingsDialog.qml:383
 msgid "Install Folder:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:382
+#: po/../qml/SettingsDialog.qml:387
 msgid "Default: ~/GOG Games"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:389
+#: po/../qml/SettingsDialog.qml:394
 msgid "Where GOG games are installed."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:395
+#: po/../qml/SettingsDialog.qml:401
 msgid "RetroArch"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:400
+#: po/../qml/SettingsDialog.qml:406
 msgid ""
 "RetroArch is used to launch ROMs. It will be auto-detected if installed in "
 "your PATH or as a Flatpak."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:417
+#: po/../qml/SettingsDialog.qml:423
 msgid "RetroArch binary:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:421
+#: po/../qml/SettingsDialog.qml:427
 msgid "Auto-detect"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:429
+#: po/../qml/SettingsDialog.qml:435
 msgid "Auto-detect RetroArch"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:442
+#: po/../qml/SettingsDialog.qml:448
 msgid "Extra Proton Scan Paths"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:447
+#: po/../qml/SettingsDialog.qml:453
 msgid ""
 "Folders to scan for Proton installations, in addition to Steam and local "
 "paths."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:457
+#: po/../qml/SettingsDialog.qml:463
 msgid "Scan Folders:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:479
+#: po/../qml/SettingsDialog.qml:485
 msgid "Add Path..."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:487
+#: po/../qml/SettingsDialog.qml:493
 msgid "Global Environment Variables"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:492
+#: po/../qml/SettingsDialog.qml:498
 msgid "Applied to every game. Per-game launch options can override these."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:502
+#: po/../qml/SettingsDialog.qml:508
 msgid "Variables:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:510
+#: po/../qml/SettingsDialog.qml:516
 msgid "KEY"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:519
+#: po/../qml/SettingsDialog.qml:525
 msgid "value"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:532
+#: po/../qml/SettingsDialog.qml:538
 msgid "Add Variable"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:543
+#: po/../qml/SettingsDialog.qml:549
 msgid "Appearance"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:548
+#: po/../qml/SettingsDialog.qml:554
 msgid "Alt. Grid background:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:554
+#: po/../qml/SettingsDialog.qml:560
 msgid ""
 "Use the alternative background color for the grid view. It's lighter on "
 "Breeze light and darker on Breeze dark."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:560
+#: po/../qml/SettingsDialog.qml:567
 msgid "Lights Out:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:569
+#: po/../qml/SettingsDialog.qml:576
 msgid "Background Color:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:592
+#: po/../qml/SettingsDialog.qml:599
 msgid "Reset"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:600
+#: po/../qml/SettingsDialog.qml:607
 msgid "Tips"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:605
+#: po/../qml/SettingsDialog.qml:612
 msgid "Show Tips:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:611
+#: po/../qml/SettingsDialog.qml:618
 msgid "Show helpful prompts like the Steam import suggestion on first launch."
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:617
+#: po/../qml/SettingsDialog.qml:625
 msgid "Gamepad"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:622
+#: po/../qml/SettingsDialog.qml:630
 msgid "Fullscreen Toggle:"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:625
+#: po/../qml/SettingsDialog.qml:633
 msgid "Guide (default)"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:629
+#: po/../qml/SettingsDialog.qml:637
 msgid "Select + L2"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:633
+#: po/../qml/SettingsDialog.qml:641
 msgid "L3 + R3"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:645
+#: po/../qml/SettingsDialog.qml:653
 msgid "Select umu-run binary"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:652
+#: po/../qml/SettingsDialog.qml:660
 msgid "Select Default Prefix Folder"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:659
+#: po/../qml/SettingsDialog.qml:667
 msgid "Select Default App/Game Prefix"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:666
+#: po/../qml/SettingsDialog.qml:674
 msgid "Select Default Wine Prefix"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:673
+#: po/../qml/SettingsDialog.qml:681
 msgid "Select Proton Scan Folder"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:686
+#: po/../qml/SettingsDialog.qml:694
 msgid "Select RetroArch binary"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:693
+#: po/../qml/SettingsDialog.qml:701
 msgid "Select ROM Cache Folder"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:700
+#: po/../qml/SettingsDialog.qml:708
 msgid "Select GOG Download Folder"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:707
+#: po/../qml/SettingsDialog.qml:715
 msgid "Select GOG Install Folder"
 msgstr ""
 
-#: po/../qml/SettingsDialog.qml:714
+#: po/../qml/SettingsDialog.qml:722
 msgid "Select Background Color"
 msgstr ""
 

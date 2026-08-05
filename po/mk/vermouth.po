@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.3.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-06-29 13:31+0200\n"
+"POT-Creation-Date: 2026-08-05 12:13+0200\n"
 "PO-Revision-Date: 2026-04-20 11:37+0200\n"
 "Last-Translator: DEJAN NOVESKI <DEKO@DUCK.COM>\n"
 "Language-Team: Macedonian\n"
@@ -78,8 +78,8 @@ msgstr "Додади игра"
 msgid "OK"
 msgstr "Во ред"
 
-#: po/../qml/AddAppDialog.qml:27 po/../qml/AppGridView.qml:353
-#: po/../qml/RunExeStandaloneDialog.qml:27
+#: po/../qml/AddAppDialog.qml:27 po/../qml/AppGridView.qml:363
+#: po/../qml/AppGridView.qml:400 po/../qml/RunExeStandaloneDialog.qml:27
 #: po/../qml/SteamGridDBPickerDialog.qml:349
 msgid "Cancel"
 msgstr "Откажи"
@@ -165,8 +165,8 @@ msgid "optional"
 msgstr "незадолжително"
 
 #: po/../qml/AddAppDialog.qml:352 po/../qml/AddAppDialog.qml:360
-#: po/../qml/AddAppDialog.qml:400 po/../qml/AddAppDialog.qml:443
-#: po/../qml/AddAppDialog.qml:471 po/../qml/AddAppDialog.qml:499
+#: po/../qml/AddAppDialog.qml:400 po/../qml/AddAppDialog.qml:464
+#: po/../qml/AddAppDialog.qml:492 po/../qml/AddAppDialog.qml:520
 msgid "Set SteamGridDB API key in Settings"
 msgstr "Поставете SteamGridDB API клуч во Поставки"
 
@@ -194,249 +194,278 @@ msgstr "Сокриј Grid / Hero / Logo"
 msgid "Show Grid / Hero / Logo Art"
 msgstr "Прикажи Grid / Hero / Logo"
 
-#: po/../qml/AddAppDialog.qml:430
+#: po/../qml/AddAppDialog.qml:424
+#, fuzzy
+msgid "Refresh artwork"
+msgstr "Освежи листа на верзии на Proton"
+
+#: po/../qml/AddAppDialog.qml:451
 msgid "Grid (optional):"
 msgstr "Grid (незадолжително):"
 
-#: po/../qml/AddAppDialog.qml:443
+#: po/../qml/AddAppDialog.qml:464
 msgid "Download grid from SteamGridDB"
 msgstr "Преземи grid од SteamGridDB"
 
-#: po/../qml/AddAppDialog.qml:458
+#: po/../qml/AddAppDialog.qml:479
 msgid "Hero (optional):"
 msgstr "Hero (незадолжително):"
 
-#: po/../qml/AddAppDialog.qml:471
+#: po/../qml/AddAppDialog.qml:492
 msgid "Download hero from SteamGridDB"
 msgstr "Преземи hero од SteamGridDB"
 
-#: po/../qml/AddAppDialog.qml:486
+#: po/../qml/AddAppDialog.qml:507
 msgid "Logo (optional):"
 msgstr "Logo (незадолжително):"
 
-#: po/../qml/AddAppDialog.qml:499
+#: po/../qml/AddAppDialog.qml:520
 msgid "Download logo from SteamGridDB"
 msgstr "Преземи logo од SteamGridDB"
 
-#: po/../qml/AddAppDialog.qml:520
+#: po/../qml/AddAppDialog.qml:541
 msgid "Runtime Options"
 msgstr "Опции за извршно опкружување"
 
-#: po/../qml/AddAppDialog.qml:527
+#: po/../qml/AddAppDialog.qml:548
 msgid "Proton Prefix (optional):"
 msgstr "Протон Префикс (незадолжително):"
 
-#: po/../qml/AddAppDialog.qml:542
+#: po/../qml/AddAppDialog.qml:563
 msgid "Wine Prefix (WINEPREFIX):"
 msgstr "Wine Префикс (WINEPREFIX):"
 
-#: po/../qml/AddAppDialog.qml:557 po/../qml/RunExeStandaloneDialog.qml:125
+#: po/../qml/AddAppDialog.qml:578 po/../qml/RunExeStandaloneDialog.qml:125
 msgid "Launch Options (optional):"
 msgstr "Опции за стартување (незадолжително):"
 
-#: po/../qml/AddAppDialog.qml:558
+#: po/../qml/AddAppDialog.qml:579
 msgid "e.g. mangohud %command%"
 msgstr "пр. mangohud %command%"
 
-#: po/../qml/AddAppDialog.qml:564
+#: po/../qml/AddAppDialog.qml:585
 msgid "Write output to log file"
 msgstr "Запиши излез во датотека за дневник"
 
-#: po/../qml/AddAppDialog.qml:571
+#: po/../qml/AddAppDialog.qml:592
 msgid "Global Env Vars:"
 msgstr "Глобални env променливи:"
 
-#: po/../qml/AddAppDialog.qml:582 po/../qml/RunExeDialog.qml:53
+#: po/../qml/AddAppDialog.qml:603 po/../qml/RunExeDialog.qml:53
 #: po/../qml/RunExeStandaloneDialog.qml:133
 msgid "Select Executable"
 msgstr "Изберете извршна датотека"
 
-#: po/../qml/AddAppDialog.qml:584 po/../qml/RunExeStandaloneDialog.qml:135
-msgid "Binaries, scripts & AppImages (*.sh *.py *.pl *.rb *.run *.bash *.zsh "
+#: po/../qml/AddAppDialog.qml:605 po/../qml/RunExeStandaloneDialog.qml:135
+msgid ""
+"Binaries, scripts & AppImages (*.sh *.py *.pl *.rb *.run *.bash *.zsh "
 "*.AppImage *.appimage *.desktop)"
-msgstr "Бинарни датотеки, скрипти и AppImages (*.sh *.py *.pl *.rb *.run *.bash *.zsh *.AppImage *.appimage *.desktop)"
+msgstr ""
+"Бинарни датотеки, скрипти и AppImages (*.sh *.py *.pl *.rb *.run *.bash "
+"*.zsh *.AppImage *.appimage *.desktop)"
 
-#: po/../qml/AddAppDialog.qml:584 po/../qml/AddAppDialog.qml:595
-#: po/../qml/AddAppDialog.qml:625 po/../qml/AddAppDialog.qml:647
-#: po/../qml/AddAppDialog.qml:655 po/../qml/AddAppDialog.qml:663
+#: po/../qml/AddAppDialog.qml:605 po/../qml/AddAppDialog.qml:616
+#: po/../qml/AddAppDialog.qml:646 po/../qml/AddAppDialog.qml:668
+#: po/../qml/AddAppDialog.qml:676 po/../qml/AddAppDialog.qml:684
 #: po/../qml/CorePickerDialog.qml:109 po/../qml/RunExeDialog.qml:55
 #: po/../qml/RunExeStandaloneDialog.qml:135
 msgid "All files (*)"
 msgstr "Сите датотеки (*)"
 
-#: po/../qml/AddAppDialog.qml:584 po/../qml/AddAppDialog.qml:595
+#: po/../qml/AddAppDialog.qml:605 po/../qml/AddAppDialog.qml:616
 #: po/../qml/RunExeDialog.qml:55 po/../qml/RunExeStandaloneDialog.qml:135
 msgid "Executables (*.exe)"
 msgstr "Извршни датотеки (*.exe)"
 
-#: po/../qml/AddAppDialog.qml:593
+#: po/../qml/AddAppDialog.qml:614
 msgid "Select installer (exe)"
 msgstr "Изберете инсталер (.exe)"
 
-#: po/../qml/AddAppDialog.qml:609
+#: po/../qml/AddAppDialog.qml:630
 msgid "Select ROM"
 msgstr "Изберете ROM"
 
-#: po/../qml/AddAppDialog.qml:623
+#: po/../qml/AddAppDialog.qml:644
 msgid "Select Icon"
 msgstr "Изберете икона"
 
-#: po/../qml/AddAppDialog.qml:625
+#: po/../qml/AddAppDialog.qml:646
 msgid "Images (*.png *.svg *.ico *.jpg)"
 msgstr "Слики (*.png *.svg *.ico *.jpg)"
 
-#: po/../qml/AddAppDialog.qml:631
+#: po/../qml/AddAppDialog.qml:652
 msgid "Select Proton Prefix Folder"
 msgstr "Изберете папка за Proton Префикс"
 
-#: po/../qml/AddAppDialog.qml:638
+#: po/../qml/AddAppDialog.qml:659
 msgid "Select Wine Prefix Folder"
 msgstr "Изберете папка за Wine Префикс"
 
-#: po/../qml/AddAppDialog.qml:645
+#: po/../qml/AddAppDialog.qml:666
 msgid "Select Grid Image"
 msgstr "Изберете Grid слика"
 
-#: po/../qml/AddAppDialog.qml:647 po/../qml/AddAppDialog.qml:655
-#: po/../qml/AddAppDialog.qml:663
+#: po/../qml/AddAppDialog.qml:668 po/../qml/AddAppDialog.qml:676
+#: po/../qml/AddAppDialog.qml:684
 msgid "Images (*.png *.jpg *.jpeg *.webp)"
 msgstr "Слики (*.png *.jpg *.jpeg *.webp)"
 
-#: po/../qml/AddAppDialog.qml:653
+#: po/../qml/AddAppDialog.qml:674
 msgid "Select Hero Image"
 msgstr "Изберете Hero слика"
 
-#: po/../qml/AddAppDialog.qml:661
+#: po/../qml/AddAppDialog.qml:682
 msgid "Select Logo Image"
 msgstr "Изберете Logo слика"
 
-#: po/../qml/AddAppDialog.qml:698
+#: po/../qml/AddAppDialog.qml:719
 msgid "Art downloaded!"
 msgstr "Визуелните елементи се преземени!"
 
-#: po/../qml/AppGridView.qml:91
+#: po/../qml/AppGridView.qml:102
 msgid "Stop"
 msgstr "Запри"
 
-#: po/../qml/AppGridView.qml:91 po/../qml/RommView.qml:189
+#: po/../qml/AppGridView.qml:102 po/../qml/RommView.qml:189
 msgid "Launch"
 msgstr "Стартувај"
 
-#: po/../qml/AppGridView.qml:106
+#: po/../qml/AppGridView.qml:117
 msgid "View in Steam"
 msgstr "Прикажи во Steam"
 
-#: po/../qml/AppGridView.qml:113 po/../qml/RommView.qml:219
+#: po/../qml/AppGridView.qml:124 po/../qml/RommView.qml:219
 msgid "Change Core…"
 msgstr "Промени јадро..."
 
-#: po/../qml/AppGridView.qml:126 po/../qml/RommView.qml:236
+#: po/../qml/AppGridView.qml:137 po/../qml/RommView.qml:236
 msgid "Copy Launch Command"
 msgstr "Копирај команда за стартување"
 
-#: po/../qml/AppGridView.qml:145
+#: po/../qml/AppGridView.qml:156
 msgid "Launch with logging"
 msgstr "Стартувај со запишување"
 
-#: po/../qml/AppGridView.qml:159
+#: po/../qml/AppGridView.qml:170
 msgid "Run another EXE in this prefix"
 msgstr "Стартувај друг EXE во овој префикс"
 
-#: po/../qml/AppGridView.qml:171
+#: po/../qml/AppGridView.qml:182
 msgid "Create shortcut"
 msgstr "Создај кратенка"
 
-#: po/../qml/AppGridView.qml:175
+#: po/../qml/AppGridView.qml:186
 msgid "Create start menu entry"
 msgstr "Создај ставка во стартното мени"
 
-#: po/../qml/AppGridView.qml:183
+#: po/../qml/AppGridView.qml:194
 msgid "Create desktop shortcut"
 msgstr "Создај кратенка на работната површина"
 
-#: po/../qml/AppGridView.qml:193
+#: po/../qml/AppGridView.qml:204
 msgid "&Wine Utilities"
 msgstr "&Wine алатки"
 
-#: po/../qml/AppGridView.qml:197
+#: po/../qml/AppGridView.qml:208
 msgid "Run Winecfg"
 msgstr "Стартувај Winecfg"
 
-#: po/../qml/AppGridView.qml:205
+#: po/../qml/AppGridView.qml:216
 msgid "Run Regedit"
 msgstr "Стартувај Regedit"
 
-#: po/../qml/AppGridView.qml:213
+#: po/../qml/AppGridView.qml:224
 msgid "Run Winetricks"
 msgstr "Стартувај Winetricks"
 
-#: po/../qml/AppGridView.qml:227
+#: po/../qml/AppGridView.qml:238
 msgid "Folders"
 msgstr "Папки"
 
-#: po/../qml/AppGridView.qml:233
+#: po/../qml/AppGridView.qml:244
 msgid "Open install folder"
 msgstr "Отвори папка за инсталација"
 
-#: po/../qml/AppGridView.qml:243 po/../qml/RommView.qml:231
+#: po/../qml/AppGridView.qml:254 po/../qml/RommView.qml:231
 msgid "Open log folder"
 msgstr "Отвори папка за дневник"
 
-#: po/../qml/AppGridView.qml:250
+#: po/../qml/AppGridView.qml:261
 msgid "Open prefix folder"
 msgstr "Отвори папка за prefix"
 
-#: po/../qml/AppGridView.qml:262
+#: po/../qml/AppGridView.qml:273
+msgid "Unhide"
+msgstr ""
+
+#: po/../qml/AppGridView.qml:273 po/../qml/Main.qml:430 po/../qml/Main.qml:749
+msgid "Hide"
+msgstr ""
+
+#: po/../qml/AppGridView.qml:282
 msgid "Edit"
 msgstr "Уреди"
 
-#: po/../qml/AppGridView.qml:267
-msgid "Remove"
-msgstr "Отстрани"
-
-#: po/../qml/AppGridView.qml:278
-msgid "Remove and Delete Prefix"
-msgstr "Отстрани и избриши префикс"
-
-#: po/../qml/AppGridView.qml:305
-msgid "Delete app and prefix?"
-msgstr "Да се избришат апликацијата и префиксот?"
-
-#: po/../qml/AppGridView.qml:318
-msgid ""
-"This permanently deletes the app and its prefix folder. This cannot be "
-"undone."
-msgstr "Ова трајно ги брише апликацијата и нејзината папка со префикс. Ова не може да се врати."
-
-#: po/../qml/AppGridView.qml:329
-msgid "Type DELETE to confirm."
-msgstr "Напишете DELETE за да потврдите."
-
-#: po/../qml/AppGridView.qml:334
-msgid "DELETE"
-msgstr "DELETE"
-
-#: po/../qml/AppGridView.qml:343
+#: po/../qml/AppGridView.qml:287 po/../qml/AppGridView.qml:353
 msgid "Delete"
 msgstr "Избриши"
 
-#: po/../qml/AppGridView.qml:364
+#: po/../qml/AppGridView.qml:315
+msgid "Delete app and prefix?"
+msgstr "Да се избришат апликацијата и префиксот?"
+
+#: po/../qml/AppGridView.qml:328
+msgid ""
+"This permanently deletes the app and its prefix folder. This cannot be "
+"undone."
+msgstr ""
+"Ова трајно ги брише апликацијата и нејзината папка со префикс. Ова не може "
+"да се врати."
+
+#: po/../qml/AppGridView.qml:339
+msgid "Type DELETE to confirm."
+msgstr "Напишете DELETE за да потврдите."
+
+#: po/../qml/AppGridView.qml:344
+msgid "DELETE"
+msgstr "DELETE"
+
+#: po/../qml/AppGridView.qml:374
+#, fuzzy
+msgid "Delete app?"
+msgstr "Да се избрише апликацијата?"
+
+#: po/../qml/AppGridView.qml:375
+msgid "Choose what to delete."
+msgstr ""
+
+#: po/../qml/AppGridView.qml:380
+#, fuzzy
+msgid "Delete App"
+msgstr "Избриши"
+
+#: po/../qml/AppGridView.qml:390
+#, fuzzy
+msgid "Delete App and Prefix"
+msgstr "Да се избришат апликацијата и префиксот?"
+
+#: po/../qml/AppGridView.qml:411
 msgid "Delete the app?"
 msgstr "Да се избрише апликацијата?"
 
-#: po/../qml/AppGridView.qml:365
+#: po/../qml/AppGridView.qml:412
 msgid "This will delete the app from the library."
 msgstr "Ова ќе ја избрише апликацијата од библиотеката."
 
-#: po/../qml/AppGridView.qml:365
+#: po/../qml/AppGridView.qml:412
 msgid "This will delete the app but preserve the prefix folder."
 msgstr "Ова ќе ја избрише апликацијата, но ќе ја зачува папката со префиксот."
 
-#: po/../qml/AppGridView.qml:375
+#: po/../qml/AppGridView.qml:422
 msgid "Winetricks not found"
 msgstr "Winetricks не е пронајден"
 
-#: po/../qml/AppGridView.qml:376
+#: po/../qml/AppGridView.qml:423
 msgid ""
 "Winetricks is not installed on your system. Please install it using your "
 "package manager."
@@ -444,19 +473,19 @@ msgstr ""
 "Winetricks не е инсталиран на вашиот систем. Инсталирајте го преку вашиот "
 "менаџер на пакети."
 
-#: po/../qml/AppGridView.qml:384
+#: po/../qml/AppGridView.qml:431
 msgid "No apps or games found"
 msgstr "Не се пронајдени апликации или игри"
 
-#: po/../qml/AppGridView.qml:384
+#: po/../qml/AppGridView.qml:431
 msgid "No apps or games added yet"
 msgstr "Сè уште нема додадено апликации или игри"
 
-#: po/../qml/AppGridView.qml:385
+#: po/../qml/AppGridView.qml:432
 msgid "Try a different search term"
 msgstr "Пробајте со друг термин за пребарување"
 
-#: po/../qml/AppGridView.qml:385
+#: po/../qml/AppGridView.qml:432
 msgid "Click \"Add App/Game\" to get started"
 msgstr "Кликнете „Додади апликација/игра“ за да започнете"
 
@@ -508,7 +537,7 @@ msgstr ""
 msgid "Copy command"
 msgstr "Копирај команда"
 
-#: po/../qml/GogImportDialog.qml:10 po/../qml/Main.qml:352
+#: po/../qml/GogImportDialog.qml:10 po/../qml/Main.qml:388
 msgid "Import GOG games"
 msgstr "Увези GOG игри"
 
@@ -516,6 +545,8 @@ msgstr "Увези GOG игри"
 msgid "Import Selected"
 msgstr "Увези избрани"
 
+#: po/../qml/GogImportDialog.qml:30 po/../qml/SteamGridDBPickerDialog.qml:357
+#: po/../qml/SteamImportDialog.qml:22
 msgid "Close"
 msgstr "Затвори"
 
@@ -543,6 +574,7 @@ msgstr "Папка со GOG игри..."
 msgid "Search GOG games…"
 msgstr "Пребарајте GOG игри..."
 
+#: po/../qml/GogImportDialog.qml:177 po/../qml/SteamImportDialog.qml:132
 msgid "Scanning…"
 msgstr "Скенирање..."
 
@@ -570,9 +602,11 @@ msgstr "Деселектирај сè"
 msgid "Imported"
 msgstr "Увезено"
 
+#: po/../qml/GogImportDialog.qml:260 po/../qml/GogView.qml:365
 msgid "Windows"
 msgstr "Windows"
 
+#: po/../qml/GogImportDialog.qml:260 po/../qml/GogView.qml:370
 msgid "Linux"
 msgstr "Linux"
 
@@ -590,7 +624,8 @@ msgstr "Не е пронајдена верзија на Wine. Додадете 
 
 #: po/../qml/GogView.qml:131
 msgid "No Proton version found. Download GE Proton in Settings first."
-msgstr "Не е пронајдена верзија на Proton. Преземете GE Proton во Поставки прво."
+msgstr ""
+"Не е пронајдена верзија на Proton. Преземете GE Proton во Поставки прво."
 
 #: po/../qml/GogView.qml:153 po/../qml/GogView.qml:176
 msgid "GOG error: %1"
@@ -610,7 +645,8 @@ msgstr "Преземањето не произведе датотека со и�
 
 #: po/../qml/GogView.qml:223
 msgid "Download error: %1 (you can retry to resume)"
-msgstr "Грешка при преземање: %1 (можете да се обидете повторно за да продолжите)"
+msgstr ""
+"Грешка при преземање: %1 (можете да се обидете повторно за да продолжите)"
 
 #: po/../qml/GogView.qml:242
 msgid "%1 was not installed."
@@ -682,8 +718,8 @@ msgid ""
 "%1 will open its installer. Keep the default location (C:\\GOG Games) or use "
 "C:\\game so it can be imported automatically."
 msgstr ""
-"%1 ќе го отвори својот инсталер. Задржете ја стандардната локација (C:\\GOG Games) или користете "
-"C:\\game за да може да се увезе автоматски."
+"%1 ќе го отвори својот инсталер. Задржете ја стандардната локација (C:\\GOG "
+"Games) или користете C:\\game за да може да се увезе автоматски."
 
 #: po/../qml/GogView.qml:526
 msgid "Wine required"
@@ -694,8 +730,8 @@ msgid ""
 "Installing GOG games needs Wine, but none was found. Download a build to "
 "continue, then start the installation again."
 msgstr ""
-"Инсталирањето на GOG игри бара Wine, но не е пронајден. Преземете издание за да "
-"продолжите, потоа започнете ја инсталацијата повторно."
+"Инсталирањето на GOG игри бара Wine, но не е пронајден. Преземете издание за "
+"да продолжите, потоа започнете ја инсталацијата повторно."
 
 #: po/../qml/GogView.qml:540
 msgid "Download Wine (Wow64)"
@@ -737,7 +773,8 @@ msgid ""
 msgstr ""
 "1. Кликнете на копчето погоре и најавете се на GOG.\n"
 "2. По најавувањето ќе се најдете на празна страница.\n"
-"3. Копирајте ја целосната адреса на таа страница од прелистувачот и залепете ја подолу."
+"3. Копирајте ја целосната адреса на таа страница од прелистувачот и залепете "
+"ја подолу."
 
 #: po/../qml/GogView.qml:631
 msgid "Paste the redirect URL here…"
@@ -747,6 +784,7 @@ msgstr "Залепете го URL-то за пренасочување овде.
 msgid "Games"
 msgstr "Игри"
 
+#: po/../qml/Main.qml:46 po/../qml/SettingsDialog.qml:288
 msgid "RomM"
 msgstr "RomM"
 
@@ -770,123 +808,153 @@ msgstr "Добредојдовте во Vermouth"
 msgid "Switch view type"
 msgstr "Промени тип на приказ"
 
-#: po/../qml/Main.qml:252 po/../qml/Main.qml:726
+#: po/../qml/Main.qml:252 po/../qml/Main.qml:786
 msgid "Icon view"
 msgstr "Приказ со икони"
 
-#: po/../qml/Main.qml:259 po/../qml/Main.qml:737
+#: po/../qml/Main.qml:259 po/../qml/Main.qml:797
 msgid "Cover art view"
 msgstr "Приказ со корици"
 
-#: po/../qml/Main.qml:266 po/../qml/Main.qml:748
+#: po/../qml/Main.qml:266 po/../qml/Main.qml:808
 msgid "Hero art view"
 msgstr "Приказ со херој"
 
-#: po/../qml/Main.qml:274 po/../qml/Main.qml:759
+#: po/../qml/Main.qml:274 po/../qml/Main.qml:819
 msgid "Show names"
 msgstr "Прикажи имиња"
 
-#: po/../qml/Main.qml:337 po/../qml/WelcomeScreen.qml:132
+#: po/../qml/Main.qml:311 po/../qml/Main.qml:828 po/../qml/Main.qml:834
+msgid "Sort By"
+msgstr ""
+
+#: po/../qml/Main.qml:314 po/../qml/Main.qml:837
+#, fuzzy
+msgid "Name"
+msgstr "Име:"
+
+#: po/../qml/Main.qml:320 po/../qml/Main.qml:843 po/../qml/RuntimePicker.qml:13
+msgid "Runtime"
+msgstr "Извршно опкружување"
+
+#: po/../qml/Main.qml:326 po/../qml/Main.qml:849
+msgid "Date Added"
+msgstr ""
+
+#: po/../qml/Main.qml:333 po/../qml/Main.qml:856
+msgid "A–Z"
+msgstr ""
+
+#: po/../qml/Main.qml:339 po/../qml/Main.qml:862
+msgid "Z–A"
+msgstr ""
+
+#: po/../qml/Main.qml:373 po/../qml/WelcomeScreen.qml:132
 msgid "Add a Game"
 msgstr "Додади игра"
 
-#: po/../qml/Main.qml:342
+#: po/../qml/Main.qml:378
 msgid "Run a Standalone EXE"
 msgstr "Стартувај самостоен EXE"
 
-#: po/../qml/Main.qml:347 po/../qml/SteamImportDialog.qml:8
+#: po/../qml/Main.qml:383 po/../qml/SteamImportDialog.qml:8
 #: po/../qml/WelcomeScreen.qml:137
 msgid "Import from Steam"
 msgstr "Увези од Steam"
 
-#: po/../qml/Main.qml:357 po/../qml/Main.qml:701
+#: po/../qml/Main.qml:393 po/../qml/Main.qml:761
 msgid "Allow Sleep"
 msgstr "Дозволи спиење"
 
-#: po/../qml/Main.qml:357 po/../qml/Main.qml:701
+#: po/../qml/Main.qml:393 po/../qml/Main.qml:761
 msgid "Prevent Sleep"
 msgstr "Спречи спиење"
 
-#: po/../qml/Main.qml:362 po/../qml/Main.qml:714
+#: po/../qml/Main.qml:398 po/../qml/Main.qml:774
 msgid "Disable HDR"
 msgstr "Оневозможи HDR"
 
-#: po/../qml/Main.qml:362 po/../qml/Main.qml:714
+#: po/../qml/Main.qml:398 po/../qml/Main.qml:774
 msgid "Enable HDR"
 msgstr "Овозможи HDR"
 
-#: po/../qml/Main.qml:369
+#: po/../qml/Main.qml:405
 msgid "Lights On"
 msgstr "Светла вклучени"
 
-#: po/../qml/Main.qml:369
+#: po/../qml/Main.qml:405
 msgid "Lights Out"
 msgstr "Светла исклучени"
 
-#: po/../qml/Main.qml:375
+#: po/../qml/Main.qml:411
 msgid "Exit Big Picture"
 msgstr "Излез од голема слика"
 
-#: po/../qml/Main.qml:375
+#: po/../qml/Main.qml:411
 msgid "Big Picture"
 msgstr "Голема слика"
 
-#: po/../qml/Main.qml:394
+#: po/../qml/Main.qml:430 po/../qml/Main.qml:749
+msgid "Show Hidden"
+msgstr ""
+
+#: po/../qml/Main.qml:438
 msgid "&Settings"
 msgstr "&Поставки"
 
-#: po/../qml/Main.qml:402
+#: po/../qml/Main.qml:446
 msgid "&About Vermouth"
 msgstr "&За Vermouth"
 
-#: po/../qml/Main.qml:407
+#: po/../qml/Main.qml:451
 msgid "Quit"
 msgstr "Излез"
 
-#: po/../qml/Main.qml:427
+#: po/../qml/Main.qml:476
 msgid "Unpin sidebar"
 msgstr "Откачи странична лента"
 
-#: po/../qml/Main.qml:427
+#: po/../qml/Main.qml:476
 msgid "Pin sidebar"
 msgstr "Закачи странична лента"
 
+#: po/../qml/Main.qml:529 po/../qml/SteamGridDBPickerDialog.qml:336
 msgid "Back"
 msgstr "Назад"
 
-#: po/../qml/Main.qml:539
+#: po/../qml/Main.qml:589
 msgid "Select platform…"
 msgstr "Изберете платформа..."
 
-#: po/../qml/Main.qml:597
+#: po/../qml/Main.qml:647
 msgid "Save"
 msgstr "Зачувај"
 
-#: po/../qml/Main.qml:601
+#: po/../qml/Main.qml:651
 msgid "Settings saved"
 msgstr "Поставките се зачувани"
 
-#: po/../qml/Main.qml:759
+#: po/../qml/Main.qml:819
 msgid "Hide names"
 msgstr "Сокриј ги имињата"
 
-#: po/../qml/Main.qml:816
+#: po/../qml/Main.qml:922
 msgid "Open Executable"
 msgstr "Отвори извршна датотека"
 
-#: po/../qml/Main.qml:821 po/../qml/RunExeStandaloneDialog.qml:9
+#: po/../qml/Main.qml:927 po/../qml/RunExeStandaloneDialog.qml:9
 msgid "Run Standalone"
 msgstr "Стартување самостојно"
 
-#: po/../qml/Main.qml:829
+#: po/../qml/Main.qml:935
 msgid "Add to Library"
 msgstr "Додади во библиотека"
 
-#: po/../qml/Main.qml:842
+#: po/../qml/Main.qml:948
 msgid "Prefix not ready"
 msgstr "Prefix не е подготвен"
 
-#: po/../qml/Main.qml:843
+#: po/../qml/Main.qml:949
 msgid ""
 "The prefix for \"%1\" has not been created yet. Please launch the game at "
 "least once first."
@@ -894,27 +962,27 @@ msgstr ""
 "Префикс за \"%1\" сè уште не е создаден. Ве молиме стартувајте ја играта "
 "барем еднаш прво."
 
-#: po/../qml/Main.qml:871
+#: po/../qml/Main.qml:977
 msgid "%1 ROMs"
 msgstr "%1 ROM-ови"
 
-#: po/../qml/Main.qml:880
+#: po/../qml/Main.qml:986
 msgid "%1 — %2 games"
 msgstr "%1 — %2 игри"
 
-#: po/../qml/Main.qml:902
+#: po/../qml/Main.qml:1008
 msgid "%1 - %2"
 msgstr "%1 — %2"
 
-#: po/../qml/Main.qml:1082
+#: po/../qml/Main.qml:1188
 msgid "Launched: %1"
 msgstr "Стартувано: %1"
 
-#: po/../qml/Main.qml:1085
+#: po/../qml/Main.qml:1191
 msgid "Error launching: %1"
 msgstr "Грешка: %1"
 
-#: po/../qml/Main.qml:1141
+#: po/../qml/Main.qml:1247
 msgid "Auto downloading: %1"
 msgstr "Автоматско преземање: %1"
 
@@ -1010,10 +1078,6 @@ msgstr "Опции"
 msgid "e.g ENV_VAR1=2"
 msgstr "пр. ENV_VAR1=2"
 
-#: po/../qml/RuntimePicker.qml:13
-msgid "Runtime"
-msgstr "Извршно опкружување"
-
 #: po/../qml/RuntimePicker.qml:90
 msgid "Please select a Proton version."
 msgstr "Изберете верзија на Proton."
@@ -1050,7 +1114,7 @@ msgstr "Освежи листа на верзии на Proton"
 msgid "Download Proton build"
 msgstr "Преземи Proton издание"
 
-#: po/../qml/RuntimePicker.qml:250 po/../qml/SettingsDialog.qml:240
+#: po/../qml/RuntimePicker.qml:250 po/../qml/SettingsDialog.qml:243
 msgid "Download latest GE Proton"
 msgstr "Преземи ја најновата GE Proton"
 
@@ -1138,330 +1202,341 @@ msgid ""
 msgstr ""
 "Ова е папката каде Vermouth ги складира сите создадени префикси стандардно."
 
-#: po/../qml/SettingsDialog.qml:177
+#: po/../qml/SettingsDialog.qml:178
 msgid "Default Proton Prefix:"
 msgstr "Стандарден Proton префикс:"
 
-#: po/../qml/SettingsDialog.qml:181
+#: po/../qml/SettingsDialog.qml:182
 msgid "Auto-generate per Proton game"
 msgstr "Автоматско генерирање за секоја Proton игра"
 
-#: po/../qml/SettingsDialog.qml:188
+#: po/../qml/SettingsDialog.qml:189
 msgid ""
 "Set this if you want all Proton games to share a single prefix (e.g. one "
 "Proton environment for everything). Leave empty to auto-generate a separate "
 "prefix per game. You can still use separate prefix per game, but you have to "
 "set it explicitly."
 msgstr ""
-"Поставете го ова ако сакате сите Proton игри да споделуваат еден префикс (пр. едно "
-"Proton опкружување за сè). Оставете празно за автоматско генерирање на посебен префикс за секоја игра. Сепак може да користите посебен префикс по игра, но мора да го поставите рачно."
+"Поставете го ова ако сакате сите Proton игри да споделуваат еден префикс "
+"(пр. едно Proton опкружување за сè). Оставете празно за автоматско "
+"генерирање на посебен префикс за секоја игра. Сепак може да користите "
+"посебен префикс по игра, но мора да го поставите рачно."
 
-#: po/../qml/SettingsDialog.qml:194
+#: po/../qml/SettingsDialog.qml:196
 msgid "Default Wine Prefix:"
 msgstr "Стандарден Wine префикс:"
 
-#: po/../qml/SettingsDialog.qml:198
+#: po/../qml/SettingsDialog.qml:200
 msgid "Auto-generate per Wine game"
 msgstr "Автоматско генерирање за секоја Wine игра"
 
-#: po/../qml/SettingsDialog.qml:205
+#: po/../qml/SettingsDialog.qml:207
 msgid ""
 "Set this if you want all Wine games to share a single prefix. Leave empty to "
 "auto-generate a separate Wine prefix per game under the 'wines/' subfolder."
 msgstr ""
-"Поставете го ова ако сакате сите Wine игри да споделуваат еден префикс. Оставете празно за автоматско генерирање на посебен Wine префикс за секоја игра во подпапката 'wines/'."
+"Поставете го ова ако сакате сите Wine игри да споделуваат еден префикс. "
+"Оставете празно за автоматско генерирање на посебен Wine префикс за секоја "
+"игра во подпапката 'wines/'."
 
-#: po/../qml/SettingsDialog.qml:211
+#: po/../qml/SettingsDialog.qml:214
 msgid "Vermouth Proton Folder"
 msgstr "Папка за Vermouth Proton"
 
-#: po/../qml/SettingsDialog.qml:216
+#: po/../qml/SettingsDialog.qml:219
 msgid ""
 "Download GE Proton to run most games and apps — no Steam or manual setup "
 "needed."
 msgstr ""
-"Преземете GE Proton за да стартувате повеќето игри и апликации — не е потребен Steam или рачно поставување."
+"Преземете GE Proton за да стартувате повеќето игри и апликации — не е "
+"потребен Steam или рачно поставување."
 
-#: po/../qml/SettingsDialog.qml:227
+#: po/../qml/SettingsDialog.qml:230
 msgid "GE Proton:"
 msgstr "GE Proton:"
 
-#: po/../qml/SettingsDialog.qml:230
+#: po/../qml/SettingsDialog.qml:233
 msgid "Open Vermouth Proton folder"
 msgstr "Отвори папка за Vermouth Proton"
 
-#: po/../qml/SettingsDialog.qml:236
+#: po/../qml/SettingsDialog.qml:239
 msgid "Download Latest GE Proton"
 msgstr "Преземи ја најновата GE Proton"
 
-#: po/../qml/SettingsDialog.qml:247
+#: po/../qml/SettingsDialog.qml:250
 msgid "SteamGridDB"
 msgstr "SteamGridDB"
 
-#: po/../qml/SettingsDialog.qml:252
+#: po/../qml/SettingsDialog.qml:255
 msgid ""
 "SteamGridDB API key is required to download game art. You can get a free key "
 "from steamgriddb.com/profile/preferences/api"
 msgstr ""
-"SteamGridDB API клуч е потребен за преземање на визуелни елементи за игри. Можете да добиете бесплатен клуч од "
-"steamgriddb.com/profile/preferences/api"
+"SteamGridDB API клуч е потребен за преземање на визуелни елементи за игри. "
+"Можете да добиете бесплатен клуч од steamgriddb.com/profile/preferences/api"
 
-#: po/../qml/SettingsDialog.qml:263 po/../qml/SettingsDialog.qml:307
+#: po/../qml/SettingsDialog.qml:266 po/../qml/SettingsDialog.qml:311
 msgid "API Key:"
 msgstr "API клуч:"
 
-#: po/../qml/SettingsDialog.qml:266
+#: po/../qml/SettingsDialog.qml:269
 msgid "Paste your SteamGridDB API key"
 msgstr "Залепете го вашиот SteamGridDB API клуч"
 
-#: po/../qml/SettingsDialog.qml:271
+#: po/../qml/SettingsDialog.qml:274
 msgid "Auto-download Art:"
 msgstr "Автоматско преземање на визуелни елементи:"
 
-#: po/../qml/SettingsDialog.qml:278
+#: po/../qml/SettingsDialog.qml:281
 msgid "Automatically download icon, grid, hero and logo when adding a game."
 msgstr "Автоматски преземање на икона, grid, hero и logo при додавање на игра."
 
-#: po/../qml/SettingsDialog.qml:289
+#: po/../qml/SettingsDialog.qml:293
 msgid ""
 "RomM is a self-hosted ROM manager. Set your server URL and API key to browse "
 "and launch ROMs via RetroArch."
 msgstr ""
-"RomM е само-хостиран менаџер за ROM-ови. Поставете го URL-то на серверот и API клучот за да прелистувате "
-"и стартувате ROM-ови преку RetroArch."
+"RomM е само-хостиран менаџер за ROM-ови. Поставете го URL-то на серверот и "
+"API клучот за да прелистувате и стартувате ROM-ови преку RetroArch."
 
-#: po/../qml/SettingsDialog.qml:300
+#: po/../qml/SettingsDialog.qml:304
 msgid "Server URL:"
 msgstr "URL на сервер:"
 
-#: po/../qml/SettingsDialog.qml:310
+#: po/../qml/SettingsDialog.qml:314
 msgid "Your RomM API key"
 msgstr "Вашиот RomM API клуч"
 
-#: po/../qml/SettingsDialog.qml:315
+#: po/../qml/SettingsDialog.qml:319
 msgid "ROM Cache Folder:"
 msgstr "Папка за ROM кеш:"
 
-#: po/../qml/SettingsDialog.qml:319
+#: po/../qml/SettingsDialog.qml:323
 msgid "Default: AppData/romm"
 msgstr "Стандардно: AppData/romm"
 
+#: po/../qml/SettingsDialog.qml:333
 msgid "GOG"
 msgstr "GOG"
 
-#: po/../qml/SettingsDialog.qml:334
+#: po/../qml/SettingsDialog.qml:338
 msgid ""
 "Log in from the GOG Library tab to browse and install your owned GOG games."
-msgstr "Најавете се од GOG библиотека табот за да прелистувате и инсталирате ваши GOG игри."
+msgstr ""
+"Најавете се од GOG библиотека табот за да прелистувате и инсталирате ваши "
+"GOG игри."
 
-#: po/../qml/SettingsDialog.qml:345
+#: po/../qml/SettingsDialog.qml:349
 msgid "Account:"
 msgstr "Акаунт:"
 
-#: po/../qml/SettingsDialog.qml:349
+#: po/../qml/SettingsDialog.qml:353
 msgid "Logged in as %1"
 msgstr "Најавен како %1"
 
-#: po/../qml/SettingsDialog.qml:349
+#: po/../qml/SettingsDialog.qml:353
 msgid "Logged in"
 msgstr "Најавен"
 
-#: po/../qml/SettingsDialog.qml:349
+#: po/../qml/SettingsDialog.qml:353
 msgid "Not logged in"
 msgstr "Не е најавен"
 
-#: po/../qml/SettingsDialog.qml:352
+#: po/../qml/SettingsDialog.qml:356
 msgid "Log out"
 msgstr "Одјави се"
 
-#: po/../qml/SettingsDialog.qml:361
+#: po/../qml/SettingsDialog.qml:365
 msgid "Download Folder:"
 msgstr "Папка за преземање:"
 
-#: po/../qml/SettingsDialog.qml:365
+#: po/../qml/SettingsDialog.qml:369
 msgid "Default: ~/Gog Games/.cache"
 msgstr "Стандардно: ~/GOG Games/.cache"
 
-#: po/../qml/SettingsDialog.qml:372
+#: po/../qml/SettingsDialog.qml:376
 msgid "Where GOG installers are downloaded before installation."
 msgstr "Каде се преземаат GOG инсталерите пред инсталација."
 
-#: po/../qml/SettingsDialog.qml:378
+#: po/../qml/SettingsDialog.qml:383
 msgid "Install Folder:"
 msgstr "Папка за инсталација:"
 
-#: po/../qml/SettingsDialog.qml:382
+#: po/../qml/SettingsDialog.qml:387
 msgid "Default: ~/GOG Games"
 msgstr "Стандардно: ~/GOG Games"
 
-#: po/../qml/SettingsDialog.qml:389
+#: po/../qml/SettingsDialog.qml:394
 msgid "Where GOG games are installed."
 msgstr "Каде се инсталираат GOG игрите."
 
+#: po/../qml/SettingsDialog.qml:401
 msgid "RetroArch"
 msgstr "RetroArch"
 
-#: po/../qml/SettingsDialog.qml:400
+#: po/../qml/SettingsDialog.qml:406
 msgid ""
 "RetroArch is used to launch ROMs. It will be auto-detected if installed in "
 "your PATH or as a Flatpak."
 msgstr ""
-"RetroArch се користи за стартување на ROM-ови. Ќе биде автоматски откриен ако е инсталиран во "
-"вашиот PATH или како Flatpak."
+"RetroArch се користи за стартување на ROM-ови. Ќе биде автоматски откриен "
+"ако е инсталиран во вашиот PATH или како Flatpak."
 
-#: po/../qml/SettingsDialog.qml:417
+#: po/../qml/SettingsDialog.qml:423
 msgid "RetroArch binary:"
 msgstr "RetroArch бинарна датотека:"
 
-#: po/../qml/SettingsDialog.qml:421
+#: po/../qml/SettingsDialog.qml:427
 msgid "Auto-detect"
 msgstr "Автоматско откривање"
 
-#: po/../qml/SettingsDialog.qml:429
+#: po/../qml/SettingsDialog.qml:435
 msgid "Auto-detect RetroArch"
 msgstr "Автоматско откривање на RetroArch"
 
-#: po/../qml/SettingsDialog.qml:442
+#: po/../qml/SettingsDialog.qml:448
 msgid "Extra Proton Scan Paths"
 msgstr "Дополнителни патеки за скенирање на Proton"
 
-#: po/../qml/SettingsDialog.qml:447
+#: po/../qml/SettingsDialog.qml:453
 msgid ""
 "Folders to scan for Proton installations, in addition to Steam and local "
 "paths."
 msgstr ""
 "Папки за скенирање на Proton инсталации, покрај Steam и локалните патеки."
 
-#: po/../qml/SettingsDialog.qml:457
+#: po/../qml/SettingsDialog.qml:463
 msgid "Scan Folders:"
 msgstr "Папки за скенирање:"
 
-#: po/../qml/SettingsDialog.qml:479
+#: po/../qml/SettingsDialog.qml:485
 msgid "Add Path..."
 msgstr "Додади патека..."
 
-#: po/../qml/SettingsDialog.qml:487
+#: po/../qml/SettingsDialog.qml:493
 msgid "Global Environment Variables"
 msgstr "Глобални променливи на опкружувањето"
 
-#: po/../qml/SettingsDialog.qml:492
+#: po/../qml/SettingsDialog.qml:498
 msgid "Applied to every game. Per-game launch options can override these."
 msgstr ""
 "Се применуваат на секоја игра. Опциите за секоја игра можат да ги заменат."
 
-#: po/../qml/SettingsDialog.qml:502
+#: po/../qml/SettingsDialog.qml:508
 msgid "Variables:"
 msgstr "Променливи:"
 
-#: po/../qml/SettingsDialog.qml:510
+#: po/../qml/SettingsDialog.qml:516
 msgid "KEY"
 msgstr "КЛУЧ"
 
-#: po/../qml/SettingsDialog.qml:519
+#: po/../qml/SettingsDialog.qml:525
 msgid "value"
 msgstr "вредност"
 
-#: po/../qml/SettingsDialog.qml:532
+#: po/../qml/SettingsDialog.qml:538
 msgid "Add Variable"
 msgstr "Додади променлива"
 
-#: po/../qml/SettingsDialog.qml:543
+#: po/../qml/SettingsDialog.qml:549
 msgid "Appearance"
 msgstr "Изглед"
 
-#: po/../qml/SettingsDialog.qml:548
+#: po/../qml/SettingsDialog.qml:554
 msgid "Alt. Grid background:"
 msgstr "Алт. позадина на приказ:"
 
-#: po/../qml/SettingsDialog.qml:554
+#: po/../qml/SettingsDialog.qml:560
 msgid ""
 "Use the alternative background color for the grid view. It's lighter on "
 "Breeze light and darker on Breeze dark."
 msgstr ""
-"Користете алтернативна боја на позадина за приказот со решетка. Посветла е на "
-"Breeze светла и потемна на Breeze темна."
+"Користете алтернативна боја на позадина за приказот со решетка. Посветла е "
+"на Breeze светла и потемна на Breeze темна."
 
-#: po/../qml/SettingsDialog.qml:560
+#: po/../qml/SettingsDialog.qml:567
 msgid "Lights Out:"
 msgstr "Светла исклучени:"
 
-#: po/../qml/SettingsDialog.qml:569
+#: po/../qml/SettingsDialog.qml:576
 msgid "Background Color:"
 msgstr "Боја на позадина:"
 
-#: po/../qml/SettingsDialog.qml:592
+#: po/../qml/SettingsDialog.qml:599
 msgid "Reset"
 msgstr "Ресетирај"
 
-#: po/../qml/SettingsDialog.qml:600
+#: po/../qml/SettingsDialog.qml:607
 msgid "Tips"
 msgstr "Совети"
 
-#: po/../qml/SettingsDialog.qml:605
+#: po/../qml/SettingsDialog.qml:612
 msgid "Show Tips:"
 msgstr "Прикажувај совети:"
 
-#: po/../qml/SettingsDialog.qml:611
+#: po/../qml/SettingsDialog.qml:618
 msgid "Show helpful prompts like the Steam import suggestion on first launch."
-msgstr "Прикажувај корисни предлози како сугестијата за Steam увоз при прво стартување."
+msgstr ""
+"Прикажувај корисни предлози како сугестијата за Steam увоз при прво "
+"стартување."
 
-#: po/../qml/SettingsDialog.qml:617
+#: po/../qml/SettingsDialog.qml:625
 msgid "Gamepad"
 msgstr "Гејмпад"
 
-#: po/../qml/SettingsDialog.qml:622
+#: po/../qml/SettingsDialog.qml:630
 msgid "Fullscreen Toggle:"
 msgstr "Цел екран:"
 
-#: po/../qml/SettingsDialog.qml:625
+#: po/../qml/SettingsDialog.qml:633
 msgid "Guide (default)"
 msgstr "Guide (стандардно)"
 
-#: po/../qml/SettingsDialog.qml:629
+#: po/../qml/SettingsDialog.qml:637
 msgid "Select + L2"
 msgstr "Select + L2"
 
-#: po/../qml/SettingsDialog.qml:633
+#: po/../qml/SettingsDialog.qml:641
 msgid "L3 + R3"
 msgstr "L3 + R3"
 
-#: po/../qml/SettingsDialog.qml:645
+#: po/../qml/SettingsDialog.qml:653
 msgid "Select umu-run binary"
 msgstr "Изберете umu-run бинарна датотека"
 
-#: po/../qml/SettingsDialog.qml:652
+#: po/../qml/SettingsDialog.qml:660
 msgid "Select Default Prefix Folder"
 msgstr "Изберете стандардна папка за prefix"
 
-#: po/../qml/SettingsDialog.qml:659
+#: po/../qml/SettingsDialog.qml:667
 msgid "Select Default App/Game Prefix"
 msgstr "Изберете стандарден prefix за апликација/игра"
 
-#: po/../qml/SettingsDialog.qml:666
+#: po/../qml/SettingsDialog.qml:674
 msgid "Select Default Wine Prefix"
 msgstr "Изберете стандарден Wine префикс"
 
-#: po/../qml/SettingsDialog.qml:673
+#: po/../qml/SettingsDialog.qml:681
 msgid "Select Proton Scan Folder"
 msgstr "Изберете папка за скенирање на Proton"
 
-#: po/../qml/SettingsDialog.qml:686
+#: po/../qml/SettingsDialog.qml:694
 msgid "Select RetroArch binary"
 msgstr "Изберете RetroArch бинарна датотека"
 
-#: po/../qml/SettingsDialog.qml:693
+#: po/../qml/SettingsDialog.qml:701
 msgid "Select ROM Cache Folder"
 msgstr "Изберете папка за ROM кеш"
 
-#: po/../qml/SettingsDialog.qml:700
+#: po/../qml/SettingsDialog.qml:708
 msgid "Select GOG Download Folder"
 msgstr "Изберете папка за GOG преземање"
 
-#: po/../qml/SettingsDialog.qml:707
+#: po/../qml/SettingsDialog.qml:715
 msgid "Select GOG Install Folder"
 msgstr "Изберете папка за GOG инсталација"
 
-#: po/../qml/SettingsDialog.qml:714
+#: po/../qml/SettingsDialog.qml:722
 msgid "Select Background Color"
 msgstr "Изберете боја на позадина"
 
@@ -1514,12 +1589,14 @@ msgid ""
 "Welcome to Vermouth! This screen will help you get set up for playing your "
 "games."
 msgstr ""
-"Добредојдовте во Vermouth! Овој екран ќе ви помогне да се подготвите за играње на вашите "
-"игри."
+"Добредојдовте во Vermouth! Овој екран ќе ви помогне да се подготвите за "
+"играње на вашите игри."
 
 #: po/../qml/WelcomeScreen.qml:43
 msgid "Start by downloading a Proton runtime for Windows game support."
-msgstr "Започнете со преземање на Proton извршно опкружување за поддршка на Windows игри."
+msgstr ""
+"Започнете со преземање на Proton извршно опкружување за поддршка на Windows "
+"игри."
 
 #: po/../qml/WelcomeScreen.qml:64
 msgid "umu-launcher helps your games run better. Highly recommended."
@@ -1538,8 +1615,9 @@ msgid ""
 "Game covers make your library look amazing. Get a free SteamGridDB account "
 "and add your API key in Settings to auto-download artwork."
 msgstr ""
-"Кориците на игри ја прават вашата библиотека да изгледа неверојатно. Отворете бесплатен SteamGridDB акаунт "
-"и додадете го вашиот API клуч во Поставки за автоматско преземање на визуелни елементи."
+"Кориците на игри ја прават вашата библиотека да изгледа неверојатно. "
+"Отворете бесплатен SteamGridDB акаунт и додадете го вашиот API клуч во "
+"Поставки за автоматско преземање на визуелни елементи."
 
 #: po/../qml/WelcomeScreen.qml:106
 msgid "Open Settings"
@@ -1556,3 +1634,9 @@ msgstr "Не ми прикажувај совети"
 #: po/../qml/WelcomeScreen.qml:165
 msgid "Get Started"
 msgstr "Започнете"
+
+#~ msgid "Remove"
+#~ msgstr "Отстрани"
+
+#~ msgid "Remove and Delete Prefix"
+#~ msgstr "Отстрани и избриши префикс"
