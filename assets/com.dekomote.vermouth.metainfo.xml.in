@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="2.0.1" date="2026-08-05">
+        <description>
+          <p>This release adds the UZDOOM runtime, the Default Runtime feature, the Sort feature and several minor fixes/QoL addons.</p>
+        </description>
+    </release>
     <release version="1.9.7" date="2026-07-15">
         <description>
           <p>This release adds the Hide feature - the ability to hide games and toggle visibility. It also changes the deletion workflow.</p>
