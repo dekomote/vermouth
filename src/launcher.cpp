@@ -71,6 +71,11 @@ void Launcher::setRetroarchPath(const QString &path)
     cacheRetroarchBinary();
 }
 
+void Launcher::setUzdoomPath(const QString &path)
+{
+    m_uzdoomPath = path;
+}
+
 void Launcher::setRommCoreMap(const QVariantMap &map)
 {
     m_rommCoreMap = map;
@@ -446,6 +451,27 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         rom[QStringLiteral("romId")] = 0;
         launchRom(rom, logging, opts);
         return -1;
+    }
+
+    if (runtimeType == QStringLiteral("uzdoom")) {
+        QString binary = app[QStringLiteral("uzdoomPath")].toString();
+        if (binary.isEmpty())
+            binary = m_uzdoomPath;
+        if (binary.isEmpty()) {
+            Q_EMIT launchError(name, QStringLiteral("UZDOOM AppImage not set. Download it or pick it in the game settings."));
+            return -1;
+        }
+        QFileInfo fi(binary);
+        if (!fi.isExecutable())
+            QFile::setPermissions(binary, fi.permissions() | QFileDevice::ExeOwner | QFileDevice::ExeGroup | QFileDevice::ExeOther);
+        QStringList baseArgs = {QStringLiteral("-iwad"), exePath};
+        const QStringList mods = app[QStringLiteral("uzdoomMods")].toStringList();
+        for (const QString &mod : mods) {
+            baseArgs << QStringLiteral("-file") << mod;
+        }
+        if (isInsideFlatpak())
+            baseArgs.prepend(QStringLiteral("--appimage-extract-and-run"));
+        return launch(binary, baseArgs, exePath, env, opts, logging, name, false);
     }
 
     if (runtimeType == QStringLiteral("proton")) {

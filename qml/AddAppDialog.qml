@@ -64,6 +64,7 @@ Kirigami.Dialog {
         dialog.pendingInstallerRun = false;
         autoDownloadingInDialog = false;
         autoDownloadStatus = "";
+        uzdoomModsModel.clear();
         runtimePicker.reset();
         prefixBasePath = protonScanner.prefixBasePath();
         dialog.open();
@@ -79,12 +80,12 @@ Kirigami.Dialog {
         if (nameField.text === "") {
             var parts = path.split("/");
             var filename = parts[parts.length - 1];
-            if (/\.desktop$/i.test(filename))
+            if (/^\.desktop$/i.test(filename))
                 nameField.text = filename.replace(/\.desktop$/i, "");
             else
-                nameField.text = filename.replace(/\.(exe|sh|py|pl|rb|run|bash|zsh|AppImage|appimage)$/i, "");
+                nameField.text = filename.replace(/\.(exe|sh|py|pl|rb|run|bash|zsh|AppImage|appimage|wad|pk3)$/i, "");
         }
-        if (runtimePicker.runtimeType === "native") {
+        if (runtimePicker.runtimeType === "native" || runtimePicker.runtimeType === "uzdoom") {
             protonPrefixField.text = "";
             winePrefixField.text = "";
             return;
@@ -158,11 +159,24 @@ Kirigami.Dialog {
         autoDownloadingInDialog = false;
         autoDownloadStatus = "";
         installerExePath = "";
+        uzdoomModsModel.clear();
+        var mods = app.uzdoomMods || [];
+        for (var mi = 0; mi < mods.length; mi++)
+            uzdoomModsModel.append({
+                "path": mods[mi]
+            });
         runtimePicker.loadFromApp(app);
         dialog.open();
     }
 
     property string validationError: ""
+
+    function collectUzdoomMods() {
+        var mods = [];
+        for (var i = 0; i < uzdoomModsModel.count; i++)
+            mods.push(uzdoomModsModel.get(i).path);
+        return mods;
+    }
 
     function validate() {
         if (nameField.text.trim() === "") {
@@ -208,6 +222,8 @@ Kirigami.Dialog {
             "runtimeType": rt,
             "steamAppId": rt === "steam" ? (steamIdField.text !== "" ? parseInt(steamIdField.text) : 0) : 0,
             "platformSlug": rt === "retroarch" ? (platformCombo.currentValue || "") : "",
+            "uzdoomPath": runtimePicker.uzdoomPath,
+            "uzdoomMods": dialog.collectUzdoomMods(),
             "protonPath": protonPath,
             "protonPrefix": protonPrefix,
             "wineBinary": runtimePicker.wineBinary,
@@ -265,11 +281,11 @@ Kirigami.Dialog {
             RowLayout {
                 Layout.fillWidth: true
                 visible: runtimePicker.runtimeType !== "steam"
-                Kirigami.FormData.label: runtimePicker.runtimeType === "retroarch" ? i18n("ROM File:") : runtimePicker.runtimeType === "native" ? i18n("Executable / AppImage:") : i18n("Executable (.exe):")
+                Kirigami.FormData.label: runtimePicker.runtimeType === "retroarch" ? i18n("ROM File:") : runtimePicker.runtimeType === "uzdoom" ? i18n("WAD File:") : runtimePicker.runtimeType === "native" ? i18n("Executable / AppImage:") : i18n("Executable (.exe):")
                 QQC2.TextField {
                     id: exeField
                     Layout.fillWidth: true
-                    placeholderText: runtimePicker.runtimeType === "retroarch" ? "/path/to/rom.sfc" : runtimePicker.runtimeType === "native" ? "/path/to/app.AppImage" : "/path/to/game.exe"
+                    placeholderText: runtimePicker.runtimeType === "retroarch" ? "/path/to/rom.sfc" : runtimePicker.runtimeType === "uzdoom" ? "/path/to/game.wad" : runtimePicker.runtimeType === "native" ? "/path/to/app.AppImage" : "/path/to/game.exe"
                 }
                 QQC2.ToolButton {
                     icon.name: "document-open-symbolic"
@@ -327,6 +343,39 @@ Kirigami.Dialog {
                 textRole: "modelData"
                 valueRole: "modelData"
                 Layout.fillWidth: true
+            }
+
+            ColumnLayout {
+                visible: runtimePicker.runtimeType === "uzdoom"
+                Layout.fillWidth: true
+                spacing: Kirigami.Units.smallSpacing
+
+                Kirigami.FormData.label: i18n("Mods:")
+                Repeater {
+                    model: uzdoomModsModel
+                    delegate: RowLayout {
+                        required property string path
+                        required property int index
+                        Layout.fillWidth: true
+                        QQC2.TextField {
+                            Layout.fillWidth: true
+                            text: path
+                            readOnly: true
+                        }
+                        QQC2.ToolButton {
+                            icon.name: "edit-delete-symbolic"
+                            QQC2.ToolTip.text: i18n("Remove mod")
+                            QQC2.ToolTip.visible: hovered
+                            onClicked: uzdoomModsModel.remove(index)
+                        }
+                    }
+                }
+                QQC2.Button {
+                    text: i18n("Add mod...")
+                    icon.name: "list-add-symbolic"
+                    flat: true
+                    onClicked: uzdoomModFileDialog.open()
+                }
             }
 
             Kirigami.Separator {
@@ -602,11 +651,32 @@ Kirigami.Dialog {
         id: exeFileDialog
         title: i18n("Select Executable")
         currentFolder: "file://" + protonScanner.homePath()
-        nameFilters: runtimePicker.runtimeType === "native" ? [i18n("Binaries, scripts & AppImages (*.sh *.py *.pl *.rb *.run *.bash *.zsh *.AppImage *.appimage *.desktop)"), i18n("All files (*)")] : [i18n("Executables (*.exe)"), i18n("All files (*)")]
+        nameFilters: runtimePicker.runtimeType === "native" ? [i18n("Binaries, scripts & AppImages (*.sh *.py *.pl *.rb *.run *.bash *.zsh *.AppImage *.appimage *.desktop)"), i18n("All files (*)")] : runtimePicker.runtimeType === "uzdoom" ? [i18n("WAD files (*.wad)"), i18n("All files (*)")] : [i18n("Executables (*.exe)"), i18n("All files (*)")]
         onAccepted: {
             var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
             dialog.applyExePath(path);
         }
+    }
+
+    FileDialog {
+        id: uzdoomModFileDialog
+        title: i18n("Select mod (WAD or PK3)")
+        currentFolder: "file://" + protonScanner.homePath()
+        nameFilters: [i18n("WAD & PK3 files (*.wad *.pk3)"), i18n("All files (*)")]
+        onAccepted: {
+            var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
+            for (var i = 0; i < uzdoomModsModel.count; i++) {
+                if (uzdoomModsModel.get(i).path === path)
+                    return;
+            }
+            uzdoomModsModel.append({
+                "path": path
+            });
+        }
+    }
+
+    ListModel {
+        id: uzdoomModsModel
     }
 
     FileDialog {

@@ -1,9 +1,11 @@
 #pragma once
 
 #include <QDateTime>
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QObject>
 #include <QString>
+#include <QStringList>
 #include <QUuid>
 #include <QVariantMap>
 
@@ -22,6 +24,7 @@ public:
         Native,
         Steam,
         Retroarch,
+        Uzdoom,
         Count
     };
     Q_ENUM(RuntimeType)
@@ -51,6 +54,8 @@ public:
     int steamAppId = 0;
     QString platformSlug;
     QString customCorePath;
+    QString uzdoomPath;
+    QStringList uzdoomMods;
     QString launchOptions;
     bool enableLogging = false;
     bool hidden = false;

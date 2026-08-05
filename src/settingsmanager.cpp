@@ -270,6 +270,19 @@ void SettingsManager::setRetroarchPath(const QString &path)
     Q_EMIT retroarchPathChanged();
 }
 
+QString SettingsManager::uzdoomPath() const
+{
+    return m_settings.value(QStringLiteral("uzdoomPath")).toString();
+}
+
+void SettingsManager::setUzdoomPath(const QString &path)
+{
+    if (uzdoomPath() == path)
+        return;
+    m_settings.setValue(QStringLiteral("uzdoomPath"), path);
+    Q_EMIT uzdoomPathChanged();
+}
+
 QString SettingsManager::romCacheDir() const
 {
     QString stored = m_settings.value(QStringLiteral("romCacheDir")).toString();

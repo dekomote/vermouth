@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls as QQC2
+import QtQuick.Dialogs
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
 
@@ -10,6 +11,7 @@ ColumnLayout {
     readonly property string runtimeType: runtimeCombo.currentValue
     readonly property string protonPath: protonCombo.currentIndex >= 0 && protonCombo.currentIndex < protonModel.count ? protonModel.get(protonCombo.currentIndex).path : ""
     readonly property string wineBinary: wineCombo.currentIndex >= 0 && wineCombo.currentIndex < wineModel.count ? wineModel.get(wineCombo.currentIndex).path : ""
+    readonly property string uzdoomPath: uzdoomPathField.text.trim()
     property string sectionLabel: i18n("Runtime")
     property alias formLayout: formLayout
     property var twinFormLayouts
@@ -32,6 +34,7 @@ ColumnLayout {
 
     function loadFromSettings() {
         setRuntimeType(settingsManager.defaultRuntimeType);
+        uzdoomPathField.text = settingsManager.uzdoomPath;
 
         var pp = settingsManager.defaultProtonPath;
         protonCombo.currentIndex = -1;
@@ -66,6 +69,7 @@ ColumnLayout {
         setRuntimeType(app.runtimeType);
         refreshProton();
         refreshWine();
+        uzdoomPathField.text = app.uzdoomPath !== "" ? app.uzdoomPath : settingsManager.uzdoomPath;
 
         if (app.runtimeType === "proton") {
             for (var i = 0; i < protonModel.count; i++) {
@@ -91,6 +95,9 @@ ColumnLayout {
         } else if (runtimeCombo.currentValue === "wine") {
             if (wineCombo.currentIndex < 0 || wineCombo.currentIndex >= wineModel.count)
                 return i18n("Please select a Wine version.");
+        } else if (runtimeCombo.currentValue === "uzdoom") {
+            if (uzdoomPathField.text.trim() === "")
+                return i18n("Please select or download the UZDOOM AppImage.");
         }
         return "";
     }
@@ -150,6 +157,13 @@ ColumnLayout {
 
     ListModel {
         id: wineModel
+    }
+
+    Connections {
+        target: uzdoomDownloader
+        function onFinished(path) {
+            uzdoomPathField.text = path;
+        }
     }
 
     Connections {
@@ -337,6 +351,55 @@ ColumnLayout {
             visible: runtimeCombo.currentValue === "wine" && wineDownloader.busy
             progress: wineDownloader.progress
             statusText: wineDownloader.statusText
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            visible: runtimeCombo.currentValue === "uzdoom"
+            Kirigami.FormData.label: i18n("UZDOOM AppImage:")
+            QQC2.TextField {
+                id: uzdoomPathField
+                Layout.fillWidth: true
+                placeholderText: i18n("/path/to/UZDOOM.AppImage")
+                text: settingsManager.uzdoomPath
+                // Only promote to the global default when none is set yet, mirroring
+                // the Proton/Wine pickers. Per-game overrides are saved with the app.
+                onTextChanged: if (settingsManager.uzdoomPath === "")
+                    settingsManager.setUzdoomPath(text.trim())
+            }
+            QQC2.ToolButton {
+                icon.name: "document-open-symbolic"
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.text: i18n("Browse for UZDOOM AppImage")
+                onClicked: uzdoomFileDialog.open()
+            }
+            QQC2.ToolButton {
+                id: uzdoomDownloadButton
+                icon.name: "folder-download-symbolic"
+                enabled: !uzdoomDownloader.busy
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.text: uzdoomDownloader.statusText ? uzdoomDownloader.statusText : i18n("Download latest UZDOOM AppImage")
+                onClicked: uzdoomDownloader.downloadLatest()
+            }
+        }
+
+        DownloaderProgress {
+            Layout.fillWidth: true
+            Kirigami.FormData.label: ""
+            visible: runtimeCombo.currentValue === "uzdoom" && uzdoomDownloader.busy
+            progress: uzdoomDownloader.progress
+            statusText: uzdoomDownloader.statusText
+        }
+    }
+
+    FileDialog {
+        id: uzdoomFileDialog
+        title: i18n("Select UZDOOM AppImage")
+        currentFolder: "file://" + protonScanner.homePath()
+        nameFilters: [i18n("AppImage (*.AppImage *.appimage)"), i18n("All files (*)")]
+        onAccepted: {
+            var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
+            uzdoomPathField.text = path;
         }
     }
 }

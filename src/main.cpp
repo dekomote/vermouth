@@ -22,6 +22,7 @@
 #include "steamgriddb.h"
 #include "steammodel.h"
 #include "umudownloader.h"
+#include "uzdoomdownloader.h"
 #include "winedownloader.h"
 #include "winescanner.h"
 #include <KAboutData>
@@ -109,6 +110,7 @@ int main(int argc, char *argv[])
     launcher.setGlobalEnvVars(settingsManager.globalEnvVars());
     launcher.setUmuPath(settingsManager.umuPath());
     launcher.setRetroarchPath(settingsManager.retroarchPath());
+    launcher.setUzdoomPath(settingsManager.uzdoomPath());
     launcher.setRommCoreMap(settingsManager.rommCoreMap());
     launcher.setRommGameCoreMap(settingsManager.rommGameCoreMap());
 
@@ -186,6 +188,9 @@ int main(int argc, char *argv[])
     UmuDownloader umuDownloader;
     umuDownloader.setInstallPath(protonScanner.localProtonPath() + QStringLiteral("/umu"));
 
+    UzdoomDownloader uzdoomDownloader;
+    uzdoomDownloader.setInstallPath(protonScanner.localAssetsPath() + QStringLiteral("/uzdoom"));
+
     SteamGridDB steamGridDb;
 
     SteamModel steamModel;
@@ -215,6 +220,9 @@ int main(int argc, char *argv[])
     QObject::connect(&umuDownloader, &UmuDownloader::finished, [&](const QString &binPath) {
         if (settingsManager.umuPath().isEmpty())
             settingsManager.setUmuPath(binPath);
+    });
+    QObject::connect(&uzdoomDownloader, &UzdoomDownloader::finished, [&](const QString &appImagePath) {
+        settingsManager.setUzdoomPath(appImagePath);
     });
 
     protonScanner.setExtraProtonPaths(settingsManager.extraProtonPaths());
@@ -265,6 +273,9 @@ int main(int argc, char *argv[])
     });
     QObject::connect(&settingsManager, &SettingsManager::retroarchPathChanged, [&]() {
         launcher.setRetroarchPath(settingsManager.retroarchPath());
+    });
+    QObject::connect(&settingsManager, &SettingsManager::uzdoomPathChanged, [&]() {
+        launcher.setUzdoomPath(settingsManager.uzdoomPath());
     });
     QObject::connect(&launcher, &Launcher::coreAutoDetected, [&](const QString &slug, const QString &path) {
         settingsManager.setRommCore(slug, path);
@@ -319,6 +330,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("wineScanner"), &wineScanner);
     engine.rootContext()->setContextProperty(QStringLiteral("wineDownloader"), &wineDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("umuDownloader"), &umuDownloader);
+    engine.rootContext()->setContextProperty(QStringLiteral("uzdoomDownloader"), &uzdoomDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("steamGridDb"), &steamGridDb);
     engine.rootContext()->setContextProperty(QStringLiteral("steamModel"), &steamModel);
     engine.rootContext()->setContextProperty(QStringLiteral("gogModel"), &gogModel);

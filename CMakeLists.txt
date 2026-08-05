@@ -49,6 +49,7 @@ qt_add_executable(vermouth
     src/winedownloader.cpp
     src/winescanner.cpp
     src/umudownloader.cpp
+    src/uzdoomdownloader.cpp
     src/downloader.cpp
     src/singleinstance.cpp
     src/gamepadhandler.cpp

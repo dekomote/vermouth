@@ -30,6 +30,8 @@ public:
         SteamAppIdRole,
         PlatformSlugRole,
         CustomCorePathRole,
+        UzdoomPathRole,
+        UzdoomModsRole,
         LaunchOptionsRole,
         EnableLoggingRole,
         HiddenRole,

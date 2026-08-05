@@ -6,6 +6,7 @@ const RuntimeTypeEntry AppEntry::runtimeTypeTable[] = {
     {"native", "Native"},
     {"steam", "Steam"},
     {"retroarch", "Retroarch"},
+    {"uzdoom", "UZDOOM (beta)"},
 };
 const int AppEntry::runtimeTypeCount = sizeof(runtimeTypeTable) / sizeof(runtimeTypeTable[0]);
 static_assert(AppEntry::runtimeTypeCount == AppEntry::Count, "runtimeTypeTable and RuntimeType enum are out of sync");
@@ -45,6 +46,8 @@ QJsonObject AppEntry::toJson() const
     obj[QStringLiteral("steamAppId")] = steamAppId;
     obj[QStringLiteral("platformSlug")] = platformSlug;
     obj[QStringLiteral("customCorePath")] = customCorePath;
+    obj[QStringLiteral("uzdoomPath")] = uzdoomPath;
+    obj[QStringLiteral("uzdoomMods")] = QJsonArray::fromStringList(uzdoomMods);
     obj[QStringLiteral("launchOptions")] = launchOptions;
     obj[QStringLiteral("enableLogging")] = enableLogging;
     obj[QStringLiteral("hidden")] = hidden;
@@ -71,6 +74,8 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("steamAppId"), steamAppId},
         {QStringLiteral("platformSlug"), platformSlug},
         {QStringLiteral("customCorePath"), customCorePath},
+        {QStringLiteral("uzdoomPath"), uzdoomPath},
+        {QStringLiteral("uzdoomMods"), uzdoomMods},
         {QStringLiteral("launchOptions"), launchOptions},
         {QStringLiteral("enableLogging"), enableLogging},
         {QStringLiteral("hidden"), hidden},
@@ -100,6 +105,10 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     e.steamAppId = obj[QStringLiteral("steamAppId")].toInt(0);
     e.platformSlug = obj[QStringLiteral("platformSlug")].toString();
     e.customCorePath = obj[QStringLiteral("customCorePath")].toString();
+    e.uzdoomPath = obj[QStringLiteral("uzdoomPath")].toString();
+    QJsonArray modsArr = obj[QStringLiteral("uzdoomMods")].toArray();
+    for (const auto &v : modsArr)
+        e.uzdoomMods.append(v.toString());
     e.launchOptions = obj[QStringLiteral("launchOptions")].toString();
     e.enableLogging = obj[QStringLiteral("enableLogging")].toBool(false);
     e.hidden = obj[QStringLiteral("hidden")].toBool(false);
@@ -127,6 +136,8 @@ void AppEntry::updateFromVariantMap(const QVariantMap &app)
     steamAppId = app.value(QStringLiteral("steamAppId"), 0).toInt();
     platformSlug = app[QStringLiteral("platformSlug")].toString();
     customCorePath = app[QStringLiteral("customCorePath")].toString();
+    uzdoomPath = app[QStringLiteral("uzdoomPath")].toString();
+    uzdoomMods = app.value(QStringLiteral("uzdoomMods")).toStringList();
     launchOptions = app[QStringLiteral("launchOptions")].toString();
     enableLogging = app.value(QStringLiteral("enableLogging"), false).toBool();
     hidden = app.value(QStringLiteral("hidden"), false).toBool();

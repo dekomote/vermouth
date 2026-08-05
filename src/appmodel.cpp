@@ -135,6 +135,10 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.platformSlug;
     case CustomCorePathRole:
         return e.customCorePath;
+    case UzdoomPathRole:
+        return e.uzdoomPath;
+    case UzdoomModsRole:
+        return e.uzdoomMods;
     case LaunchOptionsRole:
         return e.launchOptions;
     case EnableLoggingRole:
@@ -164,6 +168,8 @@ QHash<int, QByteArray> AppModel::roleNames() const
         {SteamAppIdRole, "steamAppId"},
         {PlatformSlugRole, "platformSlug"},
         {CustomCorePathRole, "customCorePath"},
+        {UzdoomPathRole, "uzdoomPath"},
+        {UzdoomModsRole, "uzdoomMods"},
         {LaunchOptionsRole, "launchOptions"},
         {EnableLoggingRole, "enableLogging"},
         {HiddenRole, "hidden"},

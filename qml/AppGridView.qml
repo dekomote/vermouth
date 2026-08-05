@@ -90,6 +90,8 @@ GameGridView {
         required property int steamAppId
         required property string platformSlug
         required property string customCorePath
+        required property string uzdoomPath
+        required property var uzdoomMods
         required property bool hidden
 
         readonly property bool hasPrefix: runtimeType === "proton" || runtimeType === "wine"

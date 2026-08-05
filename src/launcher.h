@@ -17,6 +17,7 @@ public:
     void setUmuPath(const QString &path);
     void setGlobalEnvVars(const QStringList &vars);
     void setRetroarchPath(const QString &path);
+    void setUzdoomPath(const QString &path);
     void setRommCoreMap(const QVariantMap &map);
     void setRommGameCoreMap(const QVariantMap &map);
 
@@ -83,6 +84,7 @@ private:
     QString m_logDir;
     QString m_umuPath;
     QString m_retroarchPath;
+    QString m_uzdoomPath;
     QString m_retroarchBinary;
     QVariantMap m_rommCoreMap;
     QVariantMap m_rommGameCoreMap;
