@@ -95,6 +95,8 @@ GameGridView {
         required property bool hidden
 
         readonly property bool hasPrefix: runtimeType === "proton" || runtimeType === "wine"
+        readonly property string resolvedRuntimeType: runtimeType === "default" ? settingsManager.defaultRuntimeType : runtimeType
+        readonly property bool resolvedHasPrefix: resolvedRuntimeType === "proton" || resolvedRuntimeType === "wine"
         opacity: cardFrame.hidden ? 0.6 : 1
 
         QQC2.Menu {
@@ -114,14 +116,14 @@ GameGridView {
                 }
             }
             QQC2.MenuItem {
-                visible: cardFrame.runtimeType === "steam" && cardFrame.steamAppId > 0
+                visible: cardFrame.resolvedRuntimeType === "steam" && cardFrame.steamAppId > 0
                 height: visible ? implicitHeight : 0
                 text: i18n("View in Steam")
                 icon.name: "steam"
                 onTriggered: Qt.openUrlExternally("steam://nav/games/details/" + cardFrame.steamAppId)
             }
             QQC2.MenuItem {
-                visible: cardFrame.runtimeType === "retroarch"
+                visible: cardFrame.resolvedRuntimeType === "retroarch"
                 height: visible ? implicitHeight : 0
                 text: i18n("Change Core…")
                 icon.name: "media-playback-start-symbolic"
@@ -134,7 +136,7 @@ GameGridView {
                 }
             }
             QQC2.MenuItem {
-                visible: cardFrame.runtimeType === "retroarch"
+                visible: cardFrame.resolvedRuntimeType === "retroarch"
                 height: visible ? implicitHeight : 0
                 text: i18n("Copy Launch Command")
                 icon.name: "edit-copy-symbolic"
@@ -153,7 +155,7 @@ GameGridView {
                 }
             }
             QQC2.MenuItem {
-                visible: cardFrame.runtimeType !== "steam"
+                visible: cardFrame.resolvedRuntimeType !== "steam"
                 height: visible ? implicitHeight : 0
                 text: i18n("Launch with logging")
                 icon.name: "utilities-terminal-symbolic"
@@ -167,7 +169,7 @@ GameGridView {
             }
             QQC2.MenuSeparator {}
             QQC2.MenuItem {
-                visible: cardFrame.hasPrefix
+                visible: cardFrame.resolvedHasPrefix
                 height: visible ? implicitHeight : 0
                 text: i18n("Run another EXE in this prefix")
                 icon.name: "system-run-symbolic"
@@ -177,7 +179,7 @@ GameGridView {
                 }
             }
             QQC2.MenuSeparator {
-                visible: cardFrame.hasPrefix
+                visible: cardFrame.resolvedHasPrefix
                 height: visible ? implicitHeight : 0
             }
             QQC2.Menu {
@@ -202,7 +204,7 @@ GameGridView {
                 }
             }
             QQC2.Menu {
-                enabled: cardFrame.hasPrefix
+                enabled: cardFrame.resolvedHasPrefix
                 title: i18n("&Wine Utilities")
                 icon.name: "wine-symbolic"
 
@@ -241,7 +243,7 @@ GameGridView {
                 icon.name: "folder-open-symbolic"
 
                 QQC2.MenuItem {
-                    visible: cardFrame.runtimeType !== "steam"
+                    visible: cardFrame.resolvedRuntimeType !== "steam"
                     height: visible ? implicitHeight : 0
                     text: i18n("Open install folder")
                     icon.name: "folder-open-symbolic"
@@ -258,16 +260,16 @@ GameGridView {
                     onTriggered: Qt.openUrlExternally("file://" + launcher.logDir())
                 }
                 QQC2.MenuItem {
-                    visible: cardFrame.hasPrefix
+                    visible: cardFrame.resolvedHasPrefix
                     height: visible ? implicitHeight : 0
                     text: i18n("Open prefix folder")
                     icon.name: "folder-open-symbolic"
                     onTriggered: {
-                        var prefix = cardFrame.runtimeType === "proton" ? cardFrame.protonPrefix : cardFrame.winePrefix;
+                        var prefix = cardFrame.resolvedRuntimeType === "proton" ? cardFrame.protonPrefix : cardFrame.winePrefix;
                         if (prefix !== "")
                             Qt.openUrlExternally("file://" + prefix);
                     }
-                    enabled: (cardFrame.runtimeType === "proton" ? cardFrame.protonPrefix : cardFrame.winePrefix) !== ""
+                    enabled: (cardFrame.resolvedRuntimeType === "proton" ? cardFrame.protonPrefix : cardFrame.winePrefix) !== ""
                 }
             }
             QQC2.MenuSeparator {}
@@ -289,7 +291,7 @@ GameGridView {
                 text: i18n("Delete")
                 icon.name: "edit-delete-symbolic"
                 onTriggered: {
-                    deleteChoiceDialog.runtimeType = cardFrame.runtimeType;
+                    deleteChoiceDialog.runtimeType = cardFrame.resolvedRuntimeType;
                     deleteChoiceDialog.payload = cardFrame.index;
                     deleteChoiceDialog.open();
                 }

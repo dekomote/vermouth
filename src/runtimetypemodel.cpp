@@ -34,3 +34,14 @@ QHash<int, QByteArray> RuntimeTypeModel::roleNames() const
         {LabelRole, "label"},
     };
 }
+
+QVariantMap RuntimeTypeModel::get(int index) const
+{
+    QModelIndex idx = this->index(index, 0);
+    if (!idx.isValid())
+        return {};
+    return {
+        {QStringLiteral("key"), data(idx, KeyRole)},
+        {QStringLiteral("label"), data(idx, LabelRole)},
+    };
+}

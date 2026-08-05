@@ -113,6 +113,9 @@ int main(int argc, char *argv[])
     launcher.setUzdoomPath(settingsManager.uzdoomPath());
     launcher.setRommCoreMap(settingsManager.rommCoreMap());
     launcher.setRommGameCoreMap(settingsManager.rommGameCoreMap());
+    launcher.setDefaultRuntimeType(settingsManager.defaultRuntimeType());
+    launcher.setDefaultProtonPath(settingsManager.defaultProtonPath());
+    launcher.setDefaultWineBinary(settingsManager.defaultWineBinary());
 
     auto launchCli = [&](const QVariantMap &entry) -> int {
         QObject::connect(&launcher, &Launcher::processFinished, &app, &QApplication::exit);
@@ -197,6 +200,12 @@ int main(int argc, char *argv[])
     GogModel gogModel;
 
     RuntimeTypeModel runtimeTypeModel;
+
+    QObject::connect(&settingsManager, &SettingsManager::defaultRuntimeChanged, [&]() {
+        launcher.setDefaultRuntimeType(settingsManager.defaultRuntimeType());
+        launcher.setDefaultProtonPath(settingsManager.defaultProtonPath());
+        launcher.setDefaultWineBinary(settingsManager.defaultWineBinary());
+    });
 
     QObject::connect(&settingsManager, &SettingsManager::umuPathChanged, [&]() {
         launcher.setUmuPath(settingsManager.umuPath());

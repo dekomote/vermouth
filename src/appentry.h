@@ -25,6 +25,7 @@ public:
         Steam,
         Retroarch,
         Uzdoom,
+        Default,
         Count
     };
     Q_ENUM(RuntimeType)

@@ -16,6 +16,41 @@ ColumnLayout {
     property alias formLayout: formLayout
     property var twinFormLayouts
     property bool autoSaveDefaults: false
+    property bool showDefaultOption: false
+    property bool protonWineOnly: false
+
+    readonly property string resolvedRuntimeType: runtimeType === "default" ? settingsManager.defaultRuntimeType : runtimeType
+    readonly property string resolvedProtonPath: runtimeType === "default" ? settingsManager.defaultProtonPath : protonPath
+    readonly property string resolvedWineBinary: runtimeType === "default" ? settingsManager.defaultWineBinary : wineBinary
+
+    readonly property bool defaultRuntimeAvailable: {
+        var t = settingsManager.defaultRuntimeType;
+        if (t === "proton")
+            return settingsManager.defaultProtonPath !== "" && protonScanner.isInstalled(settingsManager.defaultProtonPath);
+        if (t === "wine")
+            return settingsManager.defaultWineBinary !== "" && wineScanner.isInstalled(settingsManager.defaultWineBinary);
+        return false;
+    }
+
+    function rebuildRuntimeOptions() {
+        var prevValue = runtimeCombo.currentValue;
+        runtimeOptions.clear();
+        if (root.showDefaultOption && root.defaultRuntimeAvailable)
+            runtimeOptions.append({
+                "label": i18n("Default Runtime"),
+                "key": "default"
+            });
+        for (var i = 0; i < runtimeModel.rowCount(); i++) {
+            var entry = runtimeModel.get(i);
+            if (entry.key !== "default" && (!root.protonWineOnly || entry.key === "proton" || entry.key === "wine"))
+                runtimeOptions.append({
+                    "label": entry.label,
+                    "key": entry.key
+                });
+        }
+        if (prevValue !== undefined && prevValue !== null && prevValue !== "")
+            setRuntimeType(prevValue);
+    }
 
     function reset() {
         refreshProton();
@@ -33,7 +68,11 @@ ColumnLayout {
     }
 
     function loadFromSettings() {
-        setRuntimeType(settingsManager.defaultRuntimeType);
+        rebuildRuntimeOptions();
+        if (root.showDefaultOption && root.defaultRuntimeAvailable)
+            setRuntimeType("default");
+        else
+            setRuntimeType(settingsManager.defaultRuntimeType);
         uzdoomPathField.text = settingsManager.uzdoomPath;
 
         var pp = settingsManager.defaultProtonPath;
@@ -66,6 +105,7 @@ ColumnLayout {
     }
 
     function loadFromApp(app) {
+        rebuildRuntimeOptions();
         setRuntimeType(app.runtimeType);
         refreshProton();
         refreshWine();
@@ -98,6 +138,9 @@ ColumnLayout {
         } else if (runtimeCombo.currentValue === "uzdoom") {
             if (uzdoomPathField.text.trim() === "")
                 return i18n("Please select or download the UZDOOM AppImage.");
+        } else if (runtimeCombo.currentValue === "default") {
+            if (!root.defaultRuntimeAvailable)
+                return i18n("The default runtime is not fully configured in Settings.");
         }
         return "";
     }
@@ -159,6 +202,17 @@ ColumnLayout {
         id: wineModel
     }
 
+    ListModel {
+        id: runtimeOptions
+    }
+
+    Connections {
+        target: settingsManager
+        function onDefaultRuntimeChanged() {
+            root.rebuildRuntimeOptions();
+        }
+    }
+
     Connections {
         target: uzdoomDownloader
         function onFinished(path) {
@@ -211,7 +265,7 @@ ColumnLayout {
             id: runtimeCombo
             Kirigami.FormData.label: i18n("Runtime:")
             Layout.fillWidth: true
-            model: runtimeModel
+            model: runtimeOptions
             textRole: "label"
             valueRole: "key"
             Layout.minimumWidth: 400

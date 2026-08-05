@@ -48,6 +48,7 @@ Kirigami.ScrollablePage {
             Layout.fillWidth: true
             sectionLabel: i18n("Default Runtime")
             autoSaveDefaults: true
+            protonWineOnly: true
         }
 
         Kirigami.Separator {

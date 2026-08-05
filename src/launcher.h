@@ -20,6 +20,9 @@ public:
     void setUzdoomPath(const QString &path);
     void setRommCoreMap(const QVariantMap &map);
     void setRommGameCoreMap(const QVariantMap &map);
+    void setDefaultRuntimeType(const QString &type);
+    void setDefaultProtonPath(const QString &path);
+    void setDefaultWineBinary(const QString &path);
 
     Q_PROPERTY(QStringList runningExePaths READ runningExePaths NOTIFY runningExePathsChanged)
     QStringList runningExePaths() const
@@ -89,6 +92,9 @@ private:
     QVariantMap m_rommCoreMap;
     QVariantMap m_rommGameCoreMap;
     QStringList m_globalEnvVars;
+    QString m_defaultRuntimeType;
+    QString m_defaultProtonPath;
+    QString m_defaultWineBinary;
     QHash<QString, QProcess *> m_runningProcesses;
     int m_inhibitFd = -1;
     QString m_inhibitPortalRequestPath;

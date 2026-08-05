@@ -103,7 +103,7 @@ Kirigami.Dialog {
     }
 
     function runInstallerInPrefix() {
-        if (!["proton", "wine"].includes(runtimePicker.runtimeType))
+        if (!["proton", "wine"].includes(runtimePicker.resolvedRuntimeType))
             return;
         dialog.pendingInstallerRun = true;
         dialog.installerRunning = true;
@@ -113,10 +113,10 @@ Kirigami.Dialog {
 
         dialog.installerPid = launcher.runInPrefix({
             name: nameField.text,
-            runtimeType: runtimePicker.runtimeType,
-            protonPath: runtimePicker.protonPath,
+            runtimeType: runtimePicker.resolvedRuntimeType,
+            protonPath: runtimePicker.resolvedProtonPath,
             protonPrefix: resolvedPrefix,
-            wineBinary: runtimePicker.wineBinary,
+            wineBinary: runtimePicker.resolvedWineBinary,
             winePrefix: resolvedPrefix,
             launchOptions: "",
             enableLogging: false
@@ -266,6 +266,7 @@ Kirigami.Dialog {
             id: runtimePicker
             Layout.fillWidth: true
             twinFormLayouts: topForm
+            showDefaultOption: true
         }
 
         Kirigami.FormLayout {
@@ -292,17 +293,17 @@ Kirigami.Dialog {
                     onClicked: runtimePicker.runtimeType === "retroarch" ? romFileDialog.open() : exeFileDialog.open()
                 }
                 QQC2.ToolButton {
-                    visible: runtimePicker.runtimeType === "wine" || runtimePicker.runtimeType === "proton"
-                    enabled: nameField.text.trim() !== "" && !dialog.installerRunning && runtimePicker.runtimeType !== "" && runtimePicker.protonPath !== ""
+                    visible: runtimePicker.resolvedRuntimeType === "wine" || runtimePicker.resolvedRuntimeType === "proton"
+                    enabled: nameField.text.trim() !== "" && !dialog.installerRunning && runtimePicker.resolvedRuntimeType !== "" && runtimePicker.resolvedProtonPath !== ""
                     icon.name: dialog.installerRunning ? "content-loading-symbolic" : "system-run-symbolic"
                     QQC2.ToolTip.text: {
                         if (nameField.text.trim() === "")
                             return i18n("Please enter the game name before running an installer");
                         if (dialog.installerRunning)
                             return i18n("Installing...");
-                        if (runtimePicker.runtimeType !== "proton")
+                        if (runtimePicker.resolvedRuntimeType !== "proton")
                             return i18n("Select Proton runtime first");
-                        if (runtimePicker.protonPath === "")
+                        if (runtimePicker.resolvedProtonPath === "")
                             return i18n("Select a Proton version first");
                         return i18n("Run installer in prefix");
                     }
@@ -593,7 +594,7 @@ Kirigami.Dialog {
 
             RowLayout {
                 Layout.fillWidth: true
-                visible: runtimePicker.runtimeType === "proton"
+                visible: runtimePicker.resolvedRuntimeType === "proton"
                 Kirigami.FormData.label: i18n("Proton Prefix (optional):")
                 QQC2.TextField {
                     id: protonPrefixField
@@ -608,7 +609,7 @@ Kirigami.Dialog {
 
             RowLayout {
                 Layout.fillWidth: true
-                visible: runtimePicker.runtimeType === "wine"
+                visible: runtimePicker.resolvedRuntimeType === "wine"
                 Kirigami.FormData.label: i18n("Wine Prefix (WINEPREFIX):")
                 QQC2.TextField {
                     id: winePrefixField

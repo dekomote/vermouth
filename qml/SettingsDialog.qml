@@ -84,6 +84,7 @@ Kirigami.ScrollablePage {
             id: defaultRuntimePicker
             Layout.fillWidth: true
             sectionLabel: i18n("Default Runtime")
+            protonWineOnly: true
         }
 
         Kirigami.FormLayout {

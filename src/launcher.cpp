@@ -330,6 +330,21 @@ void Launcher::setGlobalEnvVars(const QStringList &vars)
     m_globalEnvVars = vars;
 }
 
+void Launcher::setDefaultRuntimeType(const QString &type)
+{
+    m_defaultRuntimeType = type;
+}
+
+void Launcher::setDefaultProtonPath(const QString &path)
+{
+    m_defaultProtonPath = path;
+}
+
+void Launcher::setDefaultWineBinary(const QString &path)
+{
+    m_defaultWineBinary = path;
+}
+
 QString Launcher::logDir() const
 {
     return m_logDir;
@@ -432,6 +447,17 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
     }
 
     QString runtimeType = app[QStringLiteral("runtimeType")].toString();
+
+    // "default" runtime is inferred from settings at launch time - never copied into the entry.
+    if (runtimeType == QStringLiteral("default")) {
+        QVariantMap resolved = app;
+        resolved[QStringLiteral("runtimeType")] = m_defaultRuntimeType;
+        if (resolved[QStringLiteral("protonPath")].toString().isEmpty())
+            resolved[QStringLiteral("protonPath")] = m_defaultProtonPath;
+        if (resolved[QStringLiteral("wineBinary")].toString().isEmpty())
+            resolved[QStringLiteral("wineBinary")] = m_defaultWineBinary;
+        return launchEntry(resolved);
+    }
 
     if (runtimeType == QStringLiteral("steam")) {
         int steamId = app[QStringLiteral("steamAppId")].toInt();
@@ -573,23 +599,32 @@ void Launcher::runWinetricks(const QVariantMap &app)
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     QString prefix;
 
-    if (app[QStringLiteral("runtimeType")].toString() == QStringLiteral("proton")) {
-        prefix = app[QStringLiteral("protonPrefix")].toString();
+    QVariantMap resolved = app;
+    if (resolved[QStringLiteral("runtimeType")].toString() == QStringLiteral("default")) {
+        resolved[QStringLiteral("runtimeType")] = m_defaultRuntimeType;
+        if (resolved[QStringLiteral("protonPath")].toString().isEmpty())
+            resolved[QStringLiteral("protonPath")] = m_defaultProtonPath;
+        if (resolved[QStringLiteral("wineBinary")].toString().isEmpty())
+            resolved[QStringLiteral("wineBinary")] = m_defaultWineBinary;
+    }
+
+    if (resolved[QStringLiteral("runtimeType")].toString() == QStringLiteral("proton")) {
+        prefix = resolved[QStringLiteral("protonPrefix")].toString();
         QString pfxDir = prefix + QStringLiteral("/pfx");
         if (!QFileInfo::exists(prefix + QStringLiteral("/pfx.lock"))) {
-            Q_EMIT prefixNotReady(app[QStringLiteral("name")].toString());
+            Q_EMIT prefixNotReady(resolved[QStringLiteral("name")].toString());
             proc->deleteLater();
             return;
         }
         env.insert(QStringLiteral("WINEPREFIX"), pfxDir);
-        QString protonPath = app[QStringLiteral("protonPath")].toString();
+        QString protonPath = resolved[QStringLiteral("protonPath")].toString();
         QString wine64 = protonPath + QStringLiteral("/files/bin/wine64");
         QString wineBin = QFileInfo::exists(wine64) ? wine64 : protonPath + QStringLiteral("/files/bin/wine");
         env.insert(QStringLiteral("WINE"), wineBin);
         env.insert(QStringLiteral("WINESERVER"), protonPath + QStringLiteral("/files/bin/wineserver"));
     } else {
-        prefix = app[QStringLiteral("winePrefix")].toString();
-        env.insert(QStringLiteral("WINE"), app[QStringLiteral("wineBinary")].toString());
+        prefix = resolved[QStringLiteral("winePrefix")].toString();
+        env.insert(QStringLiteral("WINE"), resolved[QStringLiteral("wineBinary")].toString());
         env.insert(QStringLiteral("WINEPREFIX"), prefix);
     }
 
