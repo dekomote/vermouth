@@ -10,7 +10,13 @@ GameGridView {
     property bool searchActive: false
 
     onShowHiddenChanged: appModel.showHidden = showHidden
-    Component.onCompleted: appModel.showHidden = showHidden
+    onSortFieldChanged: appModel.sortField = sortField
+    onSortAscendingChanged: appModel.sortAscending = sortAscending
+    Component.onCompleted: {
+        appModel.showHidden = showHidden;
+        appModel.sortField = sortField;
+        appModel.sortAscending = sortAscending;
+    }
 
     Connections {
         target: launcher

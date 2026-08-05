@@ -27,7 +27,21 @@ void AppModel::rebuildFilter()
             m_filtered.append(i);
     }
     std::sort(m_filtered.begin(), m_filtered.end(), [this](int a, int b) {
-        return m_entries[a].name.compare(m_entries[b].name, Qt::CaseInsensitive) < 0;
+        const auto &ea = m_entries[a];
+        const auto &eb = m_entries[b];
+        int result = 0;
+        if (m_sortField == QLatin1String("runtime")) {
+            result = static_cast<int>(ea.runtimeType) - static_cast<int>(eb.runtimeType);
+            if (result == 0)
+                result = ea.name.compare(eb.name, Qt::CaseInsensitive);
+        } else if (m_sortField == QLatin1String("date")) {
+            result = ea.dateAdded > eb.dateAdded ? 1 : (ea.dateAdded < eb.dateAdded ? -1 : 0);
+            if (result == 0)
+                result = ea.name.compare(eb.name, Qt::CaseInsensitive);
+        } else {
+            result = ea.name.compare(eb.name, Qt::CaseInsensitive);
+        }
+        return m_sortAscending ? (result < 0) : (result > 0);
     });
 }
 
@@ -41,6 +55,28 @@ void AppModel::setShowHidden(bool showHidden)
     endResetModel();
     Q_EMIT showHiddenChanged();
     Q_EMIT countChanged();
+}
+
+void AppModel::setSortField(const QString &field)
+{
+    if (m_sortField == field)
+        return;
+    m_sortField = field;
+    beginResetModel();
+    rebuildFilter();
+    endResetModel();
+    Q_EMIT sortFieldChanged();
+}
+
+void AppModel::setSortAscending(bool ascending)
+{
+    if (m_sortAscending == ascending)
+        return;
+    m_sortAscending = ascending;
+    beginResetModel();
+    rebuildFilter();
+    endResetModel();
+    Q_EMIT sortAscendingChanged();
 }
 
 void AppModel::setFilterString(const QString &filter)
@@ -139,6 +175,8 @@ void AppModel::addApp(const QVariantMap &app)
     AppEntry e;
     e.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
     e.updateFromVariantMap(app);
+    if (!e.dateAdded.isValid())
+        e.dateAdded = QDateTime::currentDateTime();
 
     beginResetModel();
     m_entries.append(e);

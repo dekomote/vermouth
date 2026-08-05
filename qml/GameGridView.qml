@@ -11,6 +11,8 @@ GridView {
     property bool active: true
     property bool lightsOut: false
     property bool showHidden: true
+    property string sortField: "name"
+    property bool sortAscending: true
     topMargin: Kirigami.Units.mediumSpacing
     bottomMargin: Kirigami.Units.mediumSpacing
     leftMargin: Kirigami.Units.mediumSpacing
@@ -23,6 +25,8 @@ GridView {
         property alias viewType: gridView.viewType
         property alias showNames: gridView.showNames
         property alias showHidden: gridView.showHidden
+        property alias sortField: gridView.sortField
+        property alias sortAscending: gridView.sortAscending
     }
 
     cellWidth: {

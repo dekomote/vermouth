@@ -48,6 +48,7 @@ QJsonObject AppEntry::toJson() const
     obj[QStringLiteral("launchOptions")] = launchOptions;
     obj[QStringLiteral("enableLogging")] = enableLogging;
     obj[QStringLiteral("hidden")] = hidden;
+    obj[QStringLiteral("dateAdded")] = dateAdded.toString(Qt::ISODate);
     return obj;
 }
 
@@ -73,6 +74,7 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("launchOptions"), launchOptions},
         {QStringLiteral("enableLogging"), enableLogging},
         {QStringLiteral("hidden"), hidden},
+        {QStringLiteral("dateAdded"), dateAdded},
     };
 }
 
@@ -101,6 +103,7 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     e.launchOptions = obj[QStringLiteral("launchOptions")].toString();
     e.enableLogging = obj[QStringLiteral("enableLogging")].toBool(false);
     e.hidden = obj[QStringLiteral("hidden")].toBool(false);
+    e.dateAdded = QDateTime::fromString(obj[QStringLiteral("dateAdded")].toString(), Qt::ISODate);
     return e;
 }
 

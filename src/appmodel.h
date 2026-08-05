@@ -9,6 +9,8 @@ class AppModel : public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
     Q_PROPERTY(bool showHidden READ showHidden WRITE setShowHidden NOTIFY showHiddenChanged)
+    Q_PROPERTY(QString sortField READ sortField WRITE setSortField NOTIFY sortFieldChanged)
+    Q_PROPERTY(bool sortAscending READ sortAscending WRITE setSortAscending NOTIFY sortAscendingChanged)
 
 public:
     enum Roles {
@@ -63,12 +65,26 @@ public:
     }
     void setShowHidden(bool showHidden);
 
+    QString sortField() const
+    {
+        return m_sortField;
+    }
+    void setSortField(const QString &field);
+
+    bool sortAscending() const
+    {
+        return m_sortAscending;
+    }
+    void setSortAscending(bool ascending);
+
     void load();
     void save() const;
 
 Q_SIGNALS:
     void countChanged();
     void showHiddenChanged();
+    void sortFieldChanged();
+    void sortAscendingChanged();
 
 private:
     int sourceIndex(int filteredIndex) const;
@@ -79,4 +95,6 @@ private:
     QVector<int> m_filtered; // indices into m_entries
     QString m_filter;
     bool m_showHidden = false;
+    QString m_sortField = QStringLiteral("name");
+    bool m_sortAscending = true;
 };

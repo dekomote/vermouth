@@ -418,6 +418,27 @@ Kirigami.Dialog {
                 onClicked: artSection.expanded = !artSection.expanded
             }
 
+            QQC2.Button {
+                Kirigami.FormData.label: ""
+                visible: dialog.editMode
+                text: i18n("Refresh artwork")
+                icon.name: "view-refresh-symbolic"
+                flat: true
+                enabled: !steamGridDb.busy && nameField.text !== ""
+                onClicked: {
+                    if (settingsManager.steamGridDbApiKey !== "") {
+                        steamGridDb.autoDownloadAll(nameField.text, protonScanner.localAssetsPath(), settingsManager.steamGridDbApiKey);
+                    } else {
+                        steamGridDb.autoDownloadFromBottles(nameField.text, protonScanner.localAssetsPath());
+                        if (exeField.text !== "") {
+                            var extracted = iconExtractor.extractIcon(exeField.text);
+                            if (extracted !== "")
+                                iconField.text = extracted;
+                        }
+                    }
+                }
+            }
+
             ColumnLayout {
                 id: artSection
                 property bool expanded: false

@@ -45,6 +45,7 @@ KDE-first, lightweight, no frills.</p>
   - [OpenSUSE Tumbleweed](#opensuse-tumbleweed)
   - [Ubuntu / Debian](#ubuntu--debian)
   - [Arch Linux / CachyOS](#arch-linux--cachyos)
+  - [Nix](#nix)
   - [Flatpak](#flatpak)
   - [AppImage](#appimage)
 - [Building from source](#building-from-source)
@@ -255,6 +256,41 @@ Or build from the included PKGBUILD:
 cd packaging && makepkg -si
 ```
 
+### Nix
+
+With [flakes](https://nixos.wiki/wiki/flakes) enabled, you can build and run Vermouth directly from this repository:
+
+```bash
+nix run github:dekomote/vermouth
+```
+
+Or build it and run the resulting binary:
+
+```bash
+nix build github:dekomote/vermouth
+./result/bin/vermouth
+```
+
+To install it permanently into your NixOS configuration, add the flake to your inputs and use the `packages.<system>.default` output:
+
+```nix
+{
+  inputs.vermouth.url = "github:dekomote/vermouth";
+
+  environment.systemPackages = [
+    inputs.vermouth.packages.${pkgs.system}.default
+  ];
+}
+```
+
+For development, enter the flake's dev shell to get all build dependencies (CMake, Qt 6, KF6, `icoutils`):
+
+```bash
+nix develop github:dekomote/vermouth
+```
+
+Then follow the usual build steps from [Building from source](#building-from-source).
+
 ### Flatpak
 
 Install it from [flathub](https://flathub.org/en/apps/com.dekomote.vermouth)
@@ -375,7 +411,7 @@ Then fill in any new empty `msgstr ""` entries in your `.po` file.
 
 ### AI
 
-Development included assistance of AI tools.
+Contributions made with the help of AI tools are accepted, as long as they are quality code. Please make sure the code is read and tested by you before opening a pull request.
 
 ---
 

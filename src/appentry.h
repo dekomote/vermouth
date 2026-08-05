@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QDateTime>
 #include <QJsonObject>
 #include <QObject>
 #include <QString>
@@ -53,6 +54,7 @@ public:
     QString launchOptions;
     bool enableLogging = false;
     bool hidden = false;
+    QDateTime dateAdded;
 
     QJsonObject toJson() const;
     QVariantMap toVariantMap() const;

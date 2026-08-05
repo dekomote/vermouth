@@ -306,6 +306,42 @@ Kirigami.ApplicationWindow {
                             onClicked: gridView.scaleFactor = Math.min(1.8, gridView.scaleFactor + 0.2)
                         }
                     }
+                    QQC2.MenuSeparator {}
+                    QQC2.Menu {
+                        title: i18n("Sort By")
+                        icon.name: "view-sort-symbolic"
+                        QQC2.MenuItem {
+                            text: i18n("Name")
+                            checkable: true
+                            checked: gridView.sortField === "name"
+                            onTriggered: gridView.sortField = "name"
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Runtime")
+                            checkable: true
+                            checked: gridView.sortField === "runtime"
+                            onTriggered: gridView.sortField = "runtime"
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Date Added")
+                            checkable: true
+                            checked: gridView.sortField === "date"
+                            onTriggered: gridView.sortField = "date"
+                        }
+                        QQC2.MenuSeparator {}
+                        QQC2.MenuItem {
+                            text: i18n("A–Z")
+                            checkable: true
+                            checked: gridView.sortAscending
+                            onTriggered: gridView.sortAscending = true
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Z–A")
+                            checkable: true
+                            checked: !gridView.sortAscending
+                            onTriggered: gridView.sortAscending = false
+                        }
+                    }
                 }
             }
         }
@@ -782,7 +818,53 @@ Kirigami.ApplicationWindow {
                     onClicked: gridView.showNames = !gridView.showNames
                     QQC2.ToolTip.text: gridView.showNames ? i18n("Hide names") : i18n("Show names")
                     QQC2.ToolTip.visible: hovered
+                }
+                QQC2.ToolSeparator {}
+                QQC2.ToolButton {
+                    icon.name: "view-sort-symbolic"
+                    focusPolicy: Qt.NoFocus
+                    flat: true
+                    icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                    QQC2.ToolTip.text: i18n("Sort By")
+                    QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                    onClicked: footerSortMenu.open()
+                    QQC2.Menu {
+                        id: footerSortMenu
+                        title: i18n("Sort By")
+                        icon.name: "view-sort-symbolic"
+                        QQC2.MenuItem {
+                            text: i18n("Name")
+                            checkable: true
+                            checked: gridView.sortField === "name"
+                            onTriggered: gridView.sortField = "name"
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Runtime")
+                            checkable: true
+                            checked: gridView.sortField === "runtime"
+                            onTriggered: gridView.sortField = "runtime"
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Date Added")
+                            checkable: true
+                            checked: gridView.sortField === "date"
+                            onTriggered: gridView.sortField = "date"
+                        }
+                        QQC2.MenuSeparator {}
+                        QQC2.MenuItem {
+                            text: i18n("A–Z")
+                            checkable: true
+                            checked: gridView.sortAscending
+                            onTriggered: gridView.sortAscending = true
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Z–A")
+                            checkable: true
+                            checked: !gridView.sortAscending
+                            onTriggered: gridView.sortAscending = false
+                        }
+                    }
                 }
                 QQC2.ToolSeparator {}
                 QQC2.Button {
