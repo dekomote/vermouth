@@ -477,8 +477,17 @@ Kirigami.Dialog {
                 enabled: !steamGridDb.busy && nameField.text !== ""
                 onClicked: {
                     if (settingsManager.steamGridDbApiKey !== "") {
-                        steamGridDb.autoDownloadAll(nameField.text, protonScanner.localAssetsPath(), settingsManager.steamGridDbApiKey);
+                        var storedId = parseInt(steamGridDbIdField.text);
+                        if (!isNaN(storedId) && storedId > 0) {
+                            dialog.autoDownloadingInDialog = true;
+                            dialog.autoDownloadStatus = "";
+                            steamGridDb.autoDownloadAllById(storedId, nameField.text, protonScanner.localAssetsPath(), settingsManager.steamGridDbApiKey);
+                        } else {
+                            dialog.autoDownloadStatus = i18n("Set a SteamGridDB ID first");
+                        }
                     } else {
+                        dialog.autoDownloadingInDialog = true;
+                        dialog.autoDownloadStatus = "";
                         steamGridDb.autoDownloadFromBottles(nameField.text, protonScanner.localAssetsPath());
                         if (exeField.text !== "") {
                             var extracted = iconExtractor.extractIcon(exeField.text);
