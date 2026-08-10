@@ -52,6 +52,7 @@ QJsonObject AppEntry::toJson() const
     obj[QStringLiteral("launchOptions")] = launchOptions;
     obj[QStringLiteral("enableLogging")] = enableLogging;
     obj[QStringLiteral("hidden")] = hidden;
+    obj[QStringLiteral("playTime")] = static_cast<double>(playTime);
     obj[QStringLiteral("dateAdded")] = dateAdded.toString(Qt::ISODate);
     return obj;
 }
@@ -80,6 +81,7 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("launchOptions"), launchOptions},
         {QStringLiteral("enableLogging"), enableLogging},
         {QStringLiteral("hidden"), hidden},
+        {QStringLiteral("playTime"), playTime},
         {QStringLiteral("dateAdded"), dateAdded},
     };
 }
@@ -113,6 +115,7 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     e.launchOptions = obj[QStringLiteral("launchOptions")].toString();
     e.enableLogging = obj[QStringLiteral("enableLogging")].toBool(false);
     e.hidden = obj[QStringLiteral("hidden")].toBool(false);
+    e.playTime = obj.value(QStringLiteral("playTime")).toInteger(0);
     e.dateAdded = QDateTime::fromString(obj[QStringLiteral("dateAdded")].toString(), Qt::ISODate);
     return e;
 }
@@ -142,4 +145,5 @@ void AppEntry::updateFromVariantMap(const QVariantMap &app)
     launchOptions = app[QStringLiteral("launchOptions")].toString();
     enableLogging = app.value(QStringLiteral("enableLogging"), false).toBool();
     hidden = app.value(QStringLiteral("hidden"), false).toBool();
+    playTime = app.value(QStringLiteral("playTime"), 0).toLongLong();
 }

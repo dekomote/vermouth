@@ -3,6 +3,7 @@ import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import QtQuick.Dialogs
 import org.kde.kirigami as Kirigami
+import "TimeUtils.js" as TimeUtils
 
 Kirigami.Dialog {
     id: dialog
@@ -58,6 +59,7 @@ Kirigami.Dialog {
         logoField.text = "";
         steamGridDbIdField.text = "";
         steamIdField.text = "";
+        playTimeField.text = "";
         platformCombo.currentIndex = -1;
         artSection.expanded = false;
         pendingAutoDownload = false;
@@ -152,6 +154,7 @@ Kirigami.Dialog {
         logoField.text = app.logoPath || "";
         steamGridDbIdField.text = app.steamGridDbId > 0 ? app.steamGridDbId.toString() : "";
         steamIdField.text = app.steamAppId > 0 ? app.steamAppId.toString() : "";
+        playTimeField.text = TimeUtils.formatPlayTime(app.playTime) || "0:00:00";
         platformCombo.currentIndex = platformCombo.find(app.platformSlug);
         artSection.expanded = gridField.text !== "" || heroField.text !== "" || logoField.text !== "";
         prefixBasePath = protonScanner.prefixBasePath();
@@ -196,6 +199,10 @@ Kirigami.Dialog {
             validationError = i18n("Please select a platform.");
             return false;
         }
+        if (isNaN(TimeUtils.parsePlayTime(playTimeField.text))) {
+            validationError = i18n("Invalid play time. Use the format H:MM:SS.");
+            return false;
+        }
         validationError = "";
         return true;
     }
@@ -234,7 +241,8 @@ Kirigami.Dialog {
             "launchOptions": launchOptionsField.text || "",
             "enableLogging": enableLoggingCheck.checked,
             "logoPath": logoField.text || "",
-            "steamGridDbId": sgdbId
+            "steamGridDbId": sgdbId,
+            "playTime": TimeUtils.parsePlayTime(playTimeField.text)
         };
 
         if (editMode) {
@@ -319,6 +327,14 @@ Kirigami.Dialog {
                 Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Name:")
                 placeholderText: i18n("My Game")
+            }
+
+            QQC2.TextField {
+                id: playTimeField
+                Layout.topMargin: 10
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Play Time (H:MM:SS):")
+                placeholderText: "0:00:00"
             }
 
             RowLayout {

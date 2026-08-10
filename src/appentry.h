@@ -60,6 +60,7 @@ public:
     QString launchOptions;
     bool enableLogging = false;
     bool hidden = false;
+    qint64 playTime = 0; // seconds
     QDateTime dateAdded;
 
     QJsonObject toJson() const;

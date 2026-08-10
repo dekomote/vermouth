@@ -277,6 +277,13 @@ Kirigami.ApplicationWindow {
                         checked: gridView.showNames
                         onTriggered: gridView.showNames = checked
                     }
+                    QQC2.MenuItem {
+                        text: i18n("Show play time")
+                        icon.name: "clock-symbolic"
+                        checkable: true
+                        checked: gridView.showPlayTime
+                        onTriggered: gridView.showPlayTime = checked
+                    }
                     QQC2.MenuSeparator {}
                     RowLayout {
                         spacing: Kirigami.Units.smallSpacing
@@ -327,6 +334,12 @@ Kirigami.ApplicationWindow {
                             checkable: true
                             checked: gridView.sortField === "date"
                             onTriggered: gridView.sortField = "date"
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Play Time")
+                            checkable: true
+                            checked: gridView.sortField === "playtime"
+                            onTriggered: gridView.sortField = "playtime"
                         }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
@@ -850,6 +863,12 @@ Kirigami.ApplicationWindow {
                             checkable: true
                             checked: gridView.sortField === "date"
                             onTriggered: gridView.sortField = "date"
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Play Time")
+                            checkable: true
+                            checked: gridView.sortField === "playtime"
+                            onTriggered: gridView.sortField = "playtime"
                         }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {

@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import org.kde.kirigami as Kirigami
+import "TimeUtils.js" as TimeUtils
 
 Item {
     id: frameRoot
@@ -271,6 +272,39 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.Wrap
                     maximumLineCount: 2
+                }
+            }
+
+            Rectangle {
+                id: playTimeChip
+                visible: frameRoot.gv && frameRoot.gv.viewType !== "icon" && frameRoot.gv.showPlayTime && frameRoot.playTime > 0
+                anchors.bottom: artNameOverlay.visible ? artNameOverlay.top : parent.bottom
+                anchors.right: parent.right
+                anchors.bottomMargin: Kirigami.Units.smallSpacing
+                anchors.rightMargin: Kirigami.Units.smallSpacing
+                height: playTimeLabel.implicitHeight + Kirigami.Units.smallSpacing * 2
+                width: playTimeRow.implicitWidth + Kirigami.Units.smallSpacing * 2
+                radius: Kirigami.Units.cornerRadius
+                color: Qt.rgba(0, 0, 0, 0.65)
+
+                Row {
+                    id: playTimeRow
+                    anchors.centerIn: parent
+                    spacing: Kirigami.Units.smallSpacing
+
+                    Kirigami.Icon {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 12 * frameRoot.gv.scaleFactor
+                        height: 12 * frameRoot.gv.scaleFactor
+                        source: "clock-symbolic"
+                        color: "#ffffff"
+                    }
+                    QQC2.Label {
+                        id: playTimeLabel
+                        text: TimeUtils.formatPlayTime(frameRoot.playTime)
+                        color: "#ffffff"
+                        font.pixelSize: 10 * frameRoot.gv.scaleFactor
+                    }
                 }
             }
         }

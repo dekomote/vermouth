@@ -93,6 +93,7 @@ GameGridView {
         required property string uzdoomPath
         required property var uzdoomMods
         required property bool hidden
+        required property int playTime
 
         readonly property bool hasPrefix: runtimeType === "proton" || runtimeType === "wine"
         readonly property string resolvedRuntimeType: runtimeType === "default" ? settingsManager.defaultRuntimeType : runtimeType

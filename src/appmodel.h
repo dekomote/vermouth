@@ -35,6 +35,7 @@ public:
         LaunchOptionsRole,
         EnableLoggingRole,
         HiddenRole,
+        PlayTimeRole,
     };
 
     explicit AppModel(QObject *parent = nullptr);
@@ -60,6 +61,7 @@ public:
     Q_INVOKABLE QString generateUUID() const;
     Q_INVOKABLE void
     updateAppArt(const QString &id, const QString &iconPath, const QString &gridPath, const QString &heroPath, const QString &logoPath, int steamGridDbId = 0);
+    Q_INVOKABLE void addPlayTime(const QString &exePath, qint64 seconds);
 
     bool showHidden() const
     {
@@ -99,4 +101,5 @@ private:
     bool m_showHidden = false;
     QString m_sortField = QStringLiteral("name");
     bool m_sortAscending = true;
+    int m_saveCounter = 0;
 };

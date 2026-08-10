@@ -35,6 +35,7 @@
 #include <QQmlContext>
 #include <QQuickImageProvider>
 #include <QQuickStyle>
+#include <QTimer>
 
 class IconImageProvider : public QQuickImageProvider
 {
@@ -217,6 +218,33 @@ int main(int argc, char *argv[])
 
     QObject::connect(&app, &QApplication::aboutToQuit, [&]() {
         launcher.restoreHdrState();
+        appModel.save();
+    });
+
+    QTimer playTimeTimer;
+    playTimeTimer.setInterval(1000);
+    QObject::connect(&playTimeTimer, &QTimer::timeout, [&]() {
+        const auto paths = launcher.runningExePaths();
+        for (const QString &path : paths)
+            appModel.addPlayTime(path, 1);
+    });
+    QTimer playTimeStartDelay;
+    playTimeStartDelay.setSingleShot(true);
+    playTimeStartDelay.setInterval(5000);
+    QObject::connect(&playTimeStartDelay, &QTimer::timeout, [&]() {
+        playTimeTimer.start();
+    });
+    QObject::connect(&launcher, &Launcher::runningExePathsChanged, [&]() {
+        if (launcher.runningExePaths().isEmpty()) {
+            playTimeStartDelay.stop();
+            playTimeTimer.stop();
+            appModel.save();
+        } else if (!playTimeTimer.isActive() && !playTimeStartDelay.isActive()) {
+            playTimeStartDelay.start();
+        }
+    });
+    QObject::connect(&launcher, &Launcher::processFinished, [&](int) {
+        appModel.save();
     });
 
     // Restore sleep inhibition state

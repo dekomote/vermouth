@@ -95,6 +95,7 @@ qt_add_qml_module(vermouth
         qml/GogView.qml
         qml/DownloaderProgress.qml
         qml/FlatpakHostHint.qml
+        qml/TimeUtils.js
     NO_RESOURCE_TARGET_PATH
 )
 

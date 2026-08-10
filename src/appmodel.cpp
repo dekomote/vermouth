@@ -38,6 +38,10 @@ void AppModel::rebuildFilter()
             result = ea.dateAdded > eb.dateAdded ? 1 : (ea.dateAdded < eb.dateAdded ? -1 : 0);
             if (result == 0)
                 result = ea.name.compare(eb.name, Qt::CaseInsensitive);
+        } else if (m_sortField == QLatin1String("playtime")) {
+            result = ea.playTime < eb.playTime ? -1 : (ea.playTime > eb.playTime ? 1 : 0);
+            if (result == 0)
+                result = ea.name.compare(eb.name, Qt::CaseInsensitive);
         } else {
             result = ea.name.compare(eb.name, Qt::CaseInsensitive);
         }
@@ -145,6 +149,8 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.enableLogging;
     case HiddenRole:
         return e.hidden;
+    case PlayTimeRole:
+        return e.playTime;
     }
     return {};
 }
@@ -173,6 +179,7 @@ QHash<int, QByteArray> AppModel::roleNames() const
         {LaunchOptionsRole, "launchOptions"},
         {EnableLoggingRole, "enableLogging"},
         {HiddenRole, "hidden"},
+        {PlayTimeRole, "playTime"},
     };
 }
 
@@ -271,6 +278,28 @@ void AppModel::updateAppArt(const QString &id,
     }
 }
 
+void AppModel::addPlayTime(const QString &exePath, qint64 seconds)
+{
+    for (int i = 0; i < m_entries.size(); ++i) {
+        if (m_entries[i].exePath != exePath)
+            continue;
+        m_entries[i].playTime += seconds;
+        for (int f = 0; f < m_filtered.size(); ++f) {
+            if (m_filtered[f] == i) {
+                QModelIndex idx = index(f, 0);
+                Q_EMIT dataChanged(idx, idx, {PlayTimeRole});
+                break;
+            }
+        }
+        // Throttle disk writes: flush at most every 10 seconds while a game runs.
+        if (++m_saveCounter >= 10) {
+            m_saveCounter = 0;
+            save();
+        }
+        return;
+    }
+}
+
 QVariantMap AppModel::getApp(int index) const
 {
     int src = sourceIndex(index);
@@ -354,8 +383,14 @@ void AppModel::save() const
     for (const auto &e : m_entries)
         arr.append(e.toJson());
 
-    QFile f(configPath());
+    // Atomic write: write to a temp file, then rename over the real one.
+    const QString path = configPath();
+    const QString tmpPath = path + QStringLiteral(".tmp");
+    QFile f(tmpPath);
     if (!f.open(QIODevice::WriteOnly))
         return;
     f.write(QJsonDocument(arr).toJson());
+    f.close();
+    QFile::remove(path);
+    QFile::rename(tmpPath, path);
 }

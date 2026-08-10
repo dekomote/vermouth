@@ -8,6 +8,7 @@ GridView {
     property real scaleFactor: 1.0
     property string viewType: "grid"
     property bool showNames: true
+    property bool showPlayTime: true
     property bool active: true
     property bool lightsOut: false
     property bool showHidden: true
@@ -24,6 +25,7 @@ GridView {
         property alias scaleFactor: gridView.scaleFactor
         property alias viewType: gridView.viewType
         property alias showNames: gridView.showNames
+        property alias showPlayTime: gridView.showPlayTime
         property alias showHidden: gridView.showHidden
         property alias sortField: gridView.sortField
         property alias sortAscending: gridView.sortAscending
