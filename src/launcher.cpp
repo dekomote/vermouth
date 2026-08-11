@@ -359,6 +359,16 @@ qint64 Launcher::launch(const QString &binary,
                         const QString &logName,
                         bool appendExe)
 {
+    if (binary.isEmpty()) {
+        Q_EMIT launchError(exePath, QStringLiteral("No runtime is set for this game."));
+        return -1;
+    }
+    const bool binaryFound = binary.contains(QLatin1Char('/')) ? QFileInfo::exists(binary) : !QStandardPaths::findExecutable(binary).isEmpty();
+    if (!binaryFound) {
+        Q_EMIT launchError(exePath, QStringLiteral("Runtime binary not found: %1").arg(binary));
+        return -1;
+    }
+
     auto *proc = new QProcess(this);
     auto *timer = new QElapsedTimer();
     timer->start();
@@ -450,6 +460,10 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
 
     // "default" runtime is inferred from settings at launch time - never copied into the entry.
     if (runtimeType == QStringLiteral("default")) {
+        if (m_defaultRuntimeType.isEmpty()) {
+            Q_EMIT launchError(name, QStringLiteral("No default runtime is set in Settings."));
+            return -1;
+        }
         QVariantMap resolved = app;
         resolved[QStringLiteral("runtimeType")] = m_defaultRuntimeType;
         if (resolved[QStringLiteral("protonPath")].toString().isEmpty())
@@ -502,20 +516,30 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
 
     if (runtimeType == QStringLiteral("proton")) {
         QString protonPath = app[QStringLiteral("protonPath")].toString();
+        if (protonPath.isEmpty()) {
+            Q_EMIT launchError(name, QStringLiteral("Proton is not set. Download it or set its path in Settings."));
+            return -1;
+        }
         QString prefix = app[QStringLiteral("protonPrefix")].toString();
         if (!prefix.isEmpty())
             QDir().mkpath(prefix);
 
-        QString umoBin = m_umuPath;
-        if (umoBin.isEmpty())
-            umoBin = QStandardPaths::findExecutable(QStringLiteral("umu-run"));
+        QString umuBin;
+        if (!m_umuPath.isEmpty() && QFileInfo::exists(m_umuPath))
+            umuBin = m_umuPath;
+        if (umuBin.isEmpty())
+            umuBin = QStandardPaths::findExecutable(QStringLiteral("umu-run"));
 
-        if (!umoBin.isEmpty()) {
+        if (!umuBin.isEmpty()) {
+            if (!QFileInfo::exists(protonPath + QStringLiteral("/proton"))) {
+                Q_EMIT launchError(name, QStringLiteral("Proton not found at %1. Download it or set its path in Settings.").arg(protonPath));
+                return -1;
+            }
             env.insert(QStringLiteral("PROTONPATH"), protonPath);
             env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
             env.insert(QStringLiteral("GAMEID"), QStringLiteral("0"));
             env.insert(QStringLiteral("WINEPREFIX"), prefix);
-            return launch(umoBin, {}, exePath, env, opts, logging, name);
+            return launch(umuBin, {}, exePath, env, opts, logging, name);
         } else {
             env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
             env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
@@ -550,12 +574,17 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         env.insert(QStringLiteral("APPIMAGE"), exePath);
         return launch(binary, baseArgs, exePath, env, opts, logging, name, false);
     } else {
+        QString wineBinary = app[QStringLiteral("wineBinary")].toString();
+        if (wineBinary.isEmpty()) {
+            Q_EMIT launchError(name, QStringLiteral("Wine is not set. Set its path in Settings."));
+            return -1;
+        }
         QString prefix = app[QStringLiteral("winePrefix")].toString();
         if (!prefix.isEmpty()) {
             QDir().mkpath(prefix);
             env.insert(QStringLiteral("WINEPREFIX"), prefix);
         }
-        return launch(app[QStringLiteral("wineBinary")].toString(), {}, exePath, env, opts, logging, name);
+        return launch(wineBinary, {}, exePath, env, opts, logging, name);
     }
 }
 

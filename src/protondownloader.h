@@ -19,7 +19,7 @@ static const ProtonBuildConfig protonBuildConfigs[] = {
     {"ge",
      "https://github.com/GloriousEggroll/proton-ge-custom/releases/latest",
      "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/%1/%2",
-     "%1.tar.gz",
+     "%1-x86_64.tar.gz",
      "-xzf",
      ".tar.gz"},
     {"cachyos",
