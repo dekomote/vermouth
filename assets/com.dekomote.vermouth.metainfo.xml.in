@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+      <release version="2.0.2" date="2026-08-11">
+        <description>
+          <p>This release adds the playtime feature, fixes GE Proton download url and adds a check when runtimes are missing.</p>
+        </description>
+    </release>
     <release version="2.0.1" date="2026-08-05">
         <description>
           <p>This release adds the UZDOOM runtime, the Default Runtime feature, the Sort feature and several minor fixes/QoL addons.</p>
