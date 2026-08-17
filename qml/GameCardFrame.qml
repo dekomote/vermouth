@@ -371,7 +371,7 @@ Item {
                     frameRoot.gv.currentIndex = frameRoot.index;
                     frameRoot.gv.forceActiveFocus();
                 }
-                if (mouse.button === Qt.LeftButton && Qt.styleHints.singleClickActivation) {
+                if (mouse.button === Qt.LeftButton && Qt.styleHints.singleClickActivation && !(mouse.modifiers & Qt.ControlModifier)) {
                     frameRoot.playLaunchAnimation();
                     frameRoot.launched();
                 } else if (mouse.button === Qt.RightButton) {
