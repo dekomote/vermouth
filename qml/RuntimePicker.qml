@@ -324,6 +324,21 @@ ColumnLayout {
                         enabled: !protonDownloader.busy
                         onTriggered: protonDownloader.downloadLatest("cachyos")
                     }
+                    QQC2.MenuItem {
+                        text: i18n("Download latest Umu-Proton")
+                        enabled: !protonDownloader.busy
+                        onTriggered: protonDownloader.downloadLatest("umu")
+                    }
+                    QQC2.MenuItem {
+                        text: i18n("Download latest Proton-EM")
+                        enabled: !protonDownloader.busy
+                        onTriggered: protonDownloader.downloadLatest("em")
+                    }
+                    QQC2.MenuItem {
+                        text: i18n("Download latest DWProton")
+                        enabled: !protonDownloader.busy
+                        onTriggered: protonDownloader.downloadLatest("dw")
+                    }
                 }
             }
         }
