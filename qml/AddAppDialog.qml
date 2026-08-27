@@ -43,6 +43,32 @@ Kirigami.Dialog {
     property bool installerRunning: false
     property int installerPid: 0
     property string installerPrefixPath: ""
+    property bool mangohudAvailable: false
+    property bool gamemodeAvailable: false
+    property bool lsfgAvailable: false
+    readonly property bool showAdvancedOptions: runtimePicker.runtimeType !== "steam" && runtimePicker.runtimeType !== "retroarch"
+    property var lsfgPresentModes: [
+        {
+            "text": i18n("Default"),
+            "value": "default"
+        },
+        {
+            "text": i18n("Immediate"),
+            "value": "immediate"
+        },
+        {
+            "text": i18n("Mailbox"),
+            "value": "mailbox"
+        },
+        {
+            "text": i18n("FIFO"),
+            "value": "fifo"
+        },
+        {
+            "text": i18n("FIFO Relaxed"),
+            "value": "fifo_relaxed"
+        }
+    ]
 
     function openForNew() {
         editMode = false;
@@ -61,14 +87,27 @@ Kirigami.Dialog {
         steamIdField.text = "";
         playTimeField.text = "";
         platformCombo.currentIndex = -1;
+        protonGameIdField.text = "";
+        enableMangohudCheck.checked = false;
+        enableGamemodeCheck.checked = false;
+        enablePreferSdlCheck.checked = false;
+        enableLsfgCheck.checked = false;
+        lsfgMultiplierSpin.value = 2;
+        lsfgFlowScaleSpin.value = 50;
+        lsfgPerformanceModeCheck.checked = false;
+        lsfgPresentModeCombo.currentIndex = 0;
         artSection.expanded = false;
         pendingAutoDownload = false;
         dialog.pendingInstallerRun = false;
         autoDownloadingInDialog = false;
         autoDownloadStatus = "";
         uzdoomModsModel.clear();
+        gameEnvModel.clear();
         runtimePicker.reset();
         prefixBasePath = protonScanner.prefixBasePath();
+        dialog.mangohudAvailable = launcher.isMangohudAvailable();
+        dialog.gamemodeAvailable = launcher.isGamemodeAvailable();
+        dialog.lsfgAvailable = settingsManager.lsfgDllPath !== "";
         dialog.open();
     }
 
@@ -156,6 +195,22 @@ Kirigami.Dialog {
         steamIdField.text = app.steamAppId > 0 ? app.steamAppId.toString() : "";
         playTimeField.text = TimeUtils.formatPlayTime(app.playTime) || "0:00:00";
         platformCombo.currentIndex = platformCombo.find(app.platformSlug);
+        protonGameIdField.text = app.protonGameId || "";
+        enableMangohudCheck.checked = app.enableMangohud || false;
+        enableGamemodeCheck.checked = app.enableGamemode || false;
+        enablePreferSdlCheck.checked = app.enablePreferSdl || false;
+        enableLsfgCheck.checked = app.enableLsfg || false;
+        lsfgMultiplierSpin.value = app.lsfgMultiplier || 2;
+        lsfgFlowScaleSpin.value = app.lsfgFlowScale || 50;
+        lsfgPerformanceModeCheck.checked = app.lsfgPerformanceMode || false;
+        var lsfgPresentIndex = 0;
+        for (var pm = 0; pm < dialog.lsfgPresentModes.length; pm++) {
+            if (dialog.lsfgPresentModes[pm].value === app.lsfgPresentMode) {
+                lsfgPresentIndex = pm;
+                break;
+            }
+        }
+        lsfgPresentModeCombo.currentIndex = lsfgPresentIndex;
         artSection.expanded = gridField.text !== "" || heroField.text !== "" || logoField.text !== "";
         prefixBasePath = protonScanner.prefixBasePath();
         pendingAutoDownload = false;
@@ -168,7 +223,19 @@ Kirigami.Dialog {
             uzdoomModsModel.append({
                 "path": mods[mi]
             });
+        gameEnvModel.clear();
+        var gameVars = app.envVars || [];
+        for (var gi = 0; gi < gameVars.length; gi++) {
+            var sepIdx = gameVars[gi].indexOf("=");
+            gameEnvModel.append({
+                "key": sepIdx > 0 ? gameVars[gi].substring(0, sepIdx) : gameVars[gi],
+                "value": sepIdx > 0 ? gameVars[gi].substring(sepIdx + 1) : ""
+            });
+        }
         runtimePicker.loadFromApp(app);
+        dialog.mangohudAvailable = launcher.isMangohudAvailable();
+        dialog.gamemodeAvailable = launcher.isGamemodeAvailable();
+        dialog.lsfgAvailable = settingsManager.lsfgDllPath !== "";
         dialog.open();
     }
 
@@ -179,6 +246,17 @@ Kirigami.Dialog {
         for (var i = 0; i < uzdoomModsModel.count; i++)
             mods.push(uzdoomModsModel.get(i).path);
         return mods;
+    }
+
+    function collectEnvVars() {
+        var vars = [];
+        for (var i = 0; i < gameEnvModel.count; i++) {
+            var k = gameEnvModel.get(i).key.trim();
+            var v = gameEnvModel.get(i).value.trim();
+            if (k !== "")
+                vars.push(k + "=" + v);
+        }
+        return vars;
     }
 
     function validate() {
@@ -242,7 +320,17 @@ Kirigami.Dialog {
             "enableLogging": enableLoggingCheck.checked,
             "logoPath": logoField.text || "",
             "steamGridDbId": sgdbId,
-            "playTime": TimeUtils.parsePlayTime(playTimeField.text)
+            "playTime": TimeUtils.parsePlayTime(playTimeField.text),
+            "protonGameId": protonGameIdField.text || "",
+            "enableMangohud": enableMangohudCheck.checked,
+            "enableGamemode": enableGamemodeCheck.checked,
+            "enablePreferSdl": enablePreferSdlCheck.checked,
+            "enableLsfg": enableLsfgCheck.checked,
+            "lsfgMultiplier": lsfgMultiplierSpin.value,
+            "lsfgFlowScale": lsfgFlowScaleSpin.value,
+            "lsfgPerformanceMode": lsfgPerformanceModeCheck.checked,
+            "lsfgPresentMode": lsfgPresentModeCombo.currentValue,
+            "envVars": dialog.collectEnvVars()
         };
 
         if (editMode) {
@@ -270,404 +358,568 @@ Kirigami.Dialog {
             visible: dialog.validationError !== ""
         }
 
-        RuntimePicker {
-            id: runtimePicker
+        QQC2.TabBar {
+            id: tabBar
             Layout.fillWidth: true
-            twinFormLayouts: topForm
-            showDefaultOption: true
+
+            QQC2.TabButton {
+                text: i18n("General")
+            }
+            QQC2.TabButton {
+                text: i18n("Advanced")
+            }
         }
 
-        Kirigami.FormLayout {
-            id: topForm
-            twinFormLayouts: runtimePicker.formLayout
+        StackLayout {
             Layout.fillWidth: true
-
-            Kirigami.Separator {
-                Kirigami.FormData.isSection: true
-                Kirigami.FormData.label: i18n("Game")
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                visible: runtimePicker.runtimeType !== "steam"
-                Kirigami.FormData.label: runtimePicker.runtimeType === "retroarch" ? i18n("ROM File:") : runtimePicker.runtimeType === "uzdoom" ? i18n("WAD File:") : runtimePicker.runtimeType === "native" ? i18n("Executable / AppImage:") : i18n("Executable (.exe):")
-                QQC2.TextField {
-                    id: exeField
-                    Layout.fillWidth: true
-                    placeholderText: runtimePicker.runtimeType === "retroarch" ? "/path/to/rom.sfc" : runtimePicker.runtimeType === "uzdoom" ? "/path/to/game.wad" : runtimePicker.runtimeType === "native" ? "/path/to/app.AppImage" : "/path/to/game.exe"
-                }
-                QQC2.ToolButton {
-                    icon.name: "document-open-symbolic"
-                    onClicked: runtimePicker.runtimeType === "retroarch" ? romFileDialog.open() : exeFileDialog.open()
-                }
-                QQC2.ToolButton {
-                    visible: runtimePicker.resolvedRuntimeType === "wine" || runtimePicker.resolvedRuntimeType === "proton"
-                    enabled: nameField.text.trim() !== "" && !dialog.installerRunning && runtimePicker.resolvedRuntimeType !== "" && runtimePicker.resolvedProtonPath !== ""
-                    icon.name: dialog.installerRunning ? "content-loading-symbolic" : "system-run-symbolic"
-                    QQC2.ToolTip.text: {
-                        if (nameField.text.trim() === "")
-                            return i18n("Please enter the game name before running an installer");
-                        if (dialog.installerRunning)
-                            return i18n("Installing...");
-                        if (runtimePicker.resolvedRuntimeType !== "proton")
-                            return i18n("Select Proton runtime first");
-                        if (runtimePicker.resolvedProtonPath === "")
-                            return i18n("Select a Proton version first");
-                        return i18n("Run installer in prefix");
-                    }
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-                    onClicked: installerFileDialog.open()
-                }
-            }
-
-            QQC2.TextField {
-                id: nameField
-                Layout.topMargin: 10
-                Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("Name:")
-                placeholderText: i18n("My Game")
-            }
-
-            QQC2.TextField {
-                id: playTimeField
-                Layout.topMargin: 10
-                Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("Play Time (H:MM:SS):")
-                placeholderText: "0:00:00"
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                visible: runtimePicker.runtimeType === "steam"
-                Kirigami.FormData.label: i18n("Steam App ID:")
-                QQC2.TextField {
-                    id: steamIdField
-                    Layout.fillWidth: true
-                    placeholderText: "730"
-                    inputMethodHints: Qt.ImhDigitsOnly
-                    validator: IntValidator {
-                        bottom: 1
-                    }
-                }
-            }
-
-            QQC2.ComboBox {
-                id: platformCombo
-                visible: runtimePicker.runtimeType === "retroarch"
-                Kirigami.FormData.label: i18n("Platform:")
-                model: launcher.platformSlugs()
-                textRole: "modelData"
-                valueRole: "modelData"
-                Layout.fillWidth: true
-            }
+            currentIndex: tabBar.currentIndex
 
             ColumnLayout {
-                visible: runtimePicker.runtimeType === "uzdoom"
-                Layout.fillWidth: true
-                spacing: Kirigami.Units.smallSpacing
-
-                Kirigami.FormData.label: i18n("Mods:")
-                Repeater {
-                    model: uzdoomModsModel
-                    delegate: RowLayout {
-                        required property string path
-                        required property int index
-                        Layout.fillWidth: true
-                        QQC2.TextField {
-                            Layout.fillWidth: true
-                            text: path
-                            readOnly: true
-                        }
-                        QQC2.ToolButton {
-                            icon.name: "edit-delete-symbolic"
-                            QQC2.ToolTip.text: i18n("Remove mod")
-                            QQC2.ToolTip.visible: hovered
-                            onClicked: uzdoomModsModel.remove(index)
-                        }
-                    }
-                }
-                QQC2.Button {
-                    text: i18n("Add mod...")
-                    icon.name: "list-add-symbolic"
-                    flat: true
-                    onClicked: uzdoomModFileDialog.open()
-                }
-            }
-
-            Kirigami.Separator {
-                Kirigami.FormData.isSection: true
-                Kirigami.FormData.label: i18n("Artwork")
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("SteamGridDB ID:")
-                QQC2.TextField {
-                    id: steamGridDbIdField
-                    Layout.fillWidth: true
-                    placeholderText: i18n("optional")
-                    inputMethodHints: Qt.ImhDigitsOnly
-                    validator: IntValidator {
-                        bottom: 1
-                    }
-                }
-                QQC2.ToolButton {
-                    icon.name: "system-search-symbolic"
-                    enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy && !steamGridDb.autoDownloading
-                    QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Search SteamGridDB to set the ID")
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-                    onClicked: steamGridDbPicker.openPickerForId(nameField.text, settingsManager.steamGridDbApiKey)
-                }
-                QQC2.ToolButton {
-                    icon.name: "folder-download-symbolic"
-                    enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.autoDownloading && !steamGridDb.busy
-                    QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Auto-download all art from SteamGridDB")
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-                    onClicked: {
-                        var storedId = parseInt(steamGridDbIdField.text);
-                        if (!isNaN(storedId) && storedId > 0) {
-                            dialog.autoDownloadingInDialog = true;
-                            dialog.autoDownloadStatus = "";
-                            steamGridDb.autoDownloadAllById(storedId, nameField.text, protonScanner.localAssetsPath(), settingsManager.steamGridDbApiKey);
-                        } else {
-                            dialog.pendingAutoDownload = true;
-                            steamGridDbPicker.openPickerForId(nameField.text, settingsManager.steamGridDbApiKey);
-                        }
-                    }
-                }
-            }
-
-            QQC2.Label {
-                visible: dialog.autoDownloadStatus !== "" || steamGridDb.autoDownloading && dialog.autoDownloadingInDialog
-                text: steamGridDb.autoDownloading && dialog.autoDownloadingInDialog ? steamGridDb.statusText : dialog.autoDownloadStatus
-                opacity: 0.75
-                font.italic: true
-                Kirigami.FormData.label: ""
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("Icon (optional):")
-                QQC2.TextField {
-                    id: iconField
-                    Layout.fillWidth: true
-                    placeholderText: "/path/to/icon.png"
-                }
-                QQC2.ToolButton {
-                    icon.name: "document-open-symbolic"
-                    onClicked: iconFileDialog.open()
-                }
-                QQC2.ToolButton {
-                    icon.name: "folder-download-symbolic"
-                    enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
-                    QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download icon from SteamGridDB")
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-                    onClicked: {
-                        var storedId = parseInt(steamGridDbIdField.text);
-                        if (!isNaN(storedId) && storedId > 0)
-                            steamGridDbPicker.openPickerWithId(storedId, nameField.text, "icon", settingsManager.steamGridDbApiKey, "icon");
-                        else
-                            steamGridDbPicker.openPicker(nameField.text, "icon", settingsManager.steamGridDbApiKey, "icon");
-                    }
-                }
-            }
-
-            QQC2.Button {
-                Kirigami.FormData.label: ""
-                text: artSection.expanded ? i18n("Hide Grid / Hero / Logo Art") : i18n("Show Grid / Hero / Logo Art")
-                icon.name: artSection.expanded ? "go-up-symbolic" : "go-down-symbolic"
-                flat: true
-                onClicked: artSection.expanded = !artSection.expanded
-            }
-
-            QQC2.Button {
-                Kirigami.FormData.label: ""
-                visible: dialog.editMode
-                text: i18n("Refresh artwork")
-                icon.name: "view-refresh-symbolic"
-                flat: true
-                enabled: !steamGridDb.busy && nameField.text !== ""
-                onClicked: {
-                    if (settingsManager.steamGridDbApiKey !== "") {
-                        var storedId = parseInt(steamGridDbIdField.text);
-                        if (!isNaN(storedId) && storedId > 0) {
-                            dialog.autoDownloadingInDialog = true;
-                            dialog.autoDownloadStatus = "";
-                            steamGridDb.autoDownloadAllById(storedId, nameField.text, protonScanner.localAssetsPath(), settingsManager.steamGridDbApiKey);
-                        } else {
-                            dialog.autoDownloadStatus = i18n("Set a SteamGridDB ID first");
-                        }
-                    } else {
-                        dialog.autoDownloadingInDialog = true;
-                        dialog.autoDownloadStatus = "";
-                        steamGridDb.autoDownloadFromBottles(nameField.text, protonScanner.localAssetsPath());
-                        if (exeField.text !== "") {
-                            var extracted = iconExtractor.extractIcon(exeField.text);
-                            if (extracted !== "")
-                                iconField.text = extracted;
-                        }
-                    }
-                }
-            }
-
-            ColumnLayout {
-                id: artSection
-                property bool expanded: false
-                visible: expanded
                 Layout.fillWidth: true
                 spacing: Kirigami.Units.mediumSpacing
 
-                RowLayout {
+                RuntimePicker {
+                    id: runtimePicker
                     Layout.fillWidth: true
-                    Kirigami.FormData.label: i18n("Grid (optional):")
-                    QQC2.TextField {
-                        id: gridField
-                        Layout.fillWidth: true
-                        placeholderText: "/path/to/grid.png"
-                    }
-                    QQC2.ToolButton {
-                        icon.name: "document-open-symbolic"
-                        onClicked: gridFileDialog.open()
-                    }
-                    QQC2.ToolButton {
-                        icon.name: "folder-download-symbolic"
-                        enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
-                        QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download grid from SteamGridDB")
-                        QQC2.ToolTip.visible: hovered
-                        QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-                        onClicked: {
-                            var storedId = parseInt(steamGridDbIdField.text);
-                            if (!isNaN(storedId) && storedId > 0)
-                                steamGridDbPicker.openPickerWithId(storedId, nameField.text, "grid", settingsManager.steamGridDbApiKey, "grid");
-                            else
-                                steamGridDbPicker.openPicker(nameField.text, "grid", settingsManager.steamGridDbApiKey, "grid");
-                        }
-                    }
+                    twinFormLayouts: [gameForm, advancedForm]
+                    showDefaultOption: true
                 }
 
-                RowLayout {
+                Kirigami.FormLayout {
+                    id: gameForm
+                    twinFormLayouts: [runtimePicker.formLayout, advancedForm]
                     Layout.fillWidth: true
-                    Kirigami.FormData.label: i18n("Hero (optional):")
-                    QQC2.TextField {
-                        id: heroField
+
+                    Kirigami.Separator {
+                        Kirigami.FormData.isSection: true
+                        Kirigami.FormData.label: i18n("Runtime Options")
+                        visible: runtimePicker.runtimeType !== "steam"
+                    }
+
+                    RowLayout {
                         Layout.fillWidth: true
-                        placeholderText: "/path/to/hero.png"
-                    }
-                    QQC2.ToolButton {
-                        icon.name: "document-open-symbolic"
-                        onClicked: heroFileDialog.open()
-                    }
-                    QQC2.ToolButton {
-                        icon.name: "folder-download-symbolic"
-                        enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
-                        QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download hero from SteamGridDB")
-                        QQC2.ToolTip.visible: hovered
-                        QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-                        onClicked: {
-                            var storedId = parseInt(steamGridDbIdField.text);
-                            if (!isNaN(storedId) && storedId > 0)
-                                steamGridDbPicker.openPickerWithId(storedId, nameField.text, "hero", settingsManager.steamGridDbApiKey, "hero");
-                            else
-                                steamGridDbPicker.openPicker(nameField.text, "hero", settingsManager.steamGridDbApiKey, "hero");
+                        visible: runtimePicker.resolvedRuntimeType === "proton"
+                        Kirigami.FormData.label: i18n("Proton Prefix (optional):")
+                        QQC2.TextField {
+                            id: protonPrefixField
+                            Layout.fillWidth: true
+                            placeholderText: settingsManager.defaultGamePrefix !== "" ? settingsManager.defaultGamePrefix : dialog.prefixBasePath + "/mygame"
+                        }
+                        QQC2.ToolButton {
+                            icon.name: "document-open-symbolic"
+                            onClicked: prefixFolderDialog.open()
                         }
                     }
-                }
 
-                RowLayout {
-                    Layout.fillWidth: true
-                    Kirigami.FormData.label: i18n("Logo (optional):")
-                    QQC2.TextField {
-                        id: logoField
+                    RowLayout {
                         Layout.fillWidth: true
-                        placeholderText: "/path/to/logo.png"
+                        visible: runtimePicker.resolvedRuntimeType === "wine"
+                        Kirigami.FormData.label: i18n("Wine Prefix (WINEPREFIX):")
+                        QQC2.TextField {
+                            id: winePrefixField
+                            Layout.fillWidth: true
+                            placeholderText: settingsManager.defaultWinePrefix !== "" ? settingsManager.defaultWinePrefix : protonScanner.winePrefixBasePath() + "/mygame"
+                        }
+                        QQC2.ToolButton {
+                            icon.name: "document-open-symbolic"
+                            onClicked: winePrefixFolderDialog.open()
+                        }
                     }
-                    QQC2.ToolButton {
-                        icon.name: "document-open-symbolic"
-                        onClicked: logoFileDialog.open()
+
+                    Repeater {
+                        model: settingsManager.globalEnvVars
+                        delegate: QQC2.Label {
+                            Kirigami.FormData.label: index === 0 ? i18n("Global Env Vars:") : ""
+                            text: modelData
+                            font.family: "monospace"
+                            opacity: 0.7
+                        }
                     }
-                    QQC2.ToolButton {
-                        icon.name: "folder-download-symbolic"
-                        enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
-                        QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download logo from SteamGridDB")
-                        QQC2.ToolTip.visible: hovered
-                        QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+
+                    Kirigami.Separator {
+                        Kirigami.FormData.isSection: true
+                        Kirigami.FormData.label: i18n("Game")
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        visible: runtimePicker.runtimeType !== "steam"
+                        Kirigami.FormData.label: runtimePicker.runtimeType === "retroarch" ? i18n("ROM File:") : runtimePicker.runtimeType === "uzdoom" ? i18n("WAD File:") : runtimePicker.runtimeType === "native" ? i18n("Executable / AppImage:") : i18n("Executable (.exe):")
+                        QQC2.TextField {
+                            id: exeField
+                            Layout.fillWidth: true
+                            placeholderText: runtimePicker.runtimeType === "retroarch" ? "/path/to/rom.sfc" : runtimePicker.runtimeType === "uzdoom" ? "/path/to/game.wad" : runtimePicker.runtimeType === "native" ? "/path/to/app.AppImage" : "/path/to/game.exe"
+                        }
+                        QQC2.ToolButton {
+                            icon.name: "document-open-symbolic"
+                            onClicked: runtimePicker.runtimeType === "retroarch" ? romFileDialog.open() : exeFileDialog.open()
+                        }
+                        QQC2.ToolButton {
+                            visible: runtimePicker.resolvedRuntimeType === "wine" || runtimePicker.resolvedRuntimeType === "proton"
+                            enabled: nameField.text.trim() !== "" && !dialog.installerRunning && runtimePicker.resolvedRuntimeType !== "" && runtimePicker.resolvedProtonPath !== ""
+                            icon.name: dialog.installerRunning ? "content-loading-symbolic" : "system-run-symbolic"
+                            QQC2.ToolTip.text: {
+                                if (nameField.text.trim() === "")
+                                    return i18n("Please enter the game name before running an installer");
+                                if (dialog.installerRunning)
+                                    return i18n("Installing...");
+                                if (runtimePicker.resolvedRuntimeType !== "proton")
+                                    return i18n("Select Proton runtime first");
+                                if (runtimePicker.resolvedProtonPath === "")
+                                    return i18n("Select a Proton version first");
+                                return i18n("Run installer in prefix");
+                            }
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                            onClicked: installerFileDialog.open()
+                        }
+                    }
+
+                    QQC2.TextField {
+                        id: nameField
+                        Layout.topMargin: 10
+                        Layout.fillWidth: true
+                        Kirigami.FormData.label: i18n("Name:")
+                        placeholderText: i18n("My Game")
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        visible: runtimePicker.runtimeType === "steam"
+                        Kirigami.FormData.label: i18n("Steam App ID:")
+                        QQC2.TextField {
+                            id: steamIdField
+                            Layout.fillWidth: true
+                            placeholderText: "730"
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            validator: IntValidator {
+                                bottom: 1
+                            }
+                        }
+                    }
+
+                    QQC2.ComboBox {
+                        id: platformCombo
+                        visible: runtimePicker.runtimeType === "retroarch"
+                        Kirigami.FormData.label: i18n("Platform:")
+                        model: launcher.platformSlugs()
+                        textRole: "modelData"
+                        valueRole: "modelData"
+                        Layout.fillWidth: true
+                    }
+
+                    ColumnLayout {
+                        visible: runtimePicker.runtimeType === "uzdoom"
+                        Layout.fillWidth: true
+                        spacing: Kirigami.Units.smallSpacing
+
+                        Kirigami.FormData.label: i18n("Mods:")
+                        Repeater {
+                            model: uzdoomModsModel
+                            delegate: RowLayout {
+                                required property string path
+                                required property int index
+                                Layout.fillWidth: true
+                                QQC2.TextField {
+                                    Layout.fillWidth: true
+                                    text: path
+                                    readOnly: true
+                                }
+                                QQC2.ToolButton {
+                                    icon.name: "edit-delete-symbolic"
+                                    QQC2.ToolTip.text: i18n("Remove mod")
+                                    QQC2.ToolTip.visible: hovered
+                                    onClicked: uzdoomModsModel.remove(index)
+                                }
+                            }
+                        }
+                        QQC2.Button {
+                            text: i18n("Add mod...")
+                            icon.name: "list-add-symbolic"
+                            flat: true
+                            onClicked: uzdoomModFileDialog.open()
+                        }
+                    }
+
+                    Kirigami.Separator {
+                        Kirigami.FormData.isSection: true
+                        Kirigami.FormData.label: i18n("Artwork")
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Kirigami.FormData.label: i18n("SteamGridDB ID:")
+                        QQC2.TextField {
+                            id: steamGridDbIdField
+                            Layout.fillWidth: true
+                            placeholderText: i18n("optional")
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            validator: IntValidator {
+                                bottom: 1
+                            }
+                        }
+                        QQC2.ToolButton {
+                            icon.name: "system-search-symbolic"
+                            enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy && !steamGridDb.autoDownloading
+                            QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Search SteamGridDB to set the ID")
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                            onClicked: steamGridDbPicker.openPickerForId(nameField.text, settingsManager.steamGridDbApiKey)
+                        }
+                        QQC2.ToolButton {
+                            icon.name: "folder-download-symbolic"
+                            enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.autoDownloading && !steamGridDb.busy
+                            QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Auto-download all art from SteamGridDB")
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                            onClicked: {
+                                var storedId = parseInt(steamGridDbIdField.text);
+                                if (!isNaN(storedId) && storedId > 0) {
+                                    dialog.autoDownloadingInDialog = true;
+                                    dialog.autoDownloadStatus = "";
+                                    steamGridDb.autoDownloadAllById(storedId, nameField.text, protonScanner.localAssetsPath(), settingsManager.steamGridDbApiKey);
+                                } else {
+                                    dialog.pendingAutoDownload = true;
+                                    steamGridDbPicker.openPickerForId(nameField.text, settingsManager.steamGridDbApiKey);
+                                }
+                            }
+                        }
+                    }
+
+                    QQC2.Label {
+                        visible: dialog.autoDownloadStatus !== "" || steamGridDb.autoDownloading && dialog.autoDownloadingInDialog
+                        text: steamGridDb.autoDownloading && dialog.autoDownloadingInDialog ? steamGridDb.statusText : dialog.autoDownloadStatus
+                        opacity: 0.75
+                        font.italic: true
+                        Kirigami.FormData.label: ""
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Kirigami.FormData.label: i18n("Icon (optional):")
+                        QQC2.TextField {
+                            id: iconField
+                            Layout.fillWidth: true
+                            placeholderText: "/path/to/icon.png"
+                        }
+                        QQC2.ToolButton {
+                            icon.name: "document-open-symbolic"
+                            onClicked: iconFileDialog.open()
+                        }
+                        QQC2.ToolButton {
+                            icon.name: "folder-download-symbolic"
+                            enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
+                            QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download icon from SteamGridDB")
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                            onClicked: {
+                                var storedId = parseInt(steamGridDbIdField.text);
+                                if (!isNaN(storedId) && storedId > 0)
+                                    steamGridDbPicker.openPickerWithId(storedId, nameField.text, "icon", settingsManager.steamGridDbApiKey, "icon");
+                                else
+                                    steamGridDbPicker.openPicker(nameField.text, "icon", settingsManager.steamGridDbApiKey, "icon");
+                            }
+                        }
+                    }
+
+                    QQC2.Button {
+                        Kirigami.FormData.label: ""
+                        text: artSection.expanded ? i18n("Hide Grid / Hero / Logo Art") : i18n("Show Grid / Hero / Logo Art")
+                        icon.name: artSection.expanded ? "go-up-symbolic" : "go-down-symbolic"
+                        flat: true
+                        onClicked: artSection.expanded = !artSection.expanded
+                    }
+
+                    QQC2.Button {
+                        Kirigami.FormData.label: ""
+                        visible: dialog.editMode
+                        text: i18n("Refresh artwork")
+                        icon.name: "view-refresh-symbolic"
+                        flat: true
+                        enabled: !steamGridDb.busy && nameField.text !== ""
                         onClicked: {
-                            var storedId = parseInt(steamGridDbIdField.text);
-                            if (!isNaN(storedId) && storedId > 0)
-                                steamGridDbPicker.openPickerWithId(storedId, nameField.text, "logo", settingsManager.steamGridDbApiKey, "logo");
-                            else
-                                steamGridDbPicker.openPicker(nameField.text, "logo", settingsManager.steamGridDbApiKey, "logo");
+                            if (settingsManager.steamGridDbApiKey !== "") {
+                                var storedId = parseInt(steamGridDbIdField.text);
+                                if (!isNaN(storedId) && storedId > 0) {
+                                    dialog.autoDownloadingInDialog = true;
+                                    dialog.autoDownloadStatus = "";
+                                    steamGridDb.autoDownloadAllById(storedId, nameField.text, protonScanner.localAssetsPath(), settingsManager.steamGridDbApiKey);
+                                } else {
+                                    dialog.autoDownloadStatus = i18n("Set a SteamGridDB ID first");
+                                }
+                            } else {
+                                dialog.autoDownloadingInDialog = true;
+                                dialog.autoDownloadStatus = "";
+                                steamGridDb.autoDownloadFromBottles(nameField.text, protonScanner.localAssetsPath());
+                                if (exeField.text !== "") {
+                                    var extracted = iconExtractor.extractIcon(exeField.text);
+                                    if (extracted !== "")
+                                        iconField.text = extracted;
+                                }
+                            }
+                        }
+                    }
+
+                    ColumnLayout {
+                        id: artSection
+                        property bool expanded: false
+                        visible: expanded
+                        Layout.fillWidth: true
+                        spacing: Kirigami.Units.mediumSpacing
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Kirigami.FormData.label: i18n("Grid (optional):")
+                            QQC2.TextField {
+                                id: gridField
+                                Layout.fillWidth: true
+                                placeholderText: "/path/to/grid.png"
+                            }
+                            QQC2.ToolButton {
+                                icon.name: "document-open-symbolic"
+                                onClicked: gridFileDialog.open()
+                            }
+                            QQC2.ToolButton {
+                                icon.name: "folder-download-symbolic"
+                                enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
+                                QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download grid from SteamGridDB")
+                                QQC2.ToolTip.visible: hovered
+                                QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                                onClicked: {
+                                    var storedId = parseInt(steamGridDbIdField.text);
+                                    if (!isNaN(storedId) && storedId > 0)
+                                        steamGridDbPicker.openPickerWithId(storedId, nameField.text, "grid", settingsManager.steamGridDbApiKey, "grid");
+                                    else
+                                        steamGridDbPicker.openPicker(nameField.text, "grid", settingsManager.steamGridDbApiKey, "grid");
+                                }
+                            }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Kirigami.FormData.label: i18n("Hero (optional):")
+                            QQC2.TextField {
+                                id: heroField
+                                Layout.fillWidth: true
+                                placeholderText: "/path/to/hero.png"
+                            }
+                            QQC2.ToolButton {
+                                icon.name: "document-open-symbolic"
+                                onClicked: heroFileDialog.open()
+                            }
+                            QQC2.ToolButton {
+                                icon.name: "folder-download-symbolic"
+                                enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
+                                QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download hero from SteamGridDB")
+                                QQC2.ToolTip.visible: hovered
+                                QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                                onClicked: {
+                                    var storedId = parseInt(steamGridDbIdField.text);
+                                    if (!isNaN(storedId) && storedId > 0)
+                                        steamGridDbPicker.openPickerWithId(storedId, nameField.text, "hero", settingsManager.steamGridDbApiKey, "hero");
+                                    else
+                                        steamGridDbPicker.openPicker(nameField.text, "hero", settingsManager.steamGridDbApiKey, "hero");
+                                }
+                            }
+                        }
+
+                        RowLayout {
+                            Layout.fillWidth: true
+                            Kirigami.FormData.label: i18n("Logo (optional):")
+                            QQC2.TextField {
+                                id: logoField
+                                Layout.fillWidth: true
+                                placeholderText: "/path/to/logo.png"
+                            }
+                            QQC2.ToolButton {
+                                icon.name: "document-open-symbolic"
+                                onClicked: logoFileDialog.open()
+                            }
+                            QQC2.ToolButton {
+                                icon.name: "folder-download-symbolic"
+                                enabled: nameField.text !== "" && settingsManager.steamGridDbApiKey !== "" && !steamGridDb.busy
+                                QQC2.ToolTip.text: settingsManager.steamGridDbApiKey === "" ? i18n("Set SteamGridDB API key in Settings") : i18n("Download logo from SteamGridDB")
+                                QQC2.ToolTip.visible: hovered
+                                QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                                onClicked: {
+                                    var storedId = parseInt(steamGridDbIdField.text);
+                                    if (!isNaN(storedId) && storedId > 0)
+                                        steamGridDbPicker.openPickerWithId(storedId, nameField.text, "logo", settingsManager.steamGridDbApiKey, "logo");
+                                    else
+                                        steamGridDbPicker.openPicker(nameField.text, "logo", settingsManager.steamGridDbApiKey, "logo");
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
 
-        Kirigami.FormLayout {
-            twinFormLayouts: runtimePicker.formLayout
-            Layout.fillWidth: true
-
-            Kirigami.Separator {
-                Kirigami.FormData.isSection: true
-                Kirigami.FormData.label: i18n("Runtime Options")
-                visible: runtimePicker.runtimeType !== "steam"
-            }
-
-            RowLayout {
+            Kirigami.FormLayout {
+                id: advancedForm
+                twinFormLayouts: [runtimePicker.formLayout, gameForm]
                 Layout.fillWidth: true
-                visible: runtimePicker.resolvedRuntimeType === "proton"
-                Kirigami.FormData.label: i18n("Proton Prefix (optional):")
+
+                Kirigami.Separator {
+                    Kirigami.FormData.isSection: true
+                    Kirigami.FormData.label: i18n("Advanced Options")
+                }
+
                 QQC2.TextField {
-                    id: protonPrefixField
+                    id: protonGameIdField
                     Layout.fillWidth: true
-                    placeholderText: settingsManager.defaultGamePrefix !== "" ? settingsManager.defaultGamePrefix : dialog.prefixBasePath + "/mygame"
+                    Kirigami.FormData.label: i18n("Proton Game ID (GAMEID):")
+                    placeholderText: i18n("optional, e.g. 0 for a non-Steam game")
+                    visible: runtimePicker.resolvedRuntimeType === "proton"
                 }
-                QQC2.ToolButton {
-                    icon.name: "document-open-symbolic"
-                    onClicked: prefixFolderDialog.open()
-                }
-            }
 
-            RowLayout {
-                Layout.fillWidth: true
-                visible: runtimePicker.resolvedRuntimeType === "wine"
-                Kirigami.FormData.label: i18n("Wine Prefix (WINEPREFIX):")
+                QQC2.CheckBox {
+                    id: enablePreferSdlCheck
+                    text: i18n("Prefer SDL input for Proton (PROTON_PREFER_SDL)")
+                    visible: runtimePicker.resolvedRuntimeType === "proton"
+                }
+
+                QQC2.CheckBox {
+                    id: enableMangohudCheck
+                    text: i18n("Enable MangoHud overlay")
+                    visible: dialog.showAdvancedOptions && dialog.mangohudAvailable
+                }
+
+                QQC2.CheckBox {
+                    id: enableGamemodeCheck
+                    text: i18n("Enable GameMode (gamemoderun)")
+                    visible: dialog.showAdvancedOptions && dialog.gamemodeAvailable
+                }
+
                 QQC2.TextField {
-                    id: winePrefixField
+                    id: playTimeField
+                    Layout.topMargin: 10
                     Layout.fillWidth: true
-                    placeholderText: settingsManager.defaultWinePrefix !== "" ? settingsManager.defaultWinePrefix : protonScanner.winePrefixBasePath() + "/mygame"
+                    Kirigami.FormData.label: i18n("Play Time (H:MM:SS):")
+                    placeholderText: "0:00:00"
                 }
-                QQC2.ToolButton {
-                    icon.name: "document-open-symbolic"
-                    onClicked: winePrefixFolderDialog.open()
+
+                Kirigami.Separator {
+                    Kirigami.FormData.isSection: true
+                    Kirigami.FormData.label: i18n("Launch")
+                    visible: dialog.showAdvancedOptions
                 }
-            }
 
-            QQC2.TextField {
-                id: launchOptionsField
-                Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("Launch Options (optional):")
-                placeholderText: i18n("e.g. mangohud %command%")
-                visible: runtimePicker.runtimeType !== "steam"
-            }
+                QQC2.TextField {
+                    id: launchOptionsField
+                    Layout.fillWidth: true
+                    Kirigami.FormData.label: i18n("Launch Options (optional):")
+                    placeholderText: i18n("e.g. mangohud %command%")
+                    visible: dialog.showAdvancedOptions
+                }
 
-            QQC2.CheckBox {
-                id: enableLoggingCheck
-                text: i18n("Write output to log file")
-                visible: runtimePicker.runtimeType !== "steam"
-            }
+                QQC2.CheckBox {
+                    id: enableLoggingCheck
+                    text: i18n("Write output to log file")
+                    visible: dialog.showAdvancedOptions
+                }
 
-            Repeater {
-                model: settingsManager.globalEnvVars
-                delegate: QQC2.Label {
-                    Kirigami.FormData.label: index === 0 ? i18n("Global Env Vars:") : ""
-                    text: modelData
-                    font.family: "monospace"
-                    opacity: 0.7
+                Kirigami.Separator {
+                    Kirigami.FormData.isSection: true
+                    Kirigami.FormData.label: i18n("Environment Variables")
+                    visible: dialog.showAdvancedOptions
+                }
+
+                ColumnLayout {
+                    Kirigami.FormData.label: i18n("Variables:")
+                    Layout.fillWidth: true
+                    visible: dialog.showAdvancedOptions
+
+                    Repeater {
+                        model: gameEnvModel
+                        delegate: RowLayout {
+                            required property string key
+                            required property string value
+                            required property int index
+                            Layout.fillWidth: true
+                            QQC2.TextField {
+                                placeholderText: i18n("KEY")
+                                text: key
+                                implicitWidth: Kirigami.Units.gridUnit * 9
+                                onTextChanged: gameEnvModel.setProperty(index, "key", text)
+                            }
+                            QQC2.Label {
+                                text: "="
+                            }
+                            QQC2.TextField {
+                                placeholderText: i18n("value")
+                                text: value
+                                Layout.fillWidth: true
+                                onTextChanged: gameEnvModel.setProperty(index, "value", text)
+                            }
+                            QQC2.ToolButton {
+                                icon.name: "list-remove"
+                                QQC2.ToolTip.text: i18n("Remove variable")
+                                QQC2.ToolTip.visible: hovered
+                                onClicked: gameEnvModel.remove(index)
+                            }
+                        }
+                    }
+
+                    QQC2.Button {
+                        text: i18n("Add Variable")
+                        icon.name: "list-add-symbolic"
+                        flat: true
+                        onClicked: gameEnvModel.append({
+                            "key": "",
+                            "value": ""
+                        })
+                    }
+                }
+
+                Kirigami.Separator {
+                    Kirigami.FormData.isSection: true
+                    Kirigami.FormData.label: i18n("Lossless Scaling Frame Generation")
+                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable
+                }
+
+                QQC2.CheckBox {
+                    id: enableLsfgCheck
+                    text: i18n("Enable LSFG frame generation")
+                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable
+                }
+
+                QQC2.SpinBox {
+                    id: lsfgMultiplierSpin
+                    Layout.fillWidth: true
+                    Kirigami.FormData.label: i18n("Frame multiplier:")
+                    from: 2
+                    to: 8
+                    editable: true
+                    textFromValue: function (v) {
+                        return v + "x";
+                    }
+                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && enableLsfgCheck.checked
+                }
+
+                QQC2.SpinBox {
+                    id: lsfgFlowScaleSpin
+                    Layout.fillWidth: true
+                    Kirigami.FormData.label: i18n("Flow scale (%):")
+                    from: 0
+                    to: 100
+                    editable: true
+                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && enableLsfgCheck.checked
+                }
+
+                QQC2.CheckBox {
+                    id: lsfgPerformanceModeCheck
+                    text: i18n("Performance mode")
+                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && enableLsfgCheck.checked
+                }
+
+                QQC2.ComboBox {
+                    id: lsfgPresentModeCombo
+                    Layout.fillWidth: true
+                    Kirigami.FormData.label: i18n("Present mode:")
+                    model: dialog.lsfgPresentModes
+                    textRole: "text"
+                    valueRole: "value"
+                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && enableLsfgCheck.checked
                 }
             }
         }
@@ -705,12 +957,15 @@ Kirigami.Dialog {
         id: uzdoomModsModel
     }
 
+    ListModel {
+        id: gameEnvModel
+    }
+
     FileDialog {
         id: installerFileDialog
         title: i18n("Select installer (exe)")
         currentFolder: "file://" + protonScanner.homePath()
         nameFilters: [i18n("Executables (*.exe)"), i18n("All files (*)")]
-
         onAccepted: {
             dialog.installerExePath = decodeURIComponent(selectedFile.toString().replace("file://", ""));
             dialog.cleanupInstaller();
@@ -725,6 +980,7 @@ Kirigami.Dialog {
         id: romFileDialog
         title: i18n("Select ROM")
         currentFolder: "file://" + protonScanner.homePath()
+        nameFilters: [i18n("ROM files (*.rom *.bin *.iso *.smc *.sfc *.nes *.gba *.gbc *.gb *.nds *.3ds *.n64 *.z64 *.v64 *.md *.smd *.gen *.sms *.gg *.pce *.a26 *.a52 *.a78 *.ws *.wsc *.ngp *.ngc *.col *.msx *.sg *.sc *.mf *.vec *.ti *.exe)"), i18n("All files (*)")]
         onAccepted: {
             var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
             exeField.text = path;

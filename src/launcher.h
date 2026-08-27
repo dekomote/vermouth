@@ -23,6 +23,7 @@ public:
     void setDefaultRuntimeType(const QString &type);
     void setDefaultProtonPath(const QString &path);
     void setDefaultWineBinary(const QString &path);
+    void setLsfgDllPath(const QString &path);
 
     Q_PROPERTY(QStringList runningExePaths READ runningExePaths NOTIFY runningExePathsChanged)
     QStringList runningExePaths() const
@@ -44,6 +45,9 @@ public:
     Q_INVOKABLE void runRegedit(const QVariantMap &app);
     Q_INVOKABLE void runWinetricks(const QVariantMap &app);
     Q_INVOKABLE bool isWinetricksAvailable() const;
+    Q_INVOKABLE bool isMangohudAvailable() const;
+    Q_INVOKABLE bool isGamemodeAvailable() const;
+    Q_INVOKABLE QString autoDetectLsfgDll() const;
     Q_INVOKABLE QString logDir() const;
     Q_INVOKABLE QStringList platformSlugs() const;
 
@@ -79,7 +83,8 @@ private:
                   const QString &launchOptions,
                   bool enableLogging,
                   const QString &logName,
-                  bool appendExe = true);
+                  bool appendExe = true,
+                  const QStringList &commandWrappers = QStringList());
     void setupLogging(QProcess *proc, const QString &name);
     void refreshHdrState();
     void cacheRetroarchBinary();
@@ -95,6 +100,7 @@ private:
     QString m_defaultRuntimeType;
     QString m_defaultProtonPath;
     QString m_defaultWineBinary;
+    QString m_lsfgDllPath;
     QHash<QString, QProcess *> m_runningProcesses;
     int m_inhibitFd = -1;
     QString m_inhibitPortalRequestPath;

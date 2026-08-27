@@ -76,6 +76,11 @@ void Launcher::setUzdoomPath(const QString &path)
     m_uzdoomPath = path;
 }
 
+void Launcher::setLsfgDllPath(const QString &path)
+{
+    m_lsfgDllPath = path;
+}
+
 void Launcher::setRommCoreMap(const QVariantMap &map)
 {
     m_rommCoreMap = map;
@@ -357,7 +362,8 @@ qint64 Launcher::launch(const QString &binary,
                         const QString &launchOptions,
                         bool enableLogging,
                         const QString &logName,
-                        bool appendExe)
+                        bool appendExe,
+                        const QStringList &commandWrappers)
 {
     if (binary.isEmpty()) {
         Q_EMIT launchError(exePath, QStringLiteral("No runtime is set for this game."));
@@ -414,12 +420,28 @@ qint64 Launcher::launch(const QString &binary,
         else
             fullCmd = opts + QLatin1Char(' ') + baseCmd;
 
+        // Prepend command wrappers to the full command
+        if (!commandWrappers.isEmpty()) {
+            QString wrappers = commandWrappers.join(QLatin1Char(' '));
+            fullCmd = wrappers + QLatin1Char(' ') + fullCmd;
+        }
+
         proc->start(QStringLiteral("/bin/sh"), {QStringLiteral("-c"), fullCmd});
     } else {
         QStringList args = baseArgs;
         if (!exePath.isEmpty() && appendExe)
             args << exePath;
-        proc->start(binary, args);
+
+        // Prepend command wrappers (gamemoderun, mangohud) to the binary
+        QString finalBinary = binary;
+        if (!commandWrappers.isEmpty()) {
+            // Build the full command with wrappers
+            QStringList fullArgs = commandWrappers;
+            fullArgs << binary << args;
+            proc->start(fullArgs.takeFirst(), fullArgs);
+        } else {
+            proc->start(binary, args);
+        }
     }
 
     if (!proc->waitForStarted(5000)) {
@@ -451,9 +473,76 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
             env.insert(kv.left(sep), kv.mid(sep + 1));
     }
 
+    // Per-game env vars override global ones (not applicable to Steam/RetroArch)
+    const QString rtForEnvVars = app[QStringLiteral("runtimeType")].toString();
+    if (rtForEnvVars != QStringLiteral("steam") && rtForEnvVars != QStringLiteral("retroarch")) {
+        const QStringList gameEnvVars = app[QStringLiteral("envVars")].toStringList();
+        for (const QString &kv : gameEnvVars) {
+            int sep = kv.indexOf(QLatin1Char('='));
+            if (sep > 0)
+                env.insert(kv.left(sep), kv.mid(sep + 1));
+        }
+    }
+
     if (m_hdrEnabled) {
         env.insert(QStringLiteral("PROTON_ENABLE_HDR"), QStringLiteral("1"));
         env.insert(QStringLiteral("PROTON_ENABLE_WAYLAND"), QStringLiteral("1"));
+    }
+
+    if (app[QStringLiteral("enablePreferSdl")].toBool()) {
+        env.insert(QStringLiteral("PROTON_PREFER_SDL"), QStringLiteral("1"));
+    }
+    if (app[QStringLiteral("enableLsfg")].toBool()) {
+        env.insert(QStringLiteral("LSFG_LEGACY"), QStringLiteral("1"));
+        env.insert(QStringLiteral("LSFGVK_ENV"), QStringLiteral("1"));
+
+        // Set LSFG DLL paths from settings
+        QString lsfgDllPath = m_lsfgDllPath;
+        if (!lsfgDllPath.isEmpty()) {
+            env.insert(QStringLiteral("LSFG_DLL_PATH"), lsfgDllPath);
+            env.insert(QStringLiteral("LSFGVK_DLL_PATH"), lsfgDllPath);
+        }
+
+        int lsfgMultiplier = app[QStringLiteral("lsfgMultiplier")].toInt();
+        if (lsfgMultiplier > 0) {
+            env.insert(QStringLiteral("LSFG_MULTIPLIER"), QString::number(lsfgMultiplier));
+            env.insert(QStringLiteral("LSFGVK_MULTIPLIER"), QString::number(lsfgMultiplier));
+        }
+
+        int lsfgFlowScale = app[QStringLiteral("lsfgFlowScale")].toInt();
+        if (lsfgFlowScale > 0) {
+            double flowScale = lsfgFlowScale / 100.0;
+            env.insert(QStringLiteral("LSFG_FLOW_SCALE"), QString::number(flowScale, 'f', 2));
+            env.insert(QStringLiteral("LSFGVK_FLOW_SCALE"), QString::number(flowScale, 'f', 2));
+        }
+
+        bool lsfgPerformanceMode = app[QStringLiteral("lsfgPerformanceMode")].toBool();
+        env.insert(QStringLiteral("LSFG_PERFORMANCE_MODE"), lsfgPerformanceMode ? QStringLiteral("1") : QStringLiteral("0"));
+        env.insert(QStringLiteral("LSFGVK_PERFORMANCE_MODE"), lsfgPerformanceMode ? QStringLiteral("1") : QStringLiteral("0"));
+
+        QString lsfgPresentMode = app[QStringLiteral("lsfgPresentMode")].toString();
+        if (!lsfgPresentMode.isEmpty()) {
+            env.insert(QStringLiteral("LSFG_EXPERIMENTAL_PRESENT_MODE"), lsfgPresentMode);
+        }
+    }
+
+    if (!app[QStringLiteral("protonGameId")].toString().isEmpty()) {
+        env.insert(QStringLiteral("GAMEID"), app[QStringLiteral("protonGameId")].toString());
+    }
+
+    // Build command wrappers (gamemoderun, mangohud) based on settings
+    QStringList commandWrappers;
+    if (app[QStringLiteral("enableGamemode")].toBool()) {
+        QString gamemoderunPath = QStandardPaths::findExecutable(QStringLiteral("gamemoderun"));
+        if (!gamemoderunPath.isEmpty()) {
+            commandWrappers << gamemoderunPath;
+        }
+    }
+    if (app[QStringLiteral("enableMangohud")].toBool()) {
+        QString mangohudPath = QStandardPaths::findExecutable(QStringLiteral("mangohud"));
+        if (!mangohudPath.isEmpty()) {
+            commandWrappers << mangohudPath;
+        }
     }
 
     QString runtimeType = app[QStringLiteral("runtimeType")].toString();
@@ -511,7 +600,7 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         }
         if (isInsideFlatpak())
             baseArgs.prepend(QStringLiteral("--appimage-extract-and-run"));
-        return launch(binary, baseArgs, exePath, env, opts, logging, name, false);
+        return launch(binary, baseArgs, exePath, env, opts, logging, name, false, commandWrappers);
     }
 
     if (runtimeType == QStringLiteral("proton")) {
@@ -539,11 +628,11 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
             env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
             env.insert(QStringLiteral("GAMEID"), QStringLiteral("0"));
             env.insert(QStringLiteral("WINEPREFIX"), prefix);
-            return launch(umuBin, {}, exePath, env, opts, logging, name);
+            return launch(umuBin, {}, exePath, env, opts, logging, name, true, commandWrappers);
         } else {
             env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
             env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
-            return launch(protonPath + QStringLiteral("/proton"), {QStringLiteral("run")}, exePath, env, opts, logging, name);
+            return launch(protonPath + QStringLiteral("/proton"), {QStringLiteral("run")}, exePath, env, opts, logging, name, true, commandWrappers);
         }
     } else if (runtimeType == QStringLiteral("native")) {
         QString binary = exePath;
@@ -572,7 +661,7 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         if (!exePath.endsWith(QStringLiteral(".desktop"), Qt::CaseInsensitive) && !fi.isExecutable())
             QFile::setPermissions(binary, fi.permissions() | QFileDevice::ExeOwner | QFileDevice::ExeGroup | QFileDevice::ExeOther);
         env.insert(QStringLiteral("APPIMAGE"), exePath);
-        return launch(binary, baseArgs, exePath, env, opts, logging, name, false);
+        return launch(binary, baseArgs, exePath, env, opts, logging, name, false, commandWrappers);
     } else {
         QString wineBinary = app[QStringLiteral("wineBinary")].toString();
         if (wineBinary.isEmpty()) {
@@ -584,7 +673,7 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
             QDir().mkpath(prefix);
             env.insert(QStringLiteral("WINEPREFIX"), prefix);
         }
-        return launch(wineBinary, {}, exePath, env, opts, logging, name);
+        return launch(wineBinary, {}, exePath, env, opts, logging, name, true, commandWrappers);
     }
 }
 
@@ -682,6 +771,35 @@ qint64 Launcher::runningPidForExe(const QString &exePath) const
 bool Launcher::isWinetricksAvailable() const
 {
     return !QStandardPaths::findExecutable(QStringLiteral("winetricks")).isEmpty();
+}
+
+bool Launcher::isMangohudAvailable() const
+{
+    return !QStandardPaths::findExecutable(QStringLiteral("mangohud")).isEmpty();
+}
+
+bool Launcher::isGamemodeAvailable() const
+{
+    return !QStandardPaths::findExecutable(QStringLiteral("gamemoderun")).isEmpty();
+}
+
+QString Launcher::autoDetectLsfgDll() const
+{
+    // Common locations for Lossless Scaling DLL
+    const QStringList candidates = {
+        QDir::homePath() + QStringLiteral("/.local/share/Steam/steamapps/common/Lossless Scaling/Lossless.dll"),
+        QDir::homePath() + QStringLiteral("/.steam/steam/steamapps/common/Lossless Scaling/Lossless.dll"),
+        QDir::homePath() + QStringLiteral("/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/Lossless Scaling/Lossless.dll"),
+        QDir::homePath() + QStringLiteral("/.var/app/com.valvesoftware.Steam/data/Steam/steamapps/common/Lossless Scaling/Lossless.dll"),
+    };
+
+    for (const QString &path : candidates) {
+        if (QFileInfo::exists(path)) {
+            return path;
+        }
+    }
+
+    return QString();
 }
 
 QStringList Launcher::platformSlugs() const

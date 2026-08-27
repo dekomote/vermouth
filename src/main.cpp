@@ -117,6 +117,7 @@ int main(int argc, char *argv[])
     launcher.setDefaultRuntimeType(settingsManager.defaultRuntimeType());
     launcher.setDefaultProtonPath(settingsManager.defaultProtonPath());
     launcher.setDefaultWineBinary(settingsManager.defaultWineBinary());
+    launcher.setLsfgDllPath(settingsManager.lsfgDllPath());
 
     auto launchCli = [&](const QVariantMap &entry) -> int {
         QObject::connect(&launcher, &Launcher::processFinished, &app, &QApplication::exit);
@@ -313,6 +314,10 @@ int main(int argc, char *argv[])
     });
     QObject::connect(&settingsManager, &SettingsManager::uzdoomPathChanged, [&]() {
         launcher.setUzdoomPath(settingsManager.uzdoomPath());
+    });
+
+    QObject::connect(&settingsManager, &SettingsManager::lsfgDllPathChanged, [&]() {
+        launcher.setLsfgDllPath(settingsManager.lsfgDllPath());
     });
     QObject::connect(&launcher, &Launcher::coreAutoDetected, [&](const QString &slug, const QString &path) {
         settingsManager.setRommCore(slug, path);

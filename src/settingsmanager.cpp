@@ -482,3 +482,16 @@ void SettingsManager::setRommGameCore(int romId, const QString &corePath)
     m_settings.setValue(QStringLiteral("rommGameCoreMap"), QString::fromUtf8(QJsonDocument::fromVariant(map).toJson(QJsonDocument::Compact)));
     Q_EMIT rommGameCoreMapChanged();
 }
+
+QString SettingsManager::lsfgDllPath() const
+{
+    return m_settings.value(QStringLiteral("lsfgDllPath"), QString()).toString();
+}
+
+void SettingsManager::setLsfgDllPath(const QString &path)
+{
+    if (lsfgDllPath() == path)
+        return;
+    m_settings.setValue(QStringLiteral("lsfgDllPath"), path);
+    Q_EMIT lsfgDllPathChanged();
+}

@@ -63,6 +63,18 @@ public:
     qint64 playTime = 0; // seconds
     QDateTime dateAdded;
 
+    // Advanced game settings
+    QString protonGameId;
+    bool enableMangohud = false;
+    bool enableGamemode = false;
+    bool enablePreferSdl = false;
+    bool enableLsfg = false;
+    int lsfgMultiplier = 2;
+    int lsfgFlowScale = 50;
+    bool lsfgPerformanceMode = false;
+    QString lsfgPresentMode;
+    QStringList envVars;
+
     QJsonObject toJson() const;
     QVariantMap toVariantMap() const;
     static AppEntry fromJson(const QJsonObject &obj);

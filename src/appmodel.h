@@ -36,6 +36,15 @@ public:
         EnableLoggingRole,
         HiddenRole,
         PlayTimeRole,
+        ProtonGameIdRole,
+        EnableMangohudRole,
+        EnableGamemodeRole,
+        EnablePreferSdlRole,
+        EnableLsfgRole,
+        LsfgMultiplierRole,
+        LsfgFlowScaleRole,
+        LsfgPerformanceModeRole,
+        LsfgPresentModeRole,
     };
 
     explicit AppModel(QObject *parent = nullptr);
