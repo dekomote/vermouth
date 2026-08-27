@@ -433,7 +433,6 @@ qint64 Launcher::launch(const QString &binary,
             args << exePath;
 
         // Prepend command wrappers (gamemoderun, mangohud) to the binary
-        QString finalBinary = binary;
         if (!commandWrappers.isEmpty()) {
             // Build the full command with wrappers
             QStringList fullArgs = commandWrappers;
@@ -626,7 +625,8 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
             }
             env.insert(QStringLiteral("PROTONPATH"), protonPath);
             env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
-            env.insert(QStringLiteral("GAMEID"), QStringLiteral("0"));
+            const QString protonGameIdForUmu = app[QStringLiteral("protonGameId")].toString();
+            env.insert(QStringLiteral("GAMEID"), protonGameIdForUmu.isEmpty() ? QStringLiteral("0") : protonGameIdForUmu);
             env.insert(QStringLiteral("WINEPREFIX"), prefix);
             return launch(umuBin, {}, exePath, env, opts, logging, name, true, commandWrappers);
         } else {
