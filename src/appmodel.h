@@ -45,6 +45,7 @@ public:
         LsfgFlowScaleRole,
         LsfgPerformanceModeRole,
         LsfgPresentModeRole,
+        EnvVarsRole,
     };
 
     explicit AppModel(QObject *parent = nullptr);

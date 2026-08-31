@@ -169,6 +169,8 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.lsfgPerformanceMode;
     case LsfgPresentModeRole:
         return e.lsfgPresentMode;
+    case EnvVarsRole:
+        return e.envVars;
     }
     return {};
 }
@@ -207,6 +209,7 @@ QHash<int, QByteArray> AppModel::roleNames() const
         {LsfgFlowScaleRole, "lsfgFlowScale"},
         {LsfgPerformanceModeRole, "lsfgPerformanceMode"},
         {LsfgPresentModeRole, "lsfgPresentMode"},
+        {EnvVarsRole, "envVars"},
     };
 }
 
