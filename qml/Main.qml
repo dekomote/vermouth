@@ -284,6 +284,13 @@ Kirigami.ApplicationWindow {
                         checked: gridView.showPlayTime
                         onTriggered: gridView.showPlayTime = checked
                     }
+                    QQC2.MenuItem {
+                        text: i18n("Show runner icons")
+                        icon.name: "input-gaming-symbolic"
+                        checkable: true
+                        checked: settingsManager.showRunnerIcons
+                        onTriggered: settingsManager.setShowRunnerIcons(checked)
+                    }
                     QQC2.MenuSeparator {}
                     RowLayout {
                         spacing: Kirigami.Units.smallSpacing
@@ -531,6 +538,18 @@ Kirigami.ApplicationWindow {
                         visible: globalDrawer.modal
                         onClicked: globalDrawer.open()
                         icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                    }
+
+                    QQC2.ToolButton {
+                        id: viewMenuToolbarBtn
+                        icon.name: viewMenu.viewIcons[gridView.viewType]
+                        focusPolicy: Qt.NoFocus
+                        visible: globalDrawer.modal
+                        onClicked: viewMenu.popup(viewMenuToolbarBtn, 0, viewMenuToolbarBtn.height)
+                        icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                        QQC2.ToolTip.text: i18n("Switch view type")
+                        QQC2.ToolTip.visible: hovered
+                        QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                     }
 
                     QQC2.ToolButton {

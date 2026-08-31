@@ -36,6 +36,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(bool showTips READ showTips WRITE setShowTips NOTIFY showTipsChanged)
     Q_PROPERTY(bool sleepInhibited READ sleepInhibited WRITE setSleepInhibited NOTIFY sleepInhibitedChanged)
     Q_PROPERTY(bool gridAltBackground READ gridAltBackground WRITE setGridAltBackground NOTIFY gridAltBackgroundChanged)
+    Q_PROPERTY(bool showRunnerIcons READ showRunnerIcons WRITE setShowRunnerIcons NOTIFY showRunnerIconsChanged)
     Q_PROPERTY(QString lsfgDllPath READ lsfgDllPath WRITE setLsfgDllPath NOTIFY lsfgDllPathChanged)
 
 public:
@@ -128,6 +129,9 @@ public:
     bool gridAltBackground() const;
     Q_INVOKABLE void setGridAltBackground(bool enabled);
 
+    bool showRunnerIcons() const;
+    Q_INVOKABLE void setShowRunnerIcons(bool enabled);
+
     QString lsfgDllPath() const;
     Q_INVOKABLE void setLsfgDllPath(const QString &path);
 
@@ -168,6 +172,7 @@ Q_SIGNALS:
     void showTipsChanged();
     void sleepInhibitedChanged();
     void gridAltBackgroundChanged();
+    void showRunnerIconsChanged();
     void lsfgDllPathChanged();
     void rommCoreMapChanged();
     void rommGameCoreMapChanged();

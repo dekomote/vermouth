@@ -421,6 +421,19 @@ void SettingsManager::setGridAltBackground(bool enabled)
     Q_EMIT gridAltBackgroundChanged();
 }
 
+bool SettingsManager::showRunnerIcons() const
+{
+    return m_settings.value(QStringLiteral("showRunnerIcons"), true).toBool();
+}
+
+void SettingsManager::setShowRunnerIcons(bool enabled)
+{
+    if (showRunnerIcons() == enabled)
+        return;
+    m_settings.setValue(QStringLiteral("showRunnerIcons"), enabled);
+    Q_EMIT showRunnerIconsChanged();
+}
+
 bool SettingsManager::showTips() const
 {
     return m_settings.value(QStringLiteral("showTips"), true).toBool();

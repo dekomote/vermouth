@@ -72,7 +72,7 @@ Item {
             width: 28 * frameRoot.gv.scaleFactor
             height: 28 * frameRoot.gv.scaleFactor
             source: frameRoot.badgeType === "steam" ? "steam" : frameRoot.badgeType === "retroarch" ? "input-gaming" : ""
-            visible: frameRoot.badgeType !== ""
+            visible: frameRoot.badgeType !== "" && settingsManager.showRunnerIcons
             z: 10
         }
 
