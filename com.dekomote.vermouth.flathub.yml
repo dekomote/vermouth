@@ -17,6 +17,7 @@ finish-args:
   - --allow=multiarch
   - --filesystem=/mnt
   - --filesystem=/run/media
+  - --env=PATH=/app/bin:/usr/bin:/usr/lib/extensions/vulkan/MangoHud/bin:/usr/lib/extensions/vulkan/gamescope/bin:/usr/lib/extensions/vulkan/OBSVkCapture/bin
 
 add-extensions:
   org.freedesktop.Platform.Compat.i386:

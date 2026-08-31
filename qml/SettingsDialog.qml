@@ -21,6 +21,7 @@ Kirigami.ScrollablePage {
         settingsManager.setRomCacheDir(romCacheDirField.text);
         settingsManager.setGogCacheDir(gogCacheDirField.text);
         settingsManager.setGogInstallDir(gogInstallDirField.text);
+        settingsManager.setLsfgDllPath(lsfgDllPathField.text);
         defaultRuntimePicker.saveToSettings();
         var vars = [];
         for (var i = 0; i < envModel.count; i++) {
@@ -50,6 +51,7 @@ Kirigami.ScrollablePage {
         romCacheDirField.text = settingsManager.romCacheDir;
         gogCacheDirField.text = settingsManager.gogCacheDir;
         gogInstallDirField.text = settingsManager.gogInstallDir;
+        lsfgDllPathField.text = settingsManager.lsfgDllPath;
         pathsModel.clear();
         var paths = settingsManager.extraProtonPaths;
         for (var i = 0; i < paths.length; i++) {
@@ -623,6 +625,48 @@ Kirigami.ScrollablePage {
 
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("Lossless Scaling Frame Generation")
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("LSFG DLL Path:")
+                QQC2.TextField {
+                    id: lsfgDllPathField
+                    Layout.fillWidth: true
+                    placeholderText: i18n("Path to Lossless.dll")
+                    text: settingsManager.lsfgDllPath
+                }
+                QQC2.ToolButton {
+                    icon.name: "document-open-symbolic"
+                    onClicked: lsfgDllFileDialog.open()
+                }
+                QQC2.ToolButton {
+                    icon.name: "edit-find-symbolic"
+                    onClicked: {
+                        var detectedPath = launcher.autoDetectLsfgDll();
+                        if (detectedPath !== "") {
+                            lsfgDllPathField.text = detectedPath;
+                        } else {
+                            lsfgDllPathField.text = "";
+                            root.showPassiveNotification(i18n("Could not auto-detect Lossless.dll"), 3000);
+                        }
+                    }
+                    QQC2.ToolTip.text: i18n("Auto-detect")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                }
+                QQC2.ToolButton {
+                    icon.name: "edit-clear"
+                    onClicked: lsfgDllPathField.text = ""
+                    QQC2.ToolTip.text: i18n("Clear")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                }
+            }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
                 Kirigami.FormData.label: i18n("Gamepad")
             }
 
@@ -716,6 +760,17 @@ Kirigami.ScrollablePage {
         title: i18n("Select GOG Install Folder")
         currentFolder: "file://" + protonScanner.homePath()
         onAccepted: gogInstallDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
+    }
+
+    FileDialog {
+        id: lsfgDllFileDialog
+        title: i18n("Select Lossless.dll")
+        currentFolder: lsfgDllPathField.text !== "" ? "file://" + lsfgDllPathField.text.substring(0, lsfgDllPathField.text.lastIndexOf("/")) : "file:///usr/share"
+        nameFilters: [i18n("DLL files (*.dll)"), i18n("All files (*)")]
+        onAccepted: {
+            var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
+            lsfgDllPathField.text = path;
+        }
     }
 
     ColorDialog {

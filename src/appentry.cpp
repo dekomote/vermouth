@@ -54,6 +54,16 @@ QJsonObject AppEntry::toJson() const
     obj[QStringLiteral("hidden")] = hidden;
     obj[QStringLiteral("playTime")] = static_cast<double>(playTime);
     obj[QStringLiteral("dateAdded")] = dateAdded.toString(Qt::ISODate);
+    obj[QStringLiteral("protonGameId")] = protonGameId;
+    obj[QStringLiteral("enableMangohud")] = enableMangohud;
+    obj[QStringLiteral("enableGamemode")] = enableGamemode;
+    obj[QStringLiteral("enablePreferSdl")] = enablePreferSdl;
+    obj[QStringLiteral("enableLsfg")] = enableLsfg;
+    obj[QStringLiteral("lsfgMultiplier")] = lsfgMultiplier;
+    obj[QStringLiteral("lsfgFlowScale")] = lsfgFlowScale;
+    obj[QStringLiteral("lsfgPerformanceMode")] = lsfgPerformanceMode;
+    obj[QStringLiteral("lsfgPresentMode")] = lsfgPresentMode;
+    obj[QStringLiteral("envVars")] = QJsonArray::fromStringList(envVars);
     return obj;
 }
 
@@ -83,6 +93,16 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("hidden"), hidden},
         {QStringLiteral("playTime"), playTime},
         {QStringLiteral("dateAdded"), dateAdded},
+        {QStringLiteral("protonGameId"), protonGameId},
+        {QStringLiteral("enableMangohud"), enableMangohud},
+        {QStringLiteral("enableGamemode"), enableGamemode},
+        {QStringLiteral("enablePreferSdl"), enablePreferSdl},
+        {QStringLiteral("enableLsfg"), enableLsfg},
+        {QStringLiteral("lsfgMultiplier"), lsfgMultiplier},
+        {QStringLiteral("lsfgFlowScale"), lsfgFlowScale},
+        {QStringLiteral("lsfgPerformanceMode"), lsfgPerformanceMode},
+        {QStringLiteral("lsfgPresentMode"), lsfgPresentMode},
+        {QStringLiteral("envVars"), envVars},
     };
 }
 
@@ -117,6 +137,18 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     e.hidden = obj[QStringLiteral("hidden")].toBool(false);
     e.playTime = obj.value(QStringLiteral("playTime")).toInteger(0);
     e.dateAdded = QDateTime::fromString(obj[QStringLiteral("dateAdded")].toString(), Qt::ISODate);
+    e.protonGameId = obj[QStringLiteral("protonGameId")].toString();
+    e.enableMangohud = obj[QStringLiteral("enableMangohud")].toBool(false);
+    e.enableGamemode = obj[QStringLiteral("enableGamemode")].toBool(false);
+    e.enablePreferSdl = obj[QStringLiteral("enablePreferSdl")].toBool(false);
+    e.enableLsfg = obj[QStringLiteral("enableLsfg")].toBool(false);
+    e.lsfgMultiplier = obj[QStringLiteral("lsfgMultiplier")].toInt(2);
+    e.lsfgFlowScale = obj[QStringLiteral("lsfgFlowScale")].toInt(50);
+    e.lsfgPerformanceMode = obj[QStringLiteral("lsfgPerformanceMode")].toBool(false);
+    e.lsfgPresentMode = obj[QStringLiteral("lsfgPresentMode")].toString();
+    const QJsonArray envArr = obj[QStringLiteral("envVars")].toArray();
+    for (const QJsonValue &v : envArr)
+        e.envVars << v.toString();
     return e;
 }
 
@@ -146,4 +178,14 @@ void AppEntry::updateFromVariantMap(const QVariantMap &app)
     enableLogging = app.value(QStringLiteral("enableLogging"), false).toBool();
     hidden = app.value(QStringLiteral("hidden"), false).toBool();
     playTime = app.value(QStringLiteral("playTime"), 0).toLongLong();
+    protonGameId = app.value(QStringLiteral("protonGameId"), QString()).toString();
+    enableMangohud = app.value(QStringLiteral("enableMangohud"), false).toBool();
+    enableGamemode = app.value(QStringLiteral("enableGamemode"), false).toBool();
+    enablePreferSdl = app.value(QStringLiteral("enablePreferSdl"), false).toBool();
+    enableLsfg = app.value(QStringLiteral("enableLsfg"), false).toBool();
+    lsfgMultiplier = app.value(QStringLiteral("lsfgMultiplier"), 2).toInt();
+    lsfgFlowScale = app.value(QStringLiteral("lsfgFlowScale"), 50).toInt();
+    lsfgPerformanceMode = app.value(QStringLiteral("lsfgPerformanceMode"), false).toBool();
+    lsfgPresentMode = app.value(QStringLiteral("lsfgPresentMode"), QString()).toString();
+    envVars = app.value(QStringLiteral("envVars"), QStringList()).toStringList();
 }

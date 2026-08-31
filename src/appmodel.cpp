@@ -151,6 +151,26 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.hidden;
     case PlayTimeRole:
         return e.playTime;
+    case ProtonGameIdRole:
+        return e.protonGameId;
+    case EnableMangohudRole:
+        return e.enableMangohud;
+    case EnableGamemodeRole:
+        return e.enableGamemode;
+    case EnablePreferSdlRole:
+        return e.enablePreferSdl;
+    case EnableLsfgRole:
+        return e.enableLsfg;
+    case LsfgMultiplierRole:
+        return e.lsfgMultiplier;
+    case LsfgFlowScaleRole:
+        return e.lsfgFlowScale;
+    case LsfgPerformanceModeRole:
+        return e.lsfgPerformanceMode;
+    case LsfgPresentModeRole:
+        return e.lsfgPresentMode;
+    case EnvVarsRole:
+        return e.envVars;
     }
     return {};
 }
@@ -180,6 +200,16 @@ QHash<int, QByteArray> AppModel::roleNames() const
         {EnableLoggingRole, "enableLogging"},
         {HiddenRole, "hidden"},
         {PlayTimeRole, "playTime"},
+        {ProtonGameIdRole, "protonGameId"},
+        {EnableMangohudRole, "enableMangohud"},
+        {EnableGamemodeRole, "enableGamemode"},
+        {EnablePreferSdlRole, "enablePreferSdl"},
+        {EnableLsfgRole, "enableLsfg"},
+        {LsfgMultiplierRole, "lsfgMultiplier"},
+        {LsfgFlowScaleRole, "lsfgFlowScale"},
+        {LsfgPerformanceModeRole, "lsfgPerformanceMode"},
+        {LsfgPresentModeRole, "lsfgPresentMode"},
+        {EnvVarsRole, "envVars"},
     };
 }
 
