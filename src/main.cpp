@@ -10,6 +10,7 @@
 #include "gogmodel.h"
 #include "iconextractor.h"
 #include "launcher.h"
+#include "launcherdownloader.h"
 #include "protondownloader.h"
 #include "protonscanner.h"
 #include "rommclient.h"
@@ -196,6 +197,8 @@ int main(int argc, char *argv[])
     UzdoomDownloader uzdoomDownloader;
     uzdoomDownloader.setInstallPath(protonScanner.localAssetsPath() + QStringLiteral("/uzdoom"));
 
+    LauncherDownloader launcherDownloader;
+
     SteamGridDB steamGridDb;
 
     SteamModel steamModel;
@@ -373,6 +376,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("wineDownloader"), &wineDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("umuDownloader"), &umuDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("uzdoomDownloader"), &uzdoomDownloader);
+    engine.rootContext()->setContextProperty(QStringLiteral("launcherDownloader"), &launcherDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("steamGridDb"), &steamGridDb);
     engine.rootContext()->setContextProperty(QStringLiteral("steamModel"), &steamModel);
     engine.rootContext()->setContextProperty(QStringLiteral("gogModel"), &gogModel);
