@@ -33,6 +33,7 @@ KDE-first, lightweight, no frills.</p>
 - [Requirements](#requirements)
 - [Quick start](#quick-start)
 - [How to use it](#how-to-use-it)
+- [Install a game](#install-a-game)
 - [umu-launcher support](#umu-launcher-support)
 - [SteamGridDB support](#steamgriddb-support)
 - [Steam support](#steam-support)
@@ -142,6 +143,23 @@ In **Settings** you can:
 - Set the default prefix folder and extra Proton scan paths
 - Set your RomM server URL, API key, and ROM cache directory
 - Configure your SteamGridDB api key etc.
+
+---
+
+## Install a game
+
+**Install a Windows game/launcher from the sidebar.** Click **Menu - Install a Game**, give the game a name, and pick one of the supported launchers - **Amazon Games, Battle.net, EA App, Epic Games Launcher, Rockstar Games, Ubisoft Connect, or Wargaming Game Center**. You can also pick **None - choose an installer exe** to point Vermouth at any installer you already have on disk.
+
+Vermouth then:
+
+1. Downloads the launcher's installer
+2. Runs it inside a new prefix generated from the game name (under your default prefix folder)
+3. Waits for the installer to finish
+4. Adds the game to your library with the launcher's executable set.
+
+A default **Proton or Wine runtime** must be configured in **Settings - Default Runtime** - the installers need it to run.
+
+> **Important:** During the launcher setup, keep the **default install paths** chosen by the installer, and **close the launcher when it opens after the installation finishes**. The game is only added once that launcher window is closed - if you don't, the setup will not complete correctly.
 
 ---
 

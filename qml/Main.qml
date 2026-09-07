@@ -395,6 +395,11 @@ Kirigami.ApplicationWindow {
                 onTriggered: addDialog.openForNew()
             },
             Kirigami.Action {
+                text: i18n("Install a Game")
+                icon.name: "application-x-ms-dos-executable"
+                onTriggered: installGameDialog.openDialog()
+            },
+            Kirigami.Action {
                 text: i18n("Run a Standalone EXE")
                 icon.name: "system-run-symbolic"
                 onTriggered: runExeStandaloneDialog.openDialog()
@@ -936,6 +941,13 @@ Kirigami.ApplicationWindow {
 
     AddAppDialog {
         id: addDialog
+    }
+
+    InstallGameDialog {
+        id: installGameDialog
+        onInstalled: function (name) {
+            root.showPassiveNotification(i18n("%1 installed", name), 4000);
+        }
     }
 
     RunExeDialog {

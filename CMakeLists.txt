@@ -51,6 +51,7 @@ qt_add_executable(vermouth
     src/umudownloader.cpp
     src/uzdoomdownloader.cpp
     src/downloader.cpp
+    src/launcherdownloader.cpp
     src/singleinstance.cpp
     src/gamepadhandler.cpp
     src/steamgriddb.cpp
@@ -80,6 +81,7 @@ qt_add_qml_module(vermouth
         qml/Main.qml
         qml/WelcomeScreen.qml
         qml/AddAppDialog.qml
+        qml/InstallGameDialog.qml
         qml/GameGridView.qml
         qml/AppGridView.qml
         qml/GameCardFrame.qml
