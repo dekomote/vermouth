@@ -33,10 +33,12 @@
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QIcon>
+#include <QPalette>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickImageProvider>
 #include <QQuickStyle>
+#include <QStyle>
 #include <QTimer>
 
 class IconImageProvider : public QQuickImageProvider
@@ -57,6 +59,37 @@ public:
         return pixmap;
     }
 };
+
+// Lights Out is a custom dark overlay, not a real scheme switch. The QQC2
+// desktop style and icon SVG currentColor resolve from the actual QPalette, so
+// we swap in a dark palette here - otherwise icons/controls stay dark-on-dark.
+static void applyLightsOutPalette(QApplication &app, const QString &baseColor, bool on)
+{
+    if (!on) {
+        app.setPalette(app.style()->standardPalette());
+        return;
+    }
+    QColor base(baseColor);
+    if (!base.isValid())
+        base = QColor(QStringLiteral("#2A2E32"));
+    const QColor text = QColor(Qt::white);
+    const QColor subText = QColor(255, 255, 255, 130);
+    const QColor mid = base.darker(120);
+    const QColor highlight = base.lighter(150);
+
+    QPalette p;
+    p.setColor(QPalette::Window, base);
+    p.setColor(QPalette::WindowText, text);
+    p.setColor(QPalette::Base, base);
+    p.setColor(QPalette::AlternateBase, mid);
+    p.setColor(QPalette::Text, text);
+    p.setColor(QPalette::Button, mid);
+    p.setColor(QPalette::ButtonText, text);
+    p.setColor(QPalette::Highlight, highlight);
+    p.setColor(QPalette::HighlightedText, text);
+    p.setColor(QPalette::PlaceholderText, subText);
+    app.setPalette(p);
+}
 
 int main(int argc, char *argv[])
 {
@@ -110,6 +143,7 @@ int main(int argc, char *argv[])
 
     Launcher launcher;
     SettingsManager settingsManager;
+    applyLightsOutPalette(app, settingsManager.lightsOutColor(), settingsManager.lightsOut());
     launcher.setGlobalEnvVars(settingsManager.globalEnvVars());
     launcher.setUmuPath(settingsManager.umuPath());
     launcher.setRetroarchPath(settingsManager.retroarchPath());
@@ -207,6 +241,13 @@ int main(int argc, char *argv[])
     GogModel gogModel;
 
     RuntimeTypeModel runtimeTypeModel;
+
+    QObject::connect(&settingsManager, &SettingsManager::lightsOutChanged, &app, [&]() {
+        applyLightsOutPalette(app, settingsManager.lightsOutColor(), settingsManager.lightsOut());
+    });
+    QObject::connect(&settingsManager, &SettingsManager::lightsOutColorChanged, &app, [&]() {
+        applyLightsOutPalette(app, settingsManager.lightsOutColor(), settingsManager.lightsOut());
+    });
 
     QObject::connect(&settingsManager, &SettingsManager::defaultRuntimeChanged, [&]() {
         launcher.setDefaultRuntimeType(settingsManager.defaultRuntimeType());
