@@ -52,6 +52,7 @@ qt_add_executable(vermouth
     src/uzdoomdownloader.cpp
     src/downloader.cpp
     src/launcherdownloader.cpp
+    src/steamshortcutwriter.cpp
     src/singleinstance.cpp
     src/gamepadhandler.cpp
     src/steamgriddb.cpp
