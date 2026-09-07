@@ -3,17 +3,20 @@
 #include "flatpakutils.h"
 #include "steamlibrary.h"
 
+#include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QRegularExpression>
+#include <QSaveFile>
 #include <QStandardPaths>
 #include <QTextStream>
 
 namespace
 {
 
-// Binary VDF tags: 0x00 = nested node, 0x01 = string, 0x02 = int32 LE (bools), 0x08 = node end.
+// Binary VDF tags: 0x00 nested node, 0x01 string, 0x02 int32 LE, 0x08 node end.
 constexpr quint8 kVdfString = 0x01;
 constexpr quint8 kVdfInt = 0x02;
 constexpr quint8 kVdfNodeEnd = 0x08;
@@ -38,7 +41,7 @@ void writeIntProp(QByteArray &out, const char *key, quint32 value)
     out.append(char((value >> 24) & 0xFF));
 }
 
-}
+} // namespace
 
 SteamShortcutWriter::SteamShortcutWriter(QObject *parent)
     : QObject(parent)
@@ -57,11 +60,10 @@ QString SteamShortcutWriter::userDataDir() const
     if (root.isEmpty())
         return QString();
 
-    // The user flagged "mostrecent" in loginusers.vdf; fall back to newest mtime.
     QString chosen;
     qint64 newestMtime = -1;
-
     QDir userdata(root + QStringLiteral("/userdata"));
+
     QFile loginUsers(root + QStringLiteral("/config/loginusers.vdf"));
     if (loginUsers.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&loginUsers);
@@ -83,6 +85,7 @@ QString SteamShortcutWriter::userDataDir() const
         }
     }
 
+    // Modern Steam omits "mostrecent" - fall back to the newest userdata folder.
     const auto entries = userdata.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
     for (const auto &name : entries) {
         if (name == QLatin1String("config"))
@@ -102,29 +105,39 @@ QString SteamShortcutWriter::shortcutsPath() const
     return user.isEmpty() ? QString() : user + QStringLiteral("/config/shortcuts.vdf");
 }
 
-// Shortcut launcher: point exe at Vermouth (like the desktop shortcuts) so the
-// game goes through its prefix/runtime settings. App name + quoted exe are the
-// seed of the shortcut app id, so both are derived here in one place.
-QString SteamShortcutWriter::shortcutExe() const
+QString SteamShortcutWriter::shortcutScriptDir() const
 {
-    QString binary = isInsideFlatpak() ? QStandardPaths::findExecutable(QStringLiteral("flatpak")) : QStandardPaths::findExecutable(QStringLiteral("vermouth"));
-    if (binary.isEmpty())
-        binary = isInsideFlatpak() ? QStringLiteral("flatpak") : QStringLiteral("vermouth");
-    return binary;
+    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/steam-shortcuts");
 }
 
-QString SteamShortcutWriter::shortcutLaunchOptions(const QString &id) const
+QString SteamShortcutWriter::shortcutScriptFor(const QString &id) const
 {
-    return isInsideFlatpak() ? QStringLiteral("run com.dekomote.vermouth --launch-id %1").arg(id) : QStringLiteral("--launch-id %1").arg(id);
+    QString safe = id;
+    safe.replace(QRegularExpression(QStringLiteral("[^a-zA-Z0-9_-]")), QStringLiteral("_"));
+    return shortcutScriptDir() + QLatin1Char('/') + safe + QStringLiteral(".sh");
 }
 
-// Shortcut app id, matching the scheme Steam currently uses (from the
-// SteamGridDB steam-rom-manager reference everyone follows): standard CRC-32
-// of the quoted exe + app name, with bit 31 set.
+bool SteamShortcutWriter::writeShortcutScript(const QString &id) const
+{
+    const QString path = shortcutScriptFor(id);
+    QDir().mkpath(QFileInfo(path).absolutePath());
+
+    // Absolute path - "vermouth" on PATH may be unrelated or absent.
+    const QString launch = isInsideFlatpak() ? QStringLiteral("flatpak run com.dekomote.vermouth --launch-id %1").arg(id)
+                                             : QStringLiteral("%1 --launch-id %2").arg(QCoreApplication::applicationFilePath(), id);
+
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+        return false;
+    QTextStream out(&file);
+    out << QStringLiteral("#!/bin/sh\n# Vermouth Steam shortcut for %1\nexec %2\n").arg(id, launch);
+    file.close();
+    return file.setPermissions(file.permissions() | QFile::ExeOwner | QFile::ExeGroup | QFile::ExeOther);
+}
+
 quint32 SteamShortcutWriter::shortcutAppId(const QString &quotedExe, const QString &appName) const
 {
-    const QString seed = quotedExe + appName;
-    const QByteArray data = seed.toUtf8();
+    const QByteArray data = (quotedExe + appName).toUtf8();
     quint32 crc = 0xFFFFFFFFu;
     for (const char byte : data) {
         crc ^= static_cast<quint8>(byte);
@@ -138,32 +151,36 @@ quint32 SteamShortcutWriter::shortcutAppId(const QString &quotedExe, const QStri
 QByteArray SteamShortcutWriter::encodeEntry(int index, const QVariantMap &app) const
 {
     const QString id = app.value(QStringLiteral("id")).toString();
-    const QString exe = shortcutExe();
     const QString name = app.value(QStringLiteral("name")).toString();
     const QString iconPath = app.value(QStringLiteral("iconPath")).toString();
 
-    // Exe is double-quoted, like Steam and other launchers write it; the appid
-    // seed uses that exact value.
-    const QString quotedExe = QStringLiteral("\"%1\"").arg(exe);
-    const quint32 appid = shortcutAppId(quotedExe, name);
+    // Per-game wrapper script as the exe; its unique path is also the appid seed.
+    const QString script = shortcutScriptFor(id);
+    const QString quotedScript = QStringLiteral("\"%1\"").arg(script);
+    const quint32 appid = shortcutAppId(quotedScript, name);
 
     QByteArray out;
     out.append('\0');
     out.append(QByteArray::number(index));
     out.append('\0');
 
+    writeIntProp(out, "AllowDesktopConfig", 0);
+    writeIntProp(out, "AllowOverlay", 0);
     writeIntProp(out, "appid", appid);
-    writeStringProp(out, "appname", name);
-    writeStringProp(out, "exe", quotedExe);
-    writeStringProp(out, "StartDir", QStringLiteral("\"%1\"").arg(QFileInfo(exe).absolutePath()));
-    writeStringProp(out, "icon", iconPath.startsWith(QStringLiteral("/")) ? iconPath : QString());
-    writeStringProp(out, "ShortcutPath", QString());
-    writeStringProp(out, "LaunchOptions", shortcutLaunchOptions(id));
+    writeStringProp(out, "AppName", name);
+    writeIntProp(out, "DevKit", 0);
+    writeStringProp(out, "DevkitGameID", QString());
+    writeIntProp(out, "DevkitOverrideAppID", 0);
+    writeStringProp(out, "Exe", quotedScript);
+    writeStringProp(out, "FlatpakAppID", QString());
     writeIntProp(out, "IsHidden", 0);
-    writeIntProp(out, "AllowDesktopConfig", 1);
-    writeIntProp(out, "AllowOverlay", 1);
-    writeIntProp(out, "OpenVR", 0);
     writeIntProp(out, "LastPlayTime", 0);
+    writeStringProp(out, "LaunchOptions", QString());
+    writeIntProp(out, "OpenVR", 0);
+    writeStringProp(out, "ShortcutPath", QString());
+    writeStringProp(out, "StartDir", shortcutScriptDir());
+    if (iconPath.startsWith(QStringLiteral("/")))
+        writeStringProp(out, "icon", iconPath);
 
     out.append('\0');
     out.append("tags");
@@ -173,11 +190,81 @@ QByteArray SteamShortcutWriter::encodeEntry(int index, const QVariantMap &app) c
     return out;
 }
 
+QList<SteamShortcutWriter::ParsedEntry> SteamShortcutWriter::parseEntries(const QByteArray &data) const
+{
+    QList<ParsedEntry> out;
+    if (data.size() < 11 || data.at(0) != '\0' || data.mid(1, 9) != "shortcuts" || data.at(10) != '\0')
+        return out;
+
+    qsizetype pos = 11;
+    auto readCstr = [&data](qsizetype &p) {
+        qsizetype end = data.indexOf('\0', p);
+        if (end < 0)
+            end = data.size();
+        QByteArray s = data.mid(p, end - p);
+        p = end + 1; // skip the trailing NUL
+        return s;
+    };
+
+    while (pos < data.size()) {
+        while (pos < data.size() && data.at(pos) == kVdfNodeEnd)
+            pos++;
+        if (pos >= data.size() || data.at(pos) != '\0')
+            break;
+
+        ParsedEntry e;
+        pos++; // head '\x00'
+        readCstr(pos); // index
+        if (pos >= data.size())
+            break;
+        const qsizetype contentStart = pos; // first property type byte
+
+        while (pos < data.size()) {
+            const char t = data.at(pos);
+            if (t == kVdfNodeEnd)
+                break;
+            pos++;
+            QByteArray key = readCstr(pos);
+            if (t == kVdfString) {
+                QByteArray value = readCstr(pos);
+                if (key.compare("AppName", Qt::CaseInsensitive) == 0)
+                    e.name = QString::fromUtf8(value);
+                else if (key.compare("Exe", Qt::CaseInsensitive) == 0) {
+                    e.exe = QString::fromUtf8(value);
+                    if (e.exe.size() >= 2 && e.exe.startsWith(QLatin1Char('"')) && e.exe.endsWith(QLatin1Char('"')))
+                        e.exe = e.exe.mid(1, e.exe.size() - 2);
+                }
+            } else if (t == kVdfInt) {
+                pos += 4;
+            } else if (t == '\0') {
+                // Nested tags node: \x01<idx>\x00<tag>\x00 items, then one closer.
+                while (pos + 1 < data.size() && data.at(pos) == kVdfString) {
+                    pos++;
+                    readCstr(pos);
+                    readCstr(pos);
+                }
+                if (pos < data.size() && data.at(pos) == kVdfNodeEnd)
+                    pos++;
+            } else {
+                pos += 4;
+            }
+        }
+
+        // Terminator is the 0x08 run after the last property/tags node.
+        while (pos < data.size() && data.at(pos) == kVdfNodeEnd)
+            pos++;
+        e.content = data.mid(contentStart, pos - contentStart);
+        out << e;
+    }
+    return out;
+}
+
 bool SteamShortcutWriter::createShortcut(const QVariantMap &app)
 {
     const QString name = app.value(QStringLiteral("name")).toString();
     const QString gameExe = app.value(QStringLiteral("exePath")).toString();
-    if (name.isEmpty() || gameExe.isEmpty())
+    const QString id = app.value(QStringLiteral("id")).toString();
+    if (name.isEmpty() || id.isEmpty())
         return false;
 
     const QString path = shortcutsPath();
@@ -193,53 +280,64 @@ bool SteamShortcutWriter::createShortcut(const QVariantMap &app)
         data = file.readAll();
     file.close();
 
-    // Idempotent: skip if this name or exe is already present - Steam and other
-    // launchers may write the keys capitalized (AppName/Exe), so both spellings
-    // are matched. Markers are built byte-explicit - C hex-escapes like
-    // "\x01appname" would eat the 'a' as a hex digit (\x1a).
-    const QByteArray nameUtf8 = name.toUtf8();
-    const QByteArray exeUtf8 = gameExe.toUtf8();
-    auto marker = [](const char *key) {
-        QByteArray m;
-        m.append(char(kVdfString));
-        m.append(key);
-        m.append('\0');
-        return m;
-    };
-    const QByteArray appnamePat = marker("appname") + nameUtf8 + '\0';
-    const QByteArray exePat = marker("exe") + exeUtf8 + '\0';
-    const QByteArray appnamePatAlt = marker("AppName") + nameUtf8 + '\0';
-    const QByteArray exePatAlt = marker("Exe") + exeUtf8 + '\0';
-    if (data.contains(appnamePat) || data.contains(exePat) || data.contains(appnamePatAlt) || data.contains(exePatAlt))
-        return true;
+    QList<ParsedEntry> entries = parseEntries(data);
+
+    // Upsert: replace this game's existing entry (by name, our script, or a legacy raw exe).
+    const QString scriptPath = shortcutScriptFor(id);
+    entries.erase(std::remove_if(entries.begin(),
+                                 entries.end(),
+                                 [&](const ParsedEntry &e) {
+                                     return e.name == name || (!e.exe.isEmpty() && (e.exe == scriptPath || e.exe == gameExe));
+                                 }),
+                  entries.end());
+
+    if (!writeShortcutScript(id))
+        return false;
 
     if (existed)
         QFile::copy(path, path + QStringLiteral(".bak"));
 
-    // Append the new entry before the trailing node-end bytes.
-    QByteArray appidMarker;
-    appidMarker.append(char(kVdfInt));
-    appidMarker.append("appid");
-    appidMarker.append('\0');
-    const int nextIndex = data.count(appidMarker);
+    // Reindex keys 0..N-1 - Steam stops importing at the first index gap.
+    QByteArray payload;
+    payload.append('\0');
+    payload.append("shortcuts");
+    payload.append('\0');
+    int nextIndex = 0;
+    for (const auto &e : entries) {
+        payload.append('\0');
+        payload.append(QByteArray::number(nextIndex));
+        payload.append('\0');
+        QByteArray block = e.content;
+        if (block.startsWith(QByteArray("\x02index\x00")))
+            block = block.mid(11); // drop the obsolete index property
+        // End each entry with exactly two 0x08 bytes; Steam balks at stray ones.
+        while (block.size() && block.at(block.size() - 1) == kVdfNodeEnd)
+            block.chop(1);
+        block.append(char(kVdfNodeEnd));
+        block.append(char(kVdfNodeEnd));
+        payload.append(block);
+        ++nextIndex;
+    }
+    payload.append(encodeEntry(nextIndex, app));
+    payload.append(char(kVdfNodeEnd));
+    payload.append(char(kVdfNodeEnd));
 
-    const QByteArray head = data.isEmpty() ? QByteArray("\x00shortcuts\x00") : QByteArray();
-    qsizetype trim = data.size();
-    while (trim > 0 && data.at(trim - 1) == kVdfNodeEnd)
-        trim--;
-
-    const QByteArray payload = head + data.left(trim) + encodeEntry(nextIndex, app) + QByteArray(2, char(kVdfNodeEnd));
-
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    QSaveFile out(path);
+    if (!out.open(QIODevice::WriteOnly))
         return false;
-    file.write(payload);
-    file.close();
+    out.write(payload);
+    if (!out.commit())
+        return false;
 
-    // Touch mtime so a running Steam picks up the change.
-    QFile::setPermissions(path, QFile::permissions(path));
+    QFile::setPermissions(path, QFile::permissions(path)); // bump mtime for Steam
 
-    const QString quotedExe = QStringLiteral("\"%1\"").arg(shortcutExe());
-    installArtwork(shortcutAppId(quotedExe, name), app);
+    // Read back to confirm the write persisted.
+    QFile check(path);
+    if (check.open(QIODevice::ReadOnly))
+        qWarning() << "[steam-shortcut] entries on disk:" << check.readAll().count("appid");
+
+    const QString quotedScript = QStringLiteral("\"%1\"").arg(scriptPath);
+    installArtwork(shortcutAppId(quotedScript, name), app);
     return true;
 }
 
@@ -251,20 +349,17 @@ void SteamShortcutWriter::installArtwork(quint32 appid, const QVariantMap &app)
     const QString gridDir = user + QStringLiteral("/config/grid");
     QDir().mkpath(gridDir);
 
-    // Steam looks grid art up by the shortcut id, but older generations used
-    // different id bases and suffixes, so both are written. Content is copied
-    // as-is; Steam reads the actual bytes regardless of the filename extension.
+    // Cover both the legacy signed and current unsigned shortcut id bases.
     const QStringList idBases = {QString::number(appid), QString::number(static_cast<qint32>(appid))};
 
     auto copyTo = [&](const QString &src, const QStringList &names) {
         if (src.isEmpty() || !QFileInfo::exists(src))
             return;
-        for (const QString &stem : names) {
+        for (const QString &stem : names)
             for (const QString &id : idBases) {
                 QFile::remove(gridDir + QLatin1Char('/') + id + stem);
                 QFile::copy(src, gridDir + QLatin1Char('/') + id + stem);
             }
-        }
     };
 
     const QString grid = app.value(QStringLiteral("gridPath")).toString();
