@@ -193,8 +193,10 @@ bool SteamShortcutWriter::createShortcut(const QVariantMap &app)
         data = file.readAll();
     file.close();
 
-    // Markers are built byte-explicit - C hex-escapes like "\x01appname"
-    // would eat the 'a' as a hex digit (\x1a).
+    // Idempotent: skip if this name or exe is already present - Steam and other
+    // launchers may write the keys capitalized (AppName/Exe), so both spellings
+    // are matched. Markers are built byte-explicit - C hex-escapes like
+    // "\x01appname" would eat the 'a' as a hex digit (\x1a).
     const QByteArray nameUtf8 = name.toUtf8();
     const QByteArray exeUtf8 = gameExe.toUtf8();
     auto marker = [](const char *key) {
@@ -206,7 +208,9 @@ bool SteamShortcutWriter::createShortcut(const QVariantMap &app)
     };
     const QByteArray appnamePat = marker("appname") + nameUtf8 + '\0';
     const QByteArray exePat = marker("exe") + exeUtf8 + '\0';
-    if (data.contains(appnamePat) || data.contains(exePat))
+    const QByteArray appnamePatAlt = marker("AppName") + nameUtf8 + '\0';
+    const QByteArray exePatAlt = marker("Exe") + exeUtf8 + '\0';
+    if (data.contains(appnamePat) || data.contains(exePat) || data.contains(appnamePatAlt) || data.contains(exePatAlt))
         return true;
 
     if (existed)
