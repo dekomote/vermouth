@@ -209,6 +209,7 @@ GameGridView {
                     text: i18n("Create Steam shortcut")
                     icon.name: "steam"
                     visible: steamShortcutWriter.isAvailable() && cardFrame.runtimeType !== "steam"
+                    enabled: settingsManager.steamShortcutsEnabled
                     onTriggered: {
                         var app = appModel.getApp(cardFrame.index);
                         steamShortcutWriter.createShortcut(app);

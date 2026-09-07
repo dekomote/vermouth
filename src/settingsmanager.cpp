@@ -447,6 +447,20 @@ void SettingsManager::setShowTips(bool enabled)
     Q_EMIT showTipsChanged();
 }
 
+bool SettingsManager::steamShortcutsEnabled() const
+{
+    // Experimental feature: opt-in only, it rewrites Steam's shortcuts.vdf.
+    return m_settings.value(QStringLiteral("steamShortcutsEnabled"), false).toBool();
+}
+
+void SettingsManager::setSteamShortcutsEnabled(bool enabled)
+{
+    if (steamShortcutsEnabled() == enabled)
+        return;
+    m_settings.setValue(QStringLiteral("steamShortcutsEnabled"), enabled);
+    Q_EMIT steamShortcutsEnabledChanged();
+}
+
 QVariantMap SettingsManager::rommCoreMap() const
 {
     QString json = m_settings.value(QStringLiteral("rommCoreMap")).toString();

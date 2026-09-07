@@ -37,6 +37,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(bool sleepInhibited READ sleepInhibited WRITE setSleepInhibited NOTIFY sleepInhibitedChanged)
     Q_PROPERTY(bool gridAltBackground READ gridAltBackground WRITE setGridAltBackground NOTIFY gridAltBackgroundChanged)
     Q_PROPERTY(bool showRunnerIcons READ showRunnerIcons WRITE setShowRunnerIcons NOTIFY showRunnerIconsChanged)
+    Q_PROPERTY(bool steamShortcutsEnabled READ steamShortcutsEnabled WRITE setSteamShortcutsEnabled NOTIFY steamShortcutsEnabledChanged)
     Q_PROPERTY(QString lsfgDllPath READ lsfgDllPath WRITE setLsfgDllPath NOTIFY lsfgDllPathChanged)
 
 public:
@@ -132,6 +133,9 @@ public:
     bool showRunnerIcons() const;
     Q_INVOKABLE void setShowRunnerIcons(bool enabled);
 
+    bool steamShortcutsEnabled() const;
+    Q_INVOKABLE void setSteamShortcutsEnabled(bool enabled);
+
     QString lsfgDllPath() const;
     Q_INVOKABLE void setLsfgDllPath(const QString &path);
 
@@ -173,6 +177,7 @@ Q_SIGNALS:
     void sleepInhibitedChanged();
     void gridAltBackgroundChanged();
     void showRunnerIconsChanged();
+    void steamShortcutsEnabledChanged();
     void lsfgDllPathChanged();
     void rommCoreMapChanged();
     void rommGameCoreMapChanged();

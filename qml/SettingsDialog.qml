@@ -288,6 +288,35 @@ Kirigami.ScrollablePage {
 
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("Steam Shortcuts")
+            }
+
+            QQC2.Label {
+                Kirigami.FormData.label: ""
+                text: i18n("Adds games to your Steam library as non-Steam shortcuts by rewriting Steam's shortcuts.vdf.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
+                font.italic: true
+                color: Kirigami.Theme.disabledTextColor
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Add to Steam:")
+                QQC2.Switch {
+                    checked: settingsManager.steamShortcutsEnabled
+                    onToggled: settingsManager.setSteamShortcutsEnabled(checked)
+                }
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Experimental: this rewrites your Steam shortcuts.vdf and might mess up your existing Steam shortcuts. Make sure Steam is closed and back up shortcuts.vdf before using it.")
+                    icon.name: "help-about-symbolic"
+                }
+            }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
                 Kirigami.FormData.label: i18n("RomM")
             }
 
