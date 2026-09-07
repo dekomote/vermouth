@@ -706,6 +706,9 @@ Kirigami.ApplicationWindow {
                     id: gridView
                     lightsOut: root.lightsOut
                     active: root.currentPage === "games"
+                    onSteamShortcutCreated: function (name) {
+                        root.showPassiveNotification(i18n("Steam shortcut added for %1 - restart Steam to see it.", name), 4000);
+                    }
                 }
 
                 RommView {

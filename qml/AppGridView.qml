@@ -5,6 +5,8 @@ import org.kde.kirigami as Kirigami
 
 GameGridView {
     id: gridView
+
+    signal steamShortcutCreated(string name)
     model: appModel
 
     property bool searchActive: false
@@ -203,6 +205,16 @@ GameGridView {
                         desktopWriter.createDesktopShortcut(app);
                     }
                 }
+                QQC2.MenuItem {
+                    text: i18n("Create Steam shortcut")
+                    icon.name: "steam"
+                    visible: steamShortcutWriter.isAvailable() && cardFrame.runtimeType !== "steam"
+                    onTriggered: {
+                        var app = appModel.getApp(cardFrame.index);
+                        steamShortcutWriter.createShortcut(app);
+                        gridView.steamShortcutCreated(app.name);
+                    }
+                }
             }
             QQC2.Menu {
                 enabled: cardFrame.resolvedHasPrefix
@@ -359,7 +371,8 @@ GameGridView {
                 icon.name: "edit-delete-symbolic"
                 enabled: deleteConfirmField.text === "DELETE"
                 onTriggered: {
-                    desktopWriter.removeShortcuts(appModel.getApp(confirmDeleteDialog.payload));
+                    var app = appModel.getApp(confirmDeleteDialog.payload);
+                    desktopWriter.removeShortcuts(app);
                     appModel.removeAndCleanApp(confirmDeleteDialog.payload);
                     confirmDeleteDialog.close();
                 }
@@ -416,7 +429,8 @@ GameGridView {
         title: i18n("Delete the app?")
         subtitle: runtimeType === "native" || runtimeType === "retroarch" || runtimeType === "steam" ? i18n("This will delete the app from the library.") : i18n("This will delete the app but preserve the prefix folder.")
         onAccepted: {
-            desktopWriter.removeShortcuts(appModel.getApp(payload));
+            var app = appModel.getApp(payload);
+            desktopWriter.removeShortcuts(app);
             appModel.removeApp(payload);
         }
         standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel

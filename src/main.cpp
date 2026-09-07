@@ -22,6 +22,7 @@
 #include "singleinstance.h"
 #include "steamgriddb.h"
 #include "steammodel.h"
+#include "steamshortcutwriter.h"
 #include "umudownloader.h"
 #include "uzdoomdownloader.h"
 #include "winedownloader.h"
@@ -198,6 +199,7 @@ int main(int argc, char *argv[])
     uzdoomDownloader.setInstallPath(protonScanner.localAssetsPath() + QStringLiteral("/uzdoom"));
 
     LauncherDownloader launcherDownloader;
+    SteamShortcutWriter steamShortcutWriter;
 
     SteamGridDB steamGridDb;
 
@@ -377,6 +379,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("umuDownloader"), &umuDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("uzdoomDownloader"), &uzdoomDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("launcherDownloader"), &launcherDownloader);
+    engine.rootContext()->setContextProperty(QStringLiteral("steamShortcutWriter"), &steamShortcutWriter);
     engine.rootContext()->setContextProperty(QStringLiteral("steamGridDb"), &steamGridDb);
     engine.rootContext()->setContextProperty(QStringLiteral("steamModel"), &steamModel);
     engine.rootContext()->setContextProperty(QStringLiteral("gogModel"), &gogModel);
