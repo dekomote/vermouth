@@ -208,7 +208,7 @@ GameGridView {
                 QQC2.MenuItem {
                     text: i18n("Create Steam shortcut")
                     icon.name: "steam"
-                    visible: steamShortcutWriter.isAvailable()
+                    visible: steamShortcutWriter.isAvailable() && cardFrame.runtimeType !== "steam"
                     onTriggered: {
                         var app = appModel.getApp(cardFrame.index);
                         steamShortcutWriter.createShortcut(app);

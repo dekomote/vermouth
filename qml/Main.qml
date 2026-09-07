@@ -707,7 +707,7 @@ Kirigami.ApplicationWindow {
                     lightsOut: root.lightsOut
                     active: root.currentPage === "games"
                     onSteamShortcutCreated: function (name) {
-                        root.showPassiveNotification(i18n("Steam shortcut added for %1 - Steam will pick it up shortly.", name), 4000);
+                        root.showPassiveNotification(i18n("Steam shortcut added for %1 - restart Steam to see it.", name), 4000);
                     }
                 }
 

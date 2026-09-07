@@ -4,7 +4,6 @@
 #include "steamlibrary.h"
 
 #include <QCoreApplication>
-#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -267,6 +266,10 @@ bool SteamShortcutWriter::createShortcut(const QVariantMap &app)
     if (name.isEmpty() || id.isEmpty())
         return false;
 
+    // Steam-imported games already live in Steam - no shortcut needed.
+    if (app.value(QStringLiteral("runtimeType")).toString() == QLatin1String("steam"))
+        return false;
+
     const QString path = shortcutsPath();
     if (path.isEmpty())
         return false;
@@ -275,8 +278,7 @@ bool SteamShortcutWriter::createShortcut(const QVariantMap &app)
 
     QByteArray data;
     QFile file(path);
-    const bool existed = file.exists();
-    if (existed && file.open(QIODevice::ReadOnly))
+    if (file.exists() && file.open(QIODevice::ReadOnly))
         data = file.readAll();
     file.close();
 
@@ -293,9 +295,6 @@ bool SteamShortcutWriter::createShortcut(const QVariantMap &app)
 
     if (!writeShortcutScript(id))
         return false;
-
-    if (existed)
-        QFile::copy(path, path + QStringLiteral(".bak"));
 
     // Reindex keys 0..N-1 - Steam stops importing at the first index gap.
     QByteArray payload;
@@ -330,11 +329,6 @@ bool SteamShortcutWriter::createShortcut(const QVariantMap &app)
         return false;
 
     QFile::setPermissions(path, QFile::permissions(path)); // bump mtime for Steam
-
-    // Read back to confirm the write persisted.
-    QFile check(path);
-    if (check.open(QIODevice::ReadOnly))
-        qWarning() << "[steam-shortcut] entries on disk:" << check.readAll().count("appid");
 
     const QString quotedScript = QStringLiteral("\"%1\"").arg(scriptPath);
     installArtwork(shortcutAppId(quotedScript, name), app);
