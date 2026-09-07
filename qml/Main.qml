@@ -17,16 +17,6 @@ Kirigami.ApplicationWindow {
     // Lights Out computed colors
     readonly property bool lightsOut: settingsManager.lightsOut
     readonly property bool bigPicture: settingsManager.bigPicture
-    readonly property color loBase: Qt.color(settingsManager.lightsOutColor)
-    readonly property color loDark: Qt.darker(loBase, 1.5)
-    readonly property color loDarkest: Qt.darker(loBase, 2)
-    readonly property color loMid: Qt.darker(loBase, 1.2)
-    readonly property color loHighlight: Qt.lighter(loBase, 1.8)
-    readonly property color loText: "#ffffff"
-    readonly property color loSubText: Qt.rgba(1, 1, 1, 0.6)
-    readonly property color loAltBg: Qt.darker(loBase, 1.3)
-    Kirigami.Theme.colorSet: lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
-    Kirigami.Theme.inherit: false
 
     property double prevScaleFactor: 1
     property bool prevLightsOut: false
@@ -184,10 +174,6 @@ Kirigami.ApplicationWindow {
         }
     }
 
-    background: Rectangle {
-        color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
-    }
-
     globalDrawer: Kirigami.GlobalDrawer {
         id: globalDrawer
         modal: !settingsManager.drawerPinned || !root.wideScreen
@@ -197,17 +183,9 @@ Kirigami.ApplicationWindow {
         Component.onCompleted: preferredSize = sidebarSettings.width > 0 ? sidebarSettings.width : Kirigami.Units.gridUnit * 14
         onPreferredSizeChanged: sidebarSettings.width = preferredSize
 
-        Kirigami.Theme.inherit: root.lightsOut
-        Kirigami.Theme.colorSet: modal ? Kirigami.Theme.Window : Kirigami.Theme.View
-
         header: Kirigami.AbstractApplicationHeader {
             visible: root.sidebarPinned
             preferredHeight: root.headerHeight
-            Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Header
-            Kirigami.Theme.inherit: false
-            background: Rectangle {
-                color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
-            }
 
             contentItem: RowLayout {
                 spacing: 0
@@ -222,7 +200,6 @@ Kirigami.ApplicationWindow {
                     focusPolicy: Qt.NoFocus
                     readonly property var viewOrder: ["icon", "grid", "hero"]
                     icon.name: viewMenu.viewIcons[gridView.viewType]
-                    icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                     onClicked: gridView.viewType = viewOrder[(viewOrder.indexOf(gridView.viewType) + 1) % viewOrder.length]
                     QQC2.ToolTip.text: i18n("Switch view type")
                     QQC2.ToolTip.visible: hovered
@@ -234,7 +211,6 @@ Kirigami.ApplicationWindow {
                     icon.name: "go-down-symbolic"
                     icon.width: Kirigami.Units.iconSizes.small
                     icon.height: Kirigami.Units.iconSizes.small
-                    icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                     onClicked: viewMenu.popup(viewIconBtn, 0, viewIconBtn.height)
                     QQC2.ToolTip.text: i18n("Switch view type")
                     QQC2.ToolTip.visible: hovered
@@ -521,20 +497,6 @@ Kirigami.ApplicationWindow {
                 bottomPadding: Kirigami.Units.largeSpacing
                 leftPadding: Kirigami.Units.largeSpacing
                 rightPadding: Kirigami.Units.largeSpacing
-                background: Rectangle {
-                    color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
-                }
-                // AppImage hack
-                palette.highlightedText: root.lightsOut ? root.loText : undefined
-                palette.button: root.lightsOut ? root.loMid : undefined
-                palette.buttonText: root.lightsOut ? root.loText : undefined
-                palette.window: root.lightsOut ? root.loBase : undefined
-                palette.windowText: root.lightsOut ? root.loText : undefined
-                palette.base: root.lightsOut ? root.loBase : undefined
-                palette.text: root.lightsOut ? root.loText : undefined
-                palette.placeholderText: root.lightsOut ? root.loSubText : undefined
-                palette.brightText: root.lightsOut ? root.loText : undefined
-
                 contentItem: RowLayout {
                     spacing: Kirigami.Units.mediumSpacing
                     QQC2.ToolButton {
@@ -542,7 +504,6 @@ Kirigami.ApplicationWindow {
                         focusPolicy: Qt.NoFocus
                         visible: globalDrawer.modal
                         onClicked: globalDrawer.open()
-                        icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                     }
 
                     QQC2.ToolButton {
@@ -551,7 +512,6 @@ Kirigami.ApplicationWindow {
                         focusPolicy: Qt.NoFocus
                         visible: globalDrawer.modal
                         onClicked: viewMenu.popup(viewMenuToolbarBtn, 0, viewMenuToolbarBtn.height)
-                        icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                         QQC2.ToolTip.text: i18n("Switch view type")
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
@@ -562,7 +522,6 @@ Kirigami.ApplicationWindow {
                         focusPolicy: Qt.NoFocus
                         visible: !root.currentPageObject.nav
                         onClicked: root.navigate(root.previousPage)
-                        icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                         QQC2.ToolTip.text: i18n("Back")
                         QQC2.ToolTip.visible: hovered
                         QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
@@ -573,7 +532,6 @@ Kirigami.ApplicationWindow {
                         text: root.currentPageObject.name
                         visible: !root.currentPageObject.nav
                         Layout.fillWidth: true
-                        color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                     }
 
                     Item {
@@ -591,16 +549,6 @@ Kirigami.ApplicationWindow {
                         onTextChanged: root.updateSearch(text)
                         onVisibleChanged: if (visible)
                             text = Qt.binding(() => root.searchQuery)
-                        Kirigami.Theme.colorSet: Kirigami.Theme.View
-                        Kirigami.Theme.inherit: false
-                        color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
-                        placeholderTextColor: root.lightsOut ? root.loSubText : Kirigami.Theme.disabledTextColor
-                        background: Rectangle {
-                            color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
-                            radius: Kirigami.Units.cornerRadius
-                            border.width: 1
-                            border.color: searchField.hovered || searchField.activeFocus ? Kirigami.Theme.focusColor : Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
-                        }
                     }
 
                     Item {
@@ -612,7 +560,6 @@ Kirigami.ApplicationWindow {
                         id: addBtn
                         icon.name: "list-add-symbolic"
                         focusPolicy: Qt.NoFocus
-                        icon.color: root.lightsOut ? root.loText : "transparent"
                         visible: !root.bigPicture && root.currentPage === "games" && !root.sidebarPinned
                         onClicked: addDialog.openForNew()
                     }
@@ -624,19 +571,10 @@ Kirigami.ApplicationWindow {
                         textRole: "name"
                         implicitWidth: Kirigami.Units.gridUnit * 12
                         displayText: count > 0 ? currentText : i18n("Select platform…")
-                        Kirigami.Theme.colorSet: Kirigami.Theme.Button
-                        Kirigami.Theme.inherit: false
-                        background: Rectangle {
-                            color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
-                            radius: Kirigami.Units.cornerRadius
-                            border.width: 1
-                            border.color: rommPlatformCombo.hovered || rommPlatformCombo.popup.visible ? Kirigami.Theme.focusColor : Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
-                        }
                         contentItem: Text {
                             leftPadding: Kirigami.Units.smallSpacing * 2
                             rightPadding: (rommPlatformCombo.indicator ? rommPlatformCombo.indicator.width : 0) + Kirigami.Units.smallSpacing
                             text: rommPlatformCombo.displayText
-                            color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                             verticalAlignment: Text.AlignVCenter
                             elide: Text.ElideRight
                         }
@@ -666,7 +604,6 @@ Kirigami.ApplicationWindow {
                         visible: !root.bigPicture && root.currentPage === "games"
                         focusPolicy: Qt.NoFocus
                         icon.name: isRunning ? "media-playback-stop-symbolic" : "media-playback-start-symbolic"
-                        icon.color: root.lightsOut ? root.loText : "transparent"
                         enabled: gridView.currentIndex >= 0
                         onClicked: {
                             var app = appModel.getApp(gridView.currentIndex);
@@ -681,8 +618,7 @@ Kirigami.ApplicationWindow {
                         visible: root.currentPage === "settings"
                         focusPolicy: Qt.NoFocus
                         icon.name: "document-save-symbolic"
-                        text: root.lightsOut ? "" : i18n("Save")
-                        icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
+                        text: i18n("Save")
                         onClicked: {
                             settingsPage.save();
                             root.showPassiveNotification(i18n("Settings saved"), 2000);
@@ -696,7 +632,7 @@ Kirigami.ApplicationWindow {
         Rectangle {
             anchors.fill: parent
             Kirigami.Theme.colorSet: settingsManager.gridAltBackground ? Kirigami.Theme.View : Kirigami.Theme.Window
-            color: root.lightsOut ? root.loBase : Kirigami.Theme.backgroundColor
+            color: Kirigami.Theme.backgroundColor
 
             StackLayout {
                 anchors.fill: parent
@@ -729,50 +665,18 @@ Kirigami.ApplicationWindow {
 
                 Kirigami.AboutPage {
                     aboutData: About
-                    Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
-                    Kirigami.Theme.inherit: false
                 }
 
                 SettingsDialog {
                     id: settingsPage
-                    Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
-                    Kirigami.Theme.inherit: false
                 }
 
-                WelcomeScreen {
-                    Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
-                    Kirigami.Theme.inherit: false
-                }
+                WelcomeScreen {}
             }
         }
 
         footer: QQC2.ToolBar {
             position: QQC2.ToolBar.Footer
-            Kirigami.Theme.colorSet: root.lightsOut ? Kirigami.Theme.Complementary : Kirigami.Theme.Window
-            Kirigami.Theme.inherit: false
-            background: Rectangle {
-                color: root.lightsOut ? root.loMid : Kirigami.Theme.backgroundColor
-                Rectangle {
-                    anchors {
-                        left: parent.left
-                        right: parent.right
-                        top: parent.top
-                    }
-                    height: 1
-                    color: root.lightsOut ? Qt.rgba(1, 1, 1, 0.12) : Kirigami.ColorUtils.linearInterpolation(Kirigami.Theme.backgroundColor, Kirigami.Theme.textColor, Kirigami.Theme.frameContrast)
-                }
-            }
-            // AppImage hack
-            palette.highlightedText: root.lightsOut ? root.loText : undefined
-            palette.button: root.lightsOut ? root.loMid : undefined
-            palette.buttonText: root.lightsOut ? root.loText : undefined
-            palette.window: root.lightsOut ? root.loBase : undefined
-            palette.windowText: root.lightsOut ? root.loText : undefined
-            palette.base: root.lightsOut ? root.loBase : undefined
-            palette.text: root.lightsOut ? root.loText : undefined
-            palette.placeholderText: root.lightsOut ? root.loSubText : undefined
-            palette.brightText: root.lightsOut ? root.loText : undefined
-
             contentItem: RowLayout {
                 QQC2.Label {
                     id: footerStatusText
@@ -784,8 +688,6 @@ Kirigami.ApplicationWindow {
                     icon.name: gridView.showHidden ? "view-hidden-symbolic" : "view-visible-symbolic"
                     focusPolicy: Qt.NoFocus
                     onClicked: gridView.showHidden = !gridView.showHidden
-                    // Unfortunately, appimage won't respect the color scheme so I have to improvise:
-                    icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
                     QQC2.ToolTip.text: gridView.showHidden ? i18n("Hide") : i18n("Show Hidden")
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
@@ -796,8 +698,6 @@ Kirigami.ApplicationWindow {
                     checkable: true
                     checked: launcher.sleepInhibited
                     onClicked: launcher.toggleSleepInhibit()
-                    // Unfortunately, appimage won't respect the color scheme so I have to improvise:
-                    icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
                     QQC2.ToolTip.text: launcher.sleepInhibited ? i18n("Allow Sleep") : i18n("Prevent Sleep")
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
@@ -810,7 +710,6 @@ Kirigami.ApplicationWindow {
                     enabled: launcher.hdrSupported
                     visible: launcher.hdrSupported
                     onClicked: launcher.toggleHdr()
-                    icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
                     QQC2.ToolTip.text: launcher.hdrEnabled ? i18n("Disable HDR") : i18n("Enable HDR")
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
@@ -821,7 +720,6 @@ Kirigami.ApplicationWindow {
                     focusPolicy: Qt.NoFocus
                     flat: true
                     highlighted: gridView.viewType === "icon"
-                    icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
                     onClicked: gridView.viewType = "icon"
                     QQC2.ToolTip.text: i18n("Icon view")
                     QQC2.ToolTip.visible: hovered
@@ -832,7 +730,6 @@ Kirigami.ApplicationWindow {
                     focusPolicy: Qt.NoFocus
                     flat: true
                     highlighted: gridView.viewType === "grid"
-                    icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
                     onClicked: gridView.viewType = "grid"
                     QQC2.ToolTip.text: i18n("Cover art view")
                     QQC2.ToolTip.visible: hovered
@@ -843,7 +740,6 @@ Kirigami.ApplicationWindow {
                     focusPolicy: Qt.NoFocus
                     flat: true
                     highlighted: gridView.viewType === "hero"
-                    icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
                     onClicked: gridView.viewType = "hero"
                     QQC2.ToolTip.text: i18n("Hero art view")
                     QQC2.ToolTip.visible: hovered
@@ -854,7 +750,6 @@ Kirigami.ApplicationWindow {
                     focusPolicy: Qt.NoFocus
                     flat: true
                     highlighted: gridView.showNames
-                    icon.color: root.lightsOut ? root.loText : (highlighted ? Kirigami.Theme.highlightColor : Kirigami.Theme.textColor)
                     onClicked: gridView.showNames = !gridView.showNames
                     QQC2.ToolTip.text: gridView.showNames ? i18n("Hide names") : i18n("Show names")
                     QQC2.ToolTip.visible: hovered
@@ -864,7 +759,6 @@ Kirigami.ApplicationWindow {
                     icon.name: "view-sort-symbolic"
                     focusPolicy: Qt.NoFocus
                     flat: true
-                    icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                     QQC2.ToolTip.text: i18n("Sort By")
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
@@ -919,7 +813,6 @@ Kirigami.ApplicationWindow {
                     flat: true
                     enabled: gridView.scaleFactor > 0.8
                     onClicked: gridView.scaleFactor = Math.max(0.8, gridView.scaleFactor - 0.2)
-                    icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                 }
                 QQC2.Slider {
                     focusPolicy: Qt.NoFocus
@@ -936,7 +829,6 @@ Kirigami.ApplicationWindow {
                     flat: true
                     enabled: gridView.scaleFactor < 1.8
                     onClicked: gridView.scaleFactor = Math.min(1.8, gridView.scaleFactor + 0.2)
-                    icon.color: root.lightsOut ? root.loText : Kirigami.Theme.textColor
                 }
             }
         }

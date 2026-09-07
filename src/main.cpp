@@ -40,6 +40,7 @@
 #include <QQuickStyle>
 #include <QStyle>
 #include <QTimer>
+#include <qpalette.h>
 
 class IconImageProvider : public QQuickImageProvider
 {
