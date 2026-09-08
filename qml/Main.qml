@@ -160,8 +160,6 @@ Kirigami.ApplicationWindow {
     onHeightChanged: if (visibility === Window.Windowed)
         windowSettings.savedHeight = height
 
-    onLightsOutChanged: {}
-
     globalDrawer: Kirigami.GlobalDrawer {
         id: globalDrawer
         modal: !settingsManager.drawerPinned || !root.wideScreen

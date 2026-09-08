@@ -608,7 +608,7 @@ Kirigami.ScrollablePage {
                 Layout.fillWidth: true
                 type: Kirigami.MessageType.Warning
                 visible: !lightsOutSupported
-                text: i18n("Lights Out is unavailable with the Adwaita style or when running from an AppImage.")
+                text: i18n("Lights Out is only supported on the KDE Plasma desktop.")
             }
 
             RowLayout {
