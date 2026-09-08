@@ -406,10 +406,20 @@ Kirigami.ApplicationWindow {
                         root.visibility = Window.FullScreen;
                         settingsManager.setLightsOut(true);
                         gridView.scaleFactor = 1.5;
+                        root.prevDrawerPinned = settingsManager.drawerPinned;
+                        if (settingsManager.drawerPinned) {
+                            settingsManager.setDrawerPinned(false);
+                            globalDrawer.close();
+                        }
                     } else {
                         root.visibility = Window.Windowed;
                         settingsManager.setLightsOut(root.prevLightsOut);
                         gridView.scaleFactor = root.prevScaleFactor;
+                        if (root.prevDrawerPinned) {
+                            settingsManager.setDrawerPinned(true);
+                            if (root.wideScreen)
+                                Qt.callLater(() => globalDrawer.open());
+                        }
                     }
                     settingsManager.setBigPicture(!root.bigPicture);
                 }

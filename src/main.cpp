@@ -62,9 +62,6 @@ public:
     }
 };
 
-// Lights Out is a custom dark overlay, not a real scheme switch. The QQC2
-// desktop style and icon SVG currentColor resolve from the actual QPalette, so
-// we swap in a dark palette here - otherwise icons/controls stay dark-on-dark.
 static void applyLightsOutPalette(QApplication &app, const QString &baseColor, bool on)
 {
     if (!on) {
