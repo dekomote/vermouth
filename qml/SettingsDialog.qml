@@ -598,15 +598,23 @@ Kirigami.ScrollablePage {
                 Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Lights Out:")
                 QQC2.Switch {
-                    checked: settingsManager.lightsOut
+                    enabled: lightsOutSupported
+                    checked: settingsManager.lightsOut && lightsOutSupported
                     onToggled: settingsManager.setLightsOut(checked)
                 }
+            }
+
+            Kirigami.InlineMessage {
+                Layout.fillWidth: true
+                type: Kirigami.MessageType.Warning
+                visible: !lightsOutSupported
+                text: i18n("Lights Out is unavailable with the Adwaita style or when running from an AppImage.")
             }
 
             RowLayout {
                 Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Background Color:")
-                opacity: settingsManager.lightsOut ? 1.0 : 0.5
+                opacity: settingsManager.lightsOut && lightsOutSupported ? 1.0 : 0.5
 
                 Rectangle {
                     width: Kirigami.Units.gridUnit * 4
@@ -618,7 +626,7 @@ Kirigami.ScrollablePage {
 
                     MouseArea {
                         anchors.fill: parent
-                        enabled: settingsManager.lightsOut
+                        enabled: settingsManager.lightsOut && lightsOutSupported
                         cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
                         onClicked: {
                             lightsOutColorDialog.selectedColor = settingsManager.lightsOutColor;
@@ -629,7 +637,7 @@ Kirigami.ScrollablePage {
 
                 QQC2.Button {
                     text: i18n("Reset")
-                    enabled: settingsManager.lightsOut
+                    enabled: settingsManager.lightsOut && lightsOutSupported
                     onClicked: settingsManager.setLightsOutColor("#2A2E32")
                 }
             }

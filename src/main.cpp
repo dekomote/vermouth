@@ -40,6 +40,7 @@
 #include <QQuickStyle>
 #include <QStyle>
 #include <QTimer>
+#include <qlogging.h>
 #include <qpalette.h>
 
 class IconImageProvider : public QQuickImageProvider
@@ -90,6 +91,13 @@ static void applyLightsOutPalette(QApplication &app, const QString &baseColor, b
     p.setColor(QPalette::HighlightedText, text);
     p.setColor(QPalette::PlaceholderText, subText);
     app.setPalette(p);
+}
+
+static bool lightsOutSupported()
+{
+    if (QQuickStyle::name().toLower().contains(QLatin1String("org.kde.desktop")))
+        return true;
+    return false;
 }
 
 int main(int argc, char *argv[])
@@ -144,7 +152,7 @@ int main(int argc, char *argv[])
 
     Launcher launcher;
     SettingsManager settingsManager;
-    applyLightsOutPalette(app, settingsManager.lightsOutColor(), settingsManager.lightsOut());
+    applyLightsOutPalette(app, settingsManager.lightsOutColor(), settingsManager.lightsOut() && lightsOutSupported());
     launcher.setGlobalEnvVars(settingsManager.globalEnvVars());
     launcher.setUmuPath(settingsManager.umuPath());
     launcher.setRetroarchPath(settingsManager.retroarchPath());
@@ -244,10 +252,10 @@ int main(int argc, char *argv[])
     RuntimeTypeModel runtimeTypeModel;
 
     QObject::connect(&settingsManager, &SettingsManager::lightsOutChanged, &app, [&]() {
-        applyLightsOutPalette(app, settingsManager.lightsOutColor(), settingsManager.lightsOut());
+        applyLightsOutPalette(app, settingsManager.lightsOutColor(), settingsManager.lightsOut() && lightsOutSupported());
     });
     QObject::connect(&settingsManager, &SettingsManager::lightsOutColorChanged, &app, [&]() {
-        applyLightsOutPalette(app, settingsManager.lightsOutColor(), settingsManager.lightsOut());
+        applyLightsOutPalette(app, settingsManager.lightsOutColor(), settingsManager.lightsOut() && lightsOutSupported());
     });
 
     QObject::connect(&settingsManager, &SettingsManager::defaultRuntimeChanged, [&]() {
@@ -438,6 +446,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("singleInstance"), &singleInstance);
     engine.rootContext()->setContextProperty(QStringLiteral("gamepadHandler"), &gamepadHandler);
     engine.rootContext()->setContextProperty(QStringLiteral("openExePath"), openExePath);
+    engine.rootContext()->setContextProperty(QStringLiteral("lightsOutSupported"), lightsOutSupported());
     engine.rootContext()->setContextProperty(QStringLiteral("launchBigPicture"), parser.isSet(bigPictureOpt));
     engine.rootContext()->setContextProperty(QStringLiteral("isFlatpak"), isInsideFlatpak());
 

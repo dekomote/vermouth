@@ -160,19 +160,7 @@ Kirigami.ApplicationWindow {
     onHeightChanged: if (visibility === Window.Windowed)
         windowSettings.savedHeight = height
 
-    onLightsOutChanged: {
-        if (root.lightsOut) {
-            root.prevDrawerPinned = settingsManager.drawerPinned;
-            if (settingsManager.drawerPinned) {
-                settingsManager.setDrawerPinned(false);
-                globalDrawer.close();
-            }
-        } else if (root.prevDrawerPinned) {
-            settingsManager.setDrawerPinned(true);
-            if (root.wideScreen)
-                Qt.callLater(() => globalDrawer.open());
-        }
-    }
+    onLightsOutChanged: {}
 
     globalDrawer: Kirigami.GlobalDrawer {
         id: globalDrawer
@@ -182,11 +170,9 @@ Kirigami.ApplicationWindow {
         interactiveResizeEnabled: true
         Component.onCompleted: preferredSize = sidebarSettings.width > 0 ? sidebarSettings.width : Kirigami.Units.gridUnit * 14
         onPreferredSizeChanged: sidebarSettings.width = preferredSize
-
         header: Kirigami.AbstractApplicationHeader {
             visible: root.sidebarPinned
             preferredHeight: root.headerHeight
-
             contentItem: RowLayout {
                 spacing: 0
                 anchors {
@@ -405,6 +391,7 @@ Kirigami.ApplicationWindow {
             Kirigami.Action {
                 text: root.lightsOut ? i18n("Lights On") : i18n("Lights Out")
                 icon.name: root.lightsOut ? "weather-clear-symbolic" : "weather-clear-night-symbolic"
+                enabled: lightsOutSupported
                 onTriggered: settingsManager.setLightsOut(!root.lightsOut)
             },
             Kirigami.Action {
@@ -470,8 +457,6 @@ Kirigami.ApplicationWindow {
                     focusPolicy: Qt.NoFocus
                     checkable: true
                     checked: settingsManager.drawerPinned
-                    // Pinning is a light-mode feature; disabled while in dark mode.
-                    enabled: !root.lightsOut
                     flat: true
                     onClicked: settingsManager.setDrawerPinned(!settingsManager.drawerPinned)
                     QQC2.ToolTip.text: settingsManager.drawerPinned ? i18n("Unpin sidebar") : i18n("Pin sidebar")
