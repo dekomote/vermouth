@@ -37,6 +37,7 @@ KDE-first, lightweight, no frills.</p>
 - [umu-launcher support](#umu-launcher-support)
 - [SteamGridDB support](#steamgriddb-support)
 - [Steam support](#steam-support)
+- [Steam shortcuts](#steam-shortcuts)
 - [GOG support](#gog-support)
 - [RetroArch support](#retroarch-support)
 - [UZDOOM support](#uzdoom-support)
@@ -182,6 +183,19 @@ Vermouth supports [SteamGridDB](https://www.steamgriddb.com) for fetching icons,
 Vermouth can import your installed Steam library in one click. Go to **Menu → Import from Steam**, select the games you want, and they will appear in your library. Launching them opens Steam directly to that game. Art is fetched from your local Steam cache automatically; any missing artwork is downloaded from SteamGridDB if you have an API key configured.
 
 Steam is detected from all standard install locations, including native and Flatpak installs.
+
+## Steam shortcuts
+
+You can add your games to the **Steam library as non-Steam shortcuts**, so they launch straight from Steam (via Vermouth) instead of needing Vermouth open. This is an **experimental, opt-in** feature.
+
+To enable it, open **Settings → Steam Shortcuts** and turn on **Add to Steam**. Then right-click a game and pick **Create shortcut → Create Steam shortcut**. A small wrapper script is created per game that tells Vermouth to launch it.
+
+> **⚠ Warning — experimental.** This feature works by **rewriting Steam's `shortcuts.vdf`** file directly. It can mess up your existing Steam shortcuts if something goes wrong. Before using it:
+> - **Close Steam** completely - writing while Steam is running can be overwritten or corrupted.
+> - **Back up `shortcuts.vdf`** first (it lives in `~/.local/share/Steam/userdata/<user-id>/config/shortcuts.vdf`).
+> - **Restart Steam** after creating shortcuts so it picks them up.
+>
+> Games imported from Steam itself are excluded (they're already in your library).
 
 ---
 
