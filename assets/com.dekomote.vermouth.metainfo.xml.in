@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="2.1.0" date="2026-09-08">
+        <description>
+          <p>This release adds game installer feature, steam shortcuts and lights out refactor.</p>
+        </description>
+    </release>
     <release version="2.0.3" date="2026-08-31">
         <description>
           <p>This release adds advanced settings, env vars, more protons and better view options.</p>
