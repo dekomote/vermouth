@@ -19,6 +19,7 @@ Kirigami.Dialog {
     property int installPid: 0
     property string installPrefix: ""
     property string installExe: ""
+    property bool manualInstall: false
     property string finalExe: ""
     property string artTargetId: ""
     property var artQueue: []
@@ -97,6 +98,7 @@ Kirigami.Dialog {
         installPid = 0;
         installPrefix = "";
         installExe = "";
+        manualInstall = false;
         finalExe = "";
         nameField.text = "";
         launcherCombo.currentIndex = 0;
@@ -130,6 +132,7 @@ Kirigami.Dialog {
         installPrefix = generatedPrefix();
 
         var launcher = selectedLauncher();
+        dialog.manualInstall = (launcher.key === "");
         if (launcher.key !== "") {
             dialog.finalExe = dialog.installPrefix + "/" + launcher.exe;
             dialog.downloading = true;
@@ -177,6 +180,13 @@ Kirigami.Dialog {
     function finishInstall() {
         dialog.installing = false;
         dialog.installPid = 0;
+
+        if (dialog.manualInstall) {
+            dialog.manualInstall = false;
+            dialog.statusText = i18n("Installer finished. Pick the installed executable.");
+            installedExeFileDialog.open();
+            return;
+        }
 
         var exe = dialog.finalExe;
         if (exe !== "") {
@@ -302,8 +312,23 @@ Kirigami.Dialog {
         nameFilters: [i18n("Executables (*.exe *.msi)"), i18n("All files (*)")]
         onAccepted: {
             var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
+            dialog.runInstallerInPrefix(path, "", "");
+        }
+    }
+
+    FileDialog {
+        id: installedExeFileDialog
+        title: i18n("Select the Installed Executable")
+        currentFolder: "file://" + dialog.installPrefix
+        nameFilters: [i18n("Executables (*.exe *.msi)"), i18n("All files (*)")]
+        onAccepted: {
+            var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
             dialog.finalExe = path;
-            dialog.runInstallerInPrefix(path, "", path);
+            dialog.finishInstall();
+        }
+        onRejected: {
+            dialog.reset();
+            dialog.close();
         }
     }
 

@@ -50,6 +50,11 @@ SteamShortcutWriter::SteamShortcutWriter(QObject *parent)
 QString SteamShortcutWriter::steamRoot() const
 {
     const QStringList roots = SteamLibrary::steamRootPaths();
+    // Prefer the install root (has userdata/) over game library folders.
+    for (const QString &root : roots) {
+        if (QDir(root + QStringLiteral("/userdata")).exists())
+            return root;
+    }
     return roots.isEmpty() ? QString() : roots.first();
 }
 
@@ -327,8 +332,6 @@ bool SteamShortcutWriter::createShortcut(const QVariantMap &app)
     out.write(payload);
     if (!out.commit())
         return false;
-
-    QFile::setPermissions(path, QFile::permissions(path)); // bump mtime for Steam
 
     const QString quotedScript = QStringLiteral("\"%1\"").arg(scriptPath);
     installArtwork(shortcutAppId(quotedScript, name), app);
