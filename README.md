@@ -17,6 +17,11 @@
 <p align="center">A game and app launcher for Linux - native, Windows, and retro.<br>
 KDE-first, lightweight, no frills.</p>
 
+
+<p align="center" style="text-align:center">
+    <a href="https://www.buymeacoffee.com/dekomote" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="Buy Me a Coffee" width="217" height="60" style="height: 60px !important;width: 217px !important;" ></a>
+</p>
+
 <p align="center">
   <img src="assets/screen1.png?t=1.9" alt="Game library" width="400">
   <img src="assets/screen2.png?t=1.9" alt="Game settings" width="400"><br>
