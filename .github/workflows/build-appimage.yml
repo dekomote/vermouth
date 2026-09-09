@@ -23,7 +23,7 @@ jobs:
           apt-get install -y \
             build-essential cmake extra-cmake-modules file wget fuse3 nodejs \
             qt6-base-dev qt6-declarative-dev qt6-tools-dev-tools qmake6 \
-            libkirigami-dev libkf6coreaddons-dev libkf6i18n-dev libkf6qqc2desktopstyle-dev \
+            libkirigami-dev libkf6coreaddons-dev libkf6i18n-dev libkf6colorscheme-dev libkf6config-dev libkf6qqc2desktopstyle-dev \
             qml6-module-org-kde-kirigami \
             qml6-module-org-kde-desktop \
             qml6-module-org-kde-iconthemes \

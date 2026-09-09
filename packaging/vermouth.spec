@@ -16,6 +16,7 @@ BuildRequires:  qt6-declarative-devel
 BuildRequires:  kf6-kirigami-devel
 BuildRequires:  kf6-kcoreaddons-devel
 BuildRequires:  kf6-ki18n-devel
+BuildRequires:  kf6-kcolorscheme-devel kf6-kconfig-devel
 BuildRequires:  kf6-qqc2-desktop-style-devel
 BuildRequires:  icoutils
 BuildRequires:  SDL2-devel
@@ -26,6 +27,7 @@ BuildRequires:  qt6-qtquickcontrols2-devel
 BuildRequires:  kf6-kirigami-devel
 BuildRequires:  kf6-kcoreaddons-devel
 BuildRequires:  kf6-ki18n-devel
+BuildRequires:  kf6-kcolorscheme-devel kf6-kconfig-devel
 BuildRequires:  kf6-qqc2-desktop-style
 BuildRequires:  icoutils
 BuildRequires:  SDL2-devel

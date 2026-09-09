@@ -43,6 +43,8 @@ jobs:
               'kirigami'
               'ki18n'
               'kcoreaddons'
+              'kcolorscheme'
+              'kconfig'
               'qqc2-desktop-style'
           )
           makedepends=(
@@ -89,6 +91,8 @@ jobs:
           	depends = kirigami
           	depends = ki18n
           	depends = kcoreaddons
+          	depends = kcolorscheme
+          	depends = kconfig
           	depends = qqc2-desktop-style
           	optdepends = icoutils: Windows icon extraction
           	source = vermouth-${PKGVER}.tar.gz::https://github.com/dekomote/vermouth/archive/refs/tags/v${PKGVER}.tar.gz
