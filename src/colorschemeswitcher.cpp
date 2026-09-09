@@ -30,6 +30,12 @@ constexpr int kSchemeCount = sizeof(kSchemeNames) / sizeof(kSchemeNames[0]);
 ColorSchemeSwitcher::ColorSchemeSwitcher(QObject *parent)
     : QObject(parent)
 {
+    // SettingsManager (themeId/bigScreenThemeId/lightsOut) is the single
+    // source of truth for which scheme is active - don't let
+    // KColorSchemeManager also persist it to the app's own KConfig, or a
+    // stale value there can override SettingsManager on a later run (this
+    // bit us once already, before this workaround existed).
+    KColorSchemeManager::instance()->setAutosaveChanges(false);
 }
 
 bool ColorSchemeSwitcher::needsShowWorkaround() const
