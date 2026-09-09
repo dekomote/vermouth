@@ -10,7 +10,6 @@ GridView {
     property bool showNames: true
     property bool showPlayTime: true
     property bool active: true
-    property bool lightsOut: false
     property bool showHidden: true
     property string sortField: "name"
     property bool sortAscending: true

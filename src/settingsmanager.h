@@ -18,9 +18,9 @@ class SettingsManager : public QObject
     Q_PROPERTY(bool drawerPinned READ drawerPinned WRITE setDrawerPinned NOTIFY drawerPinnedChanged)
     Q_PROPERTY(QString umuPath READ umuPath WRITE setUmuPath NOTIFY umuPathChanged)
     Q_PROPERTY(QStringList globalEnvVars READ globalEnvVars WRITE setGlobalEnvVars NOTIFY globalEnvVarsChanged)
-    Q_PROPERTY(bool lightsOut READ lightsOut WRITE setLightsOut NOTIFY lightsOutChanged)
-    Q_PROPERTY(QString lightsOutColor READ lightsOutColor WRITE setLightsOutColor NOTIFY lightsOutColorChanged)
     Q_PROPERTY(bool bigPicture READ bigPicture WRITE setBigPicture NOTIFY bigPictureChanged)
+    Q_PROPERTY(QString themeId READ themeId WRITE setThemeId NOTIFY themeIdChanged)
+    Q_PROPERTY(QString bigScreenThemeId READ bigScreenThemeId WRITE setBigScreenThemeId NOTIFY bigScreenThemeIdChanged)
     Q_PROPERTY(QString steamGridDbApiKey READ steamGridDbApiKey WRITE setSteamGridDbApiKey NOTIFY steamGridDbApiKeyChanged)
     Q_PROPERTY(bool autoDownloadArt READ autoDownloadArt WRITE setAutoDownloadArt NOTIFY autoDownloadArtChanged)
     Q_PROPERTY(QString rommServerUrl READ rommServerUrl WRITE setRommServerUrl NOTIFY rommServerUrlChanged)
@@ -79,14 +79,14 @@ public:
     QStringList globalEnvVars() const;
     Q_INVOKABLE void setGlobalEnvVars(const QStringList &vars);
 
-    bool lightsOut() const;
-    Q_INVOKABLE void setLightsOut(bool enabled);
-
-    QString lightsOutColor() const;
-    Q_INVOKABLE void setLightsOutColor(const QString &color);
-
     bool bigPicture() const;
     Q_INVOKABLE void setBigPicture(bool enabled);
+
+    QString themeId() const;
+    Q_INVOKABLE void setThemeId(const QString &id);
+
+    QString bigScreenThemeId() const;
+    Q_INVOKABLE void setBigScreenThemeId(const QString &id);
 
     QString steamGridDbApiKey() const;
     Q_INVOKABLE void setSteamGridDbApiKey(const QString &key);
@@ -157,9 +157,9 @@ Q_SIGNALS:
     void drawerPinnedChanged();
     void umuPathChanged();
     void globalEnvVarsChanged();
-    void lightsOutChanged();
-    void lightsOutColorChanged();
     void bigPictureChanged();
+    void themeIdChanged();
+    void bigScreenThemeIdChanged();
     void steamGridDbApiKeyChanged();
     void autoDownloadArtChanged();
     void rommServerUrlChanged();

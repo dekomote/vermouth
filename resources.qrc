@@ -2,8 +2,14 @@
     <qresource prefix="/icons">
         <file alias="vermouth.svg">assets/com.dekomote.vermouth.svg</file>
     </qresource>
-    <qresource prefix="/colors">
-        <file alias="VermouthLight.colors">assets/color-schemes/VermouthLight.colors</file>
+    <qresource prefix="/org.kde.kcolorscheme/color-schemes">
         <file alias="VermouthDark.colors">assets/color-schemes/VermouthDark.colors</file>
+        <file alias="VermouthDeep.colors">assets/color-schemes/VermouthDeep.colors</file>
+        <file alias="VermouthTokyoNight.colors">assets/color-schemes/VermouthTokyoNight.colors</file>
+        <file alias="VermouthCobalt.colors">assets/color-schemes/VermouthCobalt.colors</file>
+        <file alias="Vermouth2077.colors">assets/color-schemes/Vermouth2077.colors</file>
+        <file alias="VermouthRose.colors">assets/color-schemes/VermouthRose.colors</file>
+        <file alias="VermouthMagenta.colors">assets/color-schemes/VermouthMagenta.colors</file>
+        <file alias="VermouthSage.colors">assets/color-schemes/VermouthSage.colors</file>
     </qresource>
 </RCC>
