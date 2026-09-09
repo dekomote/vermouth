@@ -34,7 +34,6 @@
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QIcon>
-#include <QPalette>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickImageProvider>
@@ -421,9 +420,7 @@ int main(int argc, char *argv[])
     // Quick Controls only pick up the palette correctly once their window
     // actually exists - applying it again now (after the root window and
     // its controls are constructed) is what "switch theme, switch back"
-    // was doing manually. Reset first so the re-application is a genuine
-    // value change - QGuiApplication::setPalette() no-ops otherwise.
-    app.setPalette(QPalette());
+    // was doing manually.
     applyActiveTheme();
 
     return app.exec();

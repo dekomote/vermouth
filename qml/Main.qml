@@ -179,6 +179,12 @@ Kirigami.ApplicationWindow {
         interactiveResizeEnabled: true
         Component.onCompleted: preferredSize = sidebarSettings.width > 0 ? sidebarSettings.width : Kirigami.Units.gridUnit * 14
         onPreferredSizeChanged: sidebarSettings.width = preferredSize
+        // Drawer content is realized lazily; the first time it's shown may
+        // predate the startup theme re-application (see main.cpp). Only
+        // needed off org.kde.desktop (e.g. GNOME, plain AppImage), where
+        // this doesn't already happen on its own.
+        onAboutToShow: if (colorSchemeSwitcher.needsShowWorkaround)
+            colorSchemeSwitcher.reapplyCurrent()
 
         header: Kirigami.AbstractApplicationHeader {
             visible: root.sidebarPinned
@@ -223,6 +229,13 @@ Kirigami.ApplicationWindow {
                             "grid": "folder-pictures-symbolic",
                             "hero": "image-x-generic-symbolic"
                         })
+                    // Menu content is realized lazily; the first time it's
+                    // shown may predate the startup theme re-application
+                    // (see main.cpp). Only needed off org.kde.desktop (e.g.
+                    // GNOME, plain AppImage), where this doesn't already
+                    // happen on its own.
+                    onAboutToShow: if (colorSchemeSwitcher.needsShowWorkaround)
+                        colorSchemeSwitcher.reapplyCurrent()
                     QQC2.MenuItem {
                         text: i18n("Icon view")
                         icon.name: "view-app-grid-symbolic"

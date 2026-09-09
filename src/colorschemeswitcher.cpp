@@ -1,7 +1,10 @@
 #include "colorschemeswitcher.h"
 
 #include <KColorSchemeManager>
+#include <QApplication>
 #include <QModelIndex>
+#include <QPalette>
+#include <QQuickStyle>
 
 namespace
 {
@@ -25,6 +28,11 @@ constexpr int kSchemeCount = sizeof(kSchemeNames) / sizeof(kSchemeNames[0]);
 ColorSchemeSwitcher::ColorSchemeSwitcher(QObject *parent)
     : QObject(parent)
 {
+}
+
+bool ColorSchemeSwitcher::needsShowWorkaround() const
+{
+    return !QQuickStyle::name().toLower().contains(QLatin1String("org.kde.desktop"));
 }
 
 QStringList ColorSchemeSwitcher::schemeNames() const
@@ -56,10 +64,24 @@ int ColorSchemeSwitcher::indexForSchemeId(const QString &schemeId) const
 
 void ColorSchemeSwitcher::applySchemeId(const QString &schemeId)
 {
+    m_currentSchemeId = schemeId;
+
+    // Reset first so this is always a genuine palette value change -
+    // QGuiApplication::setPalette() no-ops when the new palette equals the
+    // current one, which would otherwise silently skip the change
+    // notification some lazily-realized controls need to pick up colors.
+    if (qApp)
+        qApp->setPalette(QPalette());
+
     // indexForScheme("") / an invalid index both mean "follow the system
     // scheme" (since KF 5.67) - this is the portable pre-6.19 API, unlike
     // activateSchemeId(QString), which some distros (e.g. Ubuntu 25.10's
     // kf6-kcolorscheme 6.17.0) don't ship yet.
     KColorSchemeManager *manager = KColorSchemeManager::instance();
     manager->activateScheme(manager->indexForScheme(schemeId));
+}
+
+void ColorSchemeSwitcher::reapplyCurrent()
+{
+    applySchemeId(m_currentSchemeId);
 }
