@@ -21,6 +21,7 @@ constexpr const char *kSchemeNames[] = {
     "Vermouth Rose",
     "Vermouth Magenta",
     "Vermouth Sage",
+    "Vermouth Schoolboard",
 };
 constexpr int kSchemeCount = sizeof(kSchemeNames) / sizeof(kSchemeNames[0]);
 }

@@ -19,6 +19,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(QString umuPath READ umuPath WRITE setUmuPath NOTIFY umuPathChanged)
     Q_PROPERTY(QStringList globalEnvVars READ globalEnvVars WRITE setGlobalEnvVars NOTIFY globalEnvVarsChanged)
     Q_PROPERTY(bool bigPicture READ bigPicture WRITE setBigPicture NOTIFY bigPictureChanged)
+    Q_PROPERTY(bool lightsOut READ lightsOut WRITE setLightsOut NOTIFY lightsOutChanged)
     Q_PROPERTY(QString themeId READ themeId WRITE setThemeId NOTIFY themeIdChanged)
     Q_PROPERTY(QString bigScreenThemeId READ bigScreenThemeId WRITE setBigScreenThemeId NOTIFY bigScreenThemeIdChanged)
     Q_PROPERTY(QString steamGridDbApiKey READ steamGridDbApiKey WRITE setSteamGridDbApiKey NOTIFY steamGridDbApiKeyChanged)
@@ -81,6 +82,9 @@ public:
 
     bool bigPicture() const;
     Q_INVOKABLE void setBigPicture(bool enabled);
+
+    bool lightsOut() const;
+    Q_INVOKABLE void setLightsOut(bool enabled);
 
     QString themeId() const;
     Q_INVOKABLE void setThemeId(const QString &id);
@@ -158,6 +162,7 @@ Q_SIGNALS:
     void umuPathChanged();
     void globalEnvVarsChanged();
     void bigPictureChanged();
+    void lightsOutChanged();
     void themeIdChanged();
     void bigScreenThemeIdChanged();
     void steamGridDbApiKeyChanged();

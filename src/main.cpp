@@ -113,7 +113,8 @@ int main(int argc, char *argv[])
     ColorSchemeSwitcher colorSchemeSwitcher;
 
     auto applyActiveTheme = [&]() {
-        colorSchemeSwitcher.applySchemeId(settingsManager.bigPicture() ? settingsManager.bigScreenThemeId() : settingsManager.themeId());
+        const bool useBigScreenTheme = settingsManager.bigPicture() || settingsManager.lightsOut();
+        colorSchemeSwitcher.applySchemeId(useBigScreenTheme ? settingsManager.bigScreenThemeId() : settingsManager.themeId());
     };
     applyActiveTheme();
 
@@ -368,6 +369,7 @@ int main(int argc, char *argv[])
     });
 
     QObject::connect(&settingsManager, &SettingsManager::bigPictureChanged, &colorSchemeSwitcher, applyActiveTheme);
+    QObject::connect(&settingsManager, &SettingsManager::lightsOutChanged, &colorSchemeSwitcher, applyActiveTheme);
     QObject::connect(&settingsManager, &SettingsManager::themeIdChanged, &colorSchemeSwitcher, applyActiveTheme);
     QObject::connect(&settingsManager, &SettingsManager::bigScreenThemeIdChanged, &colorSchemeSwitcher, applyActiveTheme);
 

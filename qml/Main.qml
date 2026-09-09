@@ -380,44 +380,58 @@ Kirigami.ApplicationWindow {
                 id: firstDrawerAction
                 text: i18n("Add a Game")
                 icon.name: "list-add-symbolic"
+                icon.color: Kirigami.Theme.textColor
                 onTriggered: addDialog.openForNew()
             },
             Kirigami.Action {
                 text: i18n("Install a Game")
                 icon.name: "application-x-ms-dos-executable"
+                icon.color: Kirigami.Theme.textColor
                 onTriggered: installGameDialog.openDialog()
             },
             Kirigami.Action {
                 text: i18n("Run a Standalone EXE")
                 icon.name: "system-run-symbolic"
+                icon.color: Kirigami.Theme.textColor
                 onTriggered: runExeStandaloneDialog.openDialog()
             },
             Kirigami.Action {
                 text: i18n("Import from Steam")
                 icon.name: "steam"
+                icon.color: Kirigami.Theme.textColor
                 onTriggered: steamImportDialog.openDialog()
             },
             Kirigami.Action {
                 text: i18n("Import GOG games")
                 icon.name: "applications-games-symbolic"
+                icon.color: Kirigami.Theme.textColor
                 onTriggered: gogImportDialog.openDialog()
             },
             Kirigami.Action {
                 text: launcher.sleepInhibited ? i18n("Allow Sleep") : i18n("Prevent Sleep")
                 icon.name: launcher.sleepInhibited ? "media-playback-pause-symbolic" : "changes-allow-symbolic"
+                icon.color: Kirigami.Theme.textColor
                 onTriggered: launcher.toggleSleepInhibit()
             },
             Kirigami.Action {
                 text: launcher.hdrEnabled ? i18n("Disable HDR") : i18n("Enable HDR")
                 icon.name: "semi-starred-symbolic"
+                icon.color: Kirigami.Theme.textColor
                 enabled: launcher.hdrSupported
                 visible: launcher.hdrSupported
                 onTriggered: launcher.toggleHdr()
             },
             Kirigami.Action {
+                text: settingsManager.lightsOut ? i18n("Lights On") : i18n("Lights Out")
+                icon.name: settingsManager.lightsOut ? "weather-clear-symbolic" : "weather-clear-night-symbolic"
+                icon.color: Kirigami.Theme.textColor
+                onTriggered: settingsManager.setLightsOut(!settingsManager.lightsOut)
+            },
+            Kirigami.Action {
                 id: bigPictureAction
                 text: root.bigPicture ? i18n("Exit Big Picture") : i18n("Big Picture")
                 icon.name: root.bigPicture ? "view-restore-symbolic" : "view-fullscreen-symbolic"
+                icon.color: Kirigami.Theme.textColor
                 shortcut: "F11"
                 onTriggered: {
                     if (!root.bigPicture) {
@@ -434,6 +448,7 @@ Kirigami.ApplicationWindow {
             Kirigami.Action {
                 text: gridView.showHidden ? i18n("Hide") : i18n("Show Hidden")
                 icon.name: gridView.showHidden ? "view-hidden-symbolic" : "view-visible-symbolic"
+                icon.color: Kirigami.Theme.textColor
                 onTriggered: {
                     gridView.showHidden = !gridView.showHidden;
                 }
@@ -442,6 +457,7 @@ Kirigami.ApplicationWindow {
             Kirigami.Action {
                 text: i18n("&Settings")
                 icon.name: "preferences-system-symbolic"
+                icon.color: Kirigami.Theme.textColor
                 onTriggered: {
                     settingsPage.load();
                     root.navigate("settings");
@@ -450,11 +466,13 @@ Kirigami.ApplicationWindow {
             Kirigami.Action {
                 text: i18n("&About Vermouth")
                 icon.name: "help-about-symbolic"
+                icon.color: Kirigami.Theme.textColor
                 onTriggered: root.navigate("about")
             },
             Kirigami.Action {
                 text: i18n("Quit")
                 icon.name: "application-exit-symbolic"
+                icon.color: Kirigami.Theme.textColor
                 shortcut: StandardKey.Quit
                 onTriggered: Qt.quit()
             }
@@ -471,6 +489,7 @@ Kirigami.ApplicationWindow {
                 }
                 QQC2.ToolButton {
                     icon.name: "sidebar-show-symbolic"
+                    icon.color: Kirigami.Theme.textColor
                     focusPolicy: Qt.NoFocus
                     checkable: true
                     checked: settingsManager.drawerPinned

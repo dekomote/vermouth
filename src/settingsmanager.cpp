@@ -179,6 +179,19 @@ void SettingsManager::setBigPicture(bool enabled)
     Q_EMIT bigPictureChanged();
 }
 
+bool SettingsManager::lightsOut() const
+{
+    return m_settings.value(QStringLiteral("lightsOut"), false).toBool();
+}
+
+void SettingsManager::setLightsOut(bool enabled)
+{
+    if (lightsOut() == enabled)
+        return;
+    m_settings.setValue(QStringLiteral("lightsOut"), enabled);
+    Q_EMIT lightsOutChanged();
+}
+
 QString SettingsManager::themeId() const
 {
     return m_settings.value(QStringLiteral("themeId"), QString()).toString();

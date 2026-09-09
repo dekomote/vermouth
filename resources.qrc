@@ -11,5 +11,6 @@
         <file alias="VermouthRose.colors">assets/color-schemes/VermouthRose.colors</file>
         <file alias="VermouthMagenta.colors">assets/color-schemes/VermouthMagenta.colors</file>
         <file alias="VermouthSage.colors">assets/color-schemes/VermouthSage.colors</file>
+        <file alias="VermouthSchoolboard.colors">assets/color-schemes/VermouthSchoolboard.colors</file>
     </qresource>
 </RCC>
