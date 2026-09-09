@@ -432,6 +432,12 @@ Kirigami.ApplicationWindow {
                 onTriggered: settingsManager.setLightsOut(!root.lightsOut)
             },
             Kirigami.Action {
+                // POC: cycles Default -> Breeze Light -> Breeze Dark -> ...
+                text: i18n("Color Scheme: %1", colorSchemeSwitcher.currentSchemeName)
+                icon.name: "color-management-symbolic"
+                onTriggered: colorSchemeSwitcher.cycleScheme()
+            },
+            Kirigami.Action {
                 id: bigPictureAction
                 text: root.bigPicture ? i18n("Exit Big Picture") : i18n("Big Picture")
                 icon.name: root.bigPicture ? "view-restore-symbolic" : "view-fullscreen-symbolic"

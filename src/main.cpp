@@ -1,4 +1,5 @@
 #include "appmodel.h"
+#include "colorschemeswitcher.h"
 #include "desktopfilewriter.h"
 #include "flatpakutils.h"
 #include "gamepadhandler.h"
@@ -142,6 +143,7 @@ int main(int argc, char *argv[])
 
     Launcher launcher;
     SettingsManager settingsManager;
+    ColorSchemeSwitcher colorSchemeSwitcher;
     applyLightsOutPalette(app, settingsManager.lightsOutColor(), settingsManager.lightsOut());
     launcher.setGlobalEnvVars(settingsManager.globalEnvVars());
     launcher.setUmuPath(settingsManager.umuPath());
@@ -413,6 +415,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("desktopWriter"), &desktopWriter);
     engine.rootContext()->setContextProperty(QStringLiteral("iconExtractor"), &iconExtractor);
     engine.rootContext()->setContextProperty(QStringLiteral("settingsManager"), &settingsManager);
+    engine.rootContext()->setContextProperty(QStringLiteral("colorSchemeSwitcher"), &colorSchemeSwitcher);
     engine.rootContext()->setContextProperty(QStringLiteral("protonDownloader"), &protonDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("wineScanner"), &wineScanner);
     engine.rootContext()->setContextProperty(QStringLiteral("wineDownloader"), &wineDownloader);

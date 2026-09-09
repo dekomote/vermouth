@@ -2,4 +2,8 @@
     <qresource prefix="/icons">
         <file alias="vermouth.svg">assets/com.dekomote.vermouth.svg</file>
     </qresource>
+    <qresource prefix="/colors">
+        <file alias="VermouthLight.colors">assets/color-schemes/VermouthLight.colors</file>
+        <file alias="VermouthDark.colors">assets/color-schemes/VermouthDark.colors</file>
+    </qresource>
 </RCC>
