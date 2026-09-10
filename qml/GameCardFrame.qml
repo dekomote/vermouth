@@ -144,7 +144,7 @@ Item {
             QQC2.Label {
                 text: frameRoot.displayName
                 visible: frameRoot.gv && frameRoot.gv.showNames
-                color: frameRoot.gv && frameRoot.gv.lightsOut ? "#ffffff" : Kirigami.Theme.textColor
+                color: Kirigami.Theme.textColor
                 font.pixelSize: 12 * frameRoot.gv.scaleFactor
                 font.bold: true
                 elide: Text.ElideRight

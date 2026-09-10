@@ -17,7 +17,7 @@ jobs:
           pacman -S --noconfirm --needed \
             base-devel cmake ninja extra-cmake-modules git nodejs \
             qt6-base qt6-declarative \
-            kirigami ki18n kcoreaddons qqc2-desktop-style sdl2
+            kirigami ki18n kcoreaddons kcolorscheme kconfig qqc2-desktop-style sdl2
           useradd -m builder
           echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
@@ -46,6 +46,8 @@ jobs:
               'kirigami'
               'ki18n'
               'kcoreaddons'
+              'kcolorscheme'
+              'kconfig'
               'qqc2-desktop-style'
           )
           makedepends=(

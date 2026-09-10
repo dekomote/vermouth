@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(vermouth VERSION 2.1.0 LANGUAGES CXX)
+project(vermouth VERSION 2.2.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -32,7 +32,7 @@ include(ECMQmlModule)
 
 find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core Quick Gui Widgets QuickControls2 Network DBus Concurrent)
 find_package(SDL2 QUIET)
-find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Kirigami CoreAddons I18n QQC2DesktopStyle)
+find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Kirigami CoreAddons I18n QQC2DesktopStyle ColorScheme)
 
 ecm_find_qmlmodule(org.kde.kirigami REQUIRED)
 
@@ -71,6 +71,7 @@ qt_add_executable(vermouth
     src/rommmodel.cpp
     src/rommfiledownloader.cpp
     src/platformcores.cpp
+    src/colorschemeswitcher.cpp
     resources.qrc
 )
 
@@ -114,6 +115,7 @@ target_link_libraries(vermouth PRIVATE
     KF6::Kirigami
     KF6::CoreAddons
     KF6::I18n
+    KF6::ColorScheme
 )
 
 if(TARGET SDL2::SDL2)

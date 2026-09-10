@@ -153,32 +153,6 @@ void SettingsManager::setGlobalEnvVars(const QStringList &vars)
     Q_EMIT globalEnvVarsChanged();
 }
 
-bool SettingsManager::lightsOut() const
-{
-    return m_settings.value(QStringLiteral("lightsOut"), false).toBool();
-}
-
-void SettingsManager::setLightsOut(bool enabled)
-{
-    if (lightsOut() == enabled)
-        return;
-    m_settings.setValue(QStringLiteral("lightsOut"), enabled);
-    Q_EMIT lightsOutChanged();
-}
-
-QString SettingsManager::lightsOutColor() const
-{
-    return m_settings.value(QStringLiteral("lightsOutColor"), QStringLiteral("#2A2E32")).toString();
-}
-
-void SettingsManager::setLightsOutColor(const QString &color)
-{
-    if (lightsOutColor() == color)
-        return;
-    m_settings.setValue(QStringLiteral("lightsOutColor"), color);
-    Q_EMIT lightsOutColorChanged();
-}
-
 bool SettingsManager::drawerPinned() const
 {
     return m_settings.value(QStringLiteral("drawerPinned"), false).toBool();
@@ -203,6 +177,45 @@ void SettingsManager::setBigPicture(bool enabled)
         return;
     m_settings.setValue(QStringLiteral("bigPicture"), enabled);
     Q_EMIT bigPictureChanged();
+}
+
+bool SettingsManager::lightsOut() const
+{
+    return m_lightsOut;
+}
+
+void SettingsManager::setLightsOut(bool enabled)
+{
+    if (m_lightsOut == enabled)
+        return;
+    m_lightsOut = enabled;
+    Q_EMIT lightsOutChanged();
+}
+
+QString SettingsManager::themeId() const
+{
+    return m_settings.value(QStringLiteral("themeId"), QString()).toString();
+}
+
+void SettingsManager::setThemeId(const QString &id)
+{
+    if (themeId() == id)
+        return;
+    m_settings.setValue(QStringLiteral("themeId"), id);
+    Q_EMIT themeIdChanged();
+}
+
+QString SettingsManager::bigScreenThemeId() const
+{
+    return m_settings.value(QStringLiteral("bigScreenThemeId"), QStringLiteral("Vermouth Deep")).toString();
+}
+
+void SettingsManager::setBigScreenThemeId(const QString &id)
+{
+    if (bigScreenThemeId() == id)
+        return;
+    m_settings.setValue(QStringLiteral("bigScreenThemeId"), id);
+    Q_EMIT bigScreenThemeIdChanged();
 }
 
 QString SettingsManager::steamGridDbApiKey() const

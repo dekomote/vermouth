@@ -20,7 +20,7 @@ jobs:
           dnf install -y \
             cmake gcc-c++ extra-cmake-modules node \
             qt6-qtbase-devel qt6-qtdeclarative-devel qt6-qtquickcontrols2-devel \
-            kf6-kirigami-devel kf6-kcoreaddons-devel kf6-ki18n-devel kf6-qqc2-desktop-style \
+            kf6-kirigami-devel kf6-kcoreaddons-devel kf6-ki18n-devel kf6-kcolorscheme-devel kf6-kconfig-devel kf6-qqc2-desktop-style \
             SDL2-devel rpmbuild
 
       - name: Build and package

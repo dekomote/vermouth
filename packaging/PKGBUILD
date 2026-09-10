@@ -1,6 +1,6 @@
 # Maintainer: Dejan Noveski <deko@duck.com>
 pkgname=vermouth
-pkgver=2.1.0
+pkgver=2.2.0
 pkgrel=1
 pkgdesc="A game and app launcher for Linux - native, Windows, and retro"
 arch=('x86_64')
@@ -14,6 +14,8 @@ depends=(
     'kirigami'
     'ki18n'
     'kcoreaddons'
+    'kcolorscheme'
+    'kconfig'
     'qqc2-desktop-style'
 )
 makedepends=(

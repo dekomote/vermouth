@@ -1,4 +1,5 @@
 #include "appmodel.h"
+#include "colorschemeswitcher.h"
 #include "desktopfilewriter.h"
 #include "flatpakutils.h"
 #include "gamepadhandler.h"
@@ -33,12 +34,9 @@
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QIcon>
-#include <QPalette>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickImageProvider>
-#include <QQuickStyle>
-#include <QStyle>
 #include <QTimer>
 
 class IconImageProvider : public QQuickImageProvider
@@ -59,36 +57,6 @@ public:
         return pixmap;
     }
 };
-
-static void applyLightsOutPalette(QApplication &app, const QString &baseColor, bool on)
-{
-    if (QQuickStyle::name().toLower().contains(QLatin1String("org.kde.desktop"))) {
-        if (!on) {
-            app.setPalette(app.style()->standardPalette());
-            return;
-        }
-        QColor base(baseColor);
-        if (!base.isValid())
-            base = QColor(QStringLiteral("#2A2E32"));
-        const QColor text = QColor(Qt::white);
-        const QColor subText = QColor(255, 255, 255, 130);
-        const QColor mid = base.darker(120);
-        const QColor highlight = base.lighter(150);
-
-        QPalette p;
-        p.setColor(QPalette::Window, base);
-        p.setColor(QPalette::WindowText, text);
-        p.setColor(QPalette::Base, base);
-        p.setColor(QPalette::AlternateBase, mid);
-        p.setColor(QPalette::Text, text);
-        p.setColor(QPalette::Button, mid);
-        p.setColor(QPalette::ButtonText, text);
-        p.setColor(QPalette::Highlight, highlight);
-        p.setColor(QPalette::HighlightedText, text);
-        p.setColor(QPalette::PlaceholderText, subText);
-        app.setPalette(p);
-    }
-}
 
 int main(int argc, char *argv[])
 {
@@ -142,7 +110,14 @@ int main(int argc, char *argv[])
 
     Launcher launcher;
     SettingsManager settingsManager;
-    applyLightsOutPalette(app, settingsManager.lightsOutColor(), settingsManager.lightsOut());
+    ColorSchemeSwitcher colorSchemeSwitcher;
+
+    auto applyActiveTheme = [&]() {
+        const bool useBigScreenTheme = settingsManager.bigPicture() || settingsManager.lightsOut();
+        colorSchemeSwitcher.applySchemeId(useBigScreenTheme ? settingsManager.bigScreenThemeId() : settingsManager.themeId());
+    };
+    applyActiveTheme();
+
     launcher.setGlobalEnvVars(settingsManager.globalEnvVars());
     launcher.setUmuPath(settingsManager.umuPath());
     launcher.setRetroarchPath(settingsManager.retroarchPath());
@@ -393,12 +368,10 @@ int main(int argc, char *argv[])
         gogDownloader.setCacheDir(settingsManager.gogCacheDir());
     });
 
-    QObject::connect(&settingsManager, &SettingsManager::lightsOutChanged, &app, [&]() {
-        applyLightsOutPalette(app, settingsManager.lightsOutColor(), settingsManager.lightsOut());
-    });
-    QObject::connect(&settingsManager, &SettingsManager::lightsOutColorChanged, &app, [&]() {
-        applyLightsOutPalette(app, settingsManager.lightsOutColor(), settingsManager.lightsOut());
-    });
+    QObject::connect(&settingsManager, &SettingsManager::bigPictureChanged, &colorSchemeSwitcher, applyActiveTheme);
+    QObject::connect(&settingsManager, &SettingsManager::lightsOutChanged, &colorSchemeSwitcher, applyActiveTheme);
+    QObject::connect(&settingsManager, &SettingsManager::themeIdChanged, &colorSchemeSwitcher, applyActiveTheme);
+    QObject::connect(&settingsManager, &SettingsManager::bigScreenThemeIdChanged, &colorSchemeSwitcher, applyActiveTheme);
 
     // Restore the GOG session at startup if we have a stored refresh token.
     if (!settingsManager.gogRefreshToken().isEmpty())
@@ -413,6 +386,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("desktopWriter"), &desktopWriter);
     engine.rootContext()->setContextProperty(QStringLiteral("iconExtractor"), &iconExtractor);
     engine.rootContext()->setContextProperty(QStringLiteral("settingsManager"), &settingsManager);
+    engine.rootContext()->setContextProperty(QStringLiteral("colorSchemeSwitcher"), &colorSchemeSwitcher);
     engine.rootContext()->setContextProperty(QStringLiteral("protonDownloader"), &protonDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("wineScanner"), &wineScanner);
     engine.rootContext()->setContextProperty(QStringLiteral("wineDownloader"), &wineDownloader);
@@ -443,6 +417,13 @@ int main(int argc, char *argv[])
 
     if (engine.rootObjects().isEmpty())
         return -1;
+
+    // On some platforms (e.g. plain GNOME, no org.kde.desktop style) Qt
+    // Quick Controls only pick up the palette correctly once their window
+    // actually exists - applying it again now (after the root window and
+    // its controls are constructed) is what "switch theme, switch back"
+    // was doing manually.
+    applyActiveTheme();
 
     return app.exec();
 }

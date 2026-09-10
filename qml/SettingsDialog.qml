@@ -596,41 +596,27 @@ Kirigami.ScrollablePage {
 
             RowLayout {
                 Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("Lights Out:")
-                QQC2.Switch {
-                    checked: settingsManager.lightsOut
-                    onToggled: settingsManager.setLightsOut(checked)
+                Kirigami.FormData.label: i18n("Theme:")
+                QQC2.ComboBox {
+                    id: themeCombo
+                    model: colorSchemeSwitcher.schemeNames
+                    Component.onCompleted: currentIndex = colorSchemeSwitcher.indexForSchemeId(settingsManager.themeId)
+                    onActivated: settingsManager.setThemeId(colorSchemeSwitcher.schemeIdAt(currentIndex))
                 }
             }
 
             RowLayout {
                 Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("Background Color:")
-                opacity: settingsManager.lightsOut ? 1.0 : 0.5
-
-                Rectangle {
-                    width: Kirigami.Units.gridUnit * 4
-                    height: Kirigami.Units.gridUnit * 1.5
-                    color: settingsManager.lightsOutColor
-                    radius: Kirigami.Units.cornerRadius
-                    border.color: Kirigami.Theme.disabledTextColor
-                    border.width: 1
-
-                    MouseArea {
-                        anchors.fill: parent
-                        enabled: settingsManager.lightsOut
-                        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                        onClicked: {
-                            lightsOutColorDialog.selectedColor = settingsManager.lightsOutColor;
-                            lightsOutColorDialog.open();
-                        }
-                    }
+                Kirigami.FormData.label: i18n("Dark Theme:")
+                QQC2.ComboBox {
+                    id: bigScreenThemeCombo
+                    model: colorSchemeSwitcher.schemeNames
+                    Component.onCompleted: currentIndex = colorSchemeSwitcher.indexForSchemeId(settingsManager.bigScreenThemeId)
+                    onActivated: settingsManager.setBigScreenThemeId(colorSchemeSwitcher.schemeIdAt(currentIndex))
                 }
-
-                QQC2.Button {
-                    text: i18n("Reset")
-                    enabled: settingsManager.lightsOut
-                    onClicked: settingsManager.setLightsOutColor("#2A2E32")
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Used in Lights Out and Big Screen mode.")
+                    icon.name: "help-about-symbolic"
                 }
             }
 
@@ -799,17 +785,6 @@ Kirigami.ScrollablePage {
         onAccepted: {
             var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
             lsfgDllPathField.text = path;
-        }
-    }
-
-    ColorDialog {
-        id: lightsOutColorDialog
-        title: i18n("Select Background Color")
-        onAccepted: {
-            var r = Math.round(selectedColor.r * 255);
-            var g = Math.round(selectedColor.g * 255);
-            var b = Math.round(selectedColor.b * 255);
-            settingsManager.setLightsOutColor("#" + r.toString(16).padStart(2, "0") + g.toString(16).padStart(2, "0") + b.toString(16).padStart(2, "0"));
         }
     }
 }

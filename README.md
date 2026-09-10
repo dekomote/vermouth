@@ -47,6 +47,7 @@ KDE-first, lightweight, no frills.</p>
 - [RetroArch support](#retroarch-support)
 - [UZDOOM support](#uzdoom-support)
 - [RomM support](#romm-support)
+- [Themes](#themes)
 - [Installing](#installing)
   - [Fedora and Nobara](#fedora-and-nobara)
   - [Bazzite](#bazzite)
@@ -241,6 +242,21 @@ Launch options (e.g. `+map MAP01`) still work through the **Launch Options** fie
 Vermouth integrates with [RomM](https://github.com/rommapp/romm), a self-hosted retro game library manager. Point Vermouth at your RomM server URL and API key in Settings, and the RomM tab will let you browse platforms and ROMs, download them locally, and launch them with RetroArch.
 
 ROMs are launched via RetroArch. Vermouth will auto-detect whether RetroArch is installed natively or as a Flatpak. You can assign a RetroArch core per game from the right-click menu. Cores must be installed separately in RetroArch before use.
+
+---
+
+## Themes
+
+Vermouth ships a set of bundled color schemes you can pick from in **Settings → Appearance**:
+
+**System** (the default), **Vermouth Dark**, **Vermouth Deep**, **Vermouth Tokyo Night**, **Vermouth Cobalt**, **Vermouth 2077**, **Vermouth Rose**, **Vermouth Magenta**, **Vermouth Sage**, **Vermouth Schoolboard**, and **Vermouth Neon**.
+
+Two settings control which theme is active:
+
+- **Theme** - used in normal windowed mode
+- **Dark Theme** - used instead whenever Lights Out or Big Screen mode is on
+
+**Lights Out** is a sidebar toggle (also in the menu) that switches to the Dark Theme without leaving windowed mode - handy for dim rooms. It's a quick session toggle only and always starts off when Vermouth restarts. **Big Screen** (`F11`, or the sidebar/menu action) switches to fullscreen and applies the Dark Theme automatically for the duration.
 
 ---
 
