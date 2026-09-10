@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="2.2.0" date="2026-09-10">
+        <description>
+          <p>This release adds a theme switcher with several bundled color schemes, a dedicated dark theme for Lights Out and Big Screen mode, and cross-platform theming fixes.</p>
+        </description>
+    </release>
     <release version="2.1.0" date="2026-09-08">
         <description>
           <p>This release adds game installer feature, steam shortcuts and lights out refactor.</p>

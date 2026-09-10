@@ -16,7 +16,7 @@
         default = pkgs.stdenv.mkDerivation {
           pname = "vermouth";
           dontWrapQtApps = true;
-          version = "2.1.0";
+          version = "2.2.0";
           src = ./.;
 
           nativeBuildInputs = with pkgs; [
@@ -33,6 +33,8 @@
             kdePackages.kirigami
             kdePackages.kcoreaddons
             kdePackages.ki18n
+            kdePackages.kcolorscheme
+            kdePackages.kconfig
             kdePackages.qqc2-desktop-style
           ];
         };
@@ -54,6 +56,8 @@
             kdePackages.kirigami
             kdePackages.kcoreaddons
             kdePackages.ki18n
+            kdePackages.kcolorscheme
+            kdePackages.kconfig
             kdePackages.qqc2-desktop-style
           ];
 
