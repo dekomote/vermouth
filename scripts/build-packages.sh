@@ -54,8 +54,8 @@ run_pkg_build() {
 
     local log rc
     log=$("$CONTAINER_RT" run --rm \
-        -v "$PROJECT_DIR":/src:ro \
-        -v "$OUTPUT_DIR":/out \
+        -v "$PROJECT_DIR":/src:ro,z \
+        -v "$OUTPUT_DIR":/out:z \
         "$image" \
         bash -c "
             set -euo pipefail
@@ -99,7 +99,7 @@ run_install_test() {
 
     local log rc
     log=$("$CONTAINER_RT" run --rm \
-        -v "$OUTPUT_DIR":/out:ro \
+        -v "$OUTPUT_DIR":/out:ro,z \
         "$image" \
         bash -c "
             set -euo pipefail
@@ -193,8 +193,8 @@ build_arch() {
 
     local log rc
     log=$("$CONTAINER_RT" run --rm \
-        -v "$PROJECT_DIR":/src:ro \
-        -v "$OUTPUT_DIR":/out \
+        -v "$PROJECT_DIR":/src:ro,z \
+        -v "$OUTPUT_DIR":/out:z \
         archlinux:latest \
         bash -c "
             set -euo pipefail
@@ -253,7 +253,7 @@ build_arch() {
     pkg_file=$(basename "$pkg")
 
     log=$("$CONTAINER_RT" run --rm \
-        -v "$OUTPUT_DIR":/out:ro \
+        -v "$OUTPUT_DIR":/out:ro,z \
         archlinux:latest \
         bash -c "
             set -euo pipefail
@@ -282,8 +282,8 @@ build_flatpak() {
 
     local log rc
     log=$("$CONTAINER_RT" run --rm --privileged \
-        -v "$PROJECT_DIR":/src:ro \
-        -v "$OUTPUT_DIR":/out \
+        -v "$PROJECT_DIR":/src:ro,z \
+        -v "$OUTPUT_DIR":/out:z \
         fedora:43 \
         bash -c "
             set -euo pipefail
@@ -347,8 +347,8 @@ build_appimage() {
 
     local log rc
     log=$("$CONTAINER_RT" run --rm \
-        -v "$PROJECT_DIR":/src:ro \
-        -v "$OUTPUT_DIR":/out \
+        -v "$PROJECT_DIR":/src:ro,z \
+        -v "$OUTPUT_DIR":/out:z \
         -v "$APPIMAGE_TOOL_CACHE":/toolcache:z \
         "$APPIMAGE_BUILDER_IMAGE" \
         bash -c "
