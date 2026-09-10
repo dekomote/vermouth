@@ -607,7 +607,7 @@ Kirigami.ScrollablePage {
 
             RowLayout {
                 Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("Big Screen Theme:")
+                Kirigami.FormData.label: i18n("Dark Theme:")
                 QQC2.ComboBox {
                     id: bigScreenThemeCombo
                     model: colorSchemeSwitcher.schemeNames
@@ -615,7 +615,7 @@ Kirigami.ScrollablePage {
                     onActivated: settingsManager.setBigScreenThemeId(colorSchemeSwitcher.schemeIdAt(currentIndex))
                 }
                 Kirigami.ContextualHelpButton {
-                    toolTipText: i18n("The theme Vermouth switches to automatically when entering Big Picture mode.")
+                    toolTipText: i18n("Used in Lights Out and Big Screen mode.")
                     icon.name: "help-about-symbolic"
                 }
             }

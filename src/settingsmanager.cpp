@@ -181,14 +181,14 @@ void SettingsManager::setBigPicture(bool enabled)
 
 bool SettingsManager::lightsOut() const
 {
-    return m_settings.value(QStringLiteral("lightsOut"), false).toBool();
+    return m_lightsOut;
 }
 
 void SettingsManager::setLightsOut(bool enabled)
 {
-    if (lightsOut() == enabled)
+    if (m_lightsOut == enabled)
         return;
-    m_settings.setValue(QStringLiteral("lightsOut"), enabled);
+    m_lightsOut = enabled;
     Q_EMIT lightsOutChanged();
 }
 

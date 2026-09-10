@@ -189,4 +189,5 @@ Q_SIGNALS:
 
 private:
     QSettings m_settings;
+    bool m_lightsOut = false; // intentionally not persisted - always starts off
 };
