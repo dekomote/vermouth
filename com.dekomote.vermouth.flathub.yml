@@ -73,8 +73,8 @@ modules:
         sources:
           - type: git
             url: https://github.com/ip7z/7zip.git
-            tag: '26.01'
-            commit: 8c63d71ff886bda90c86db28466287f977374237
+            tag: '26.03'
+            commit: 0766b733fe3e06dd2a7f9a3cfbf2108ac73abd17
             x-checker-data:
               type: git
               tag-pattern: ^([\d.]+)$
