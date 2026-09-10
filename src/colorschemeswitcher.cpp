@@ -1,6 +1,8 @@
 #include "colorschemeswitcher.h"
 
+#include <KColorScheme>
 #include <KColorSchemeManager>
+#include <KSharedConfig>
 #include <QApplication>
 #include <QModelIndex>
 #include <QPalette>
@@ -87,6 +89,11 @@ void ColorSchemeSwitcher::applySchemeId(const QString &schemeId)
     // kf6-kcolorscheme 6.17.0) don't ship yet.
     KColorSchemeManager *manager = KColorSchemeManager::instance();
     manager->activateScheme(manager->indexForScheme(schemeId));
+
+    if (schemeId.isEmpty() && qApp) {
+        // Reset the pallete by running the full pipeline - Fixes a flatpak quirk
+        qApp->setPalette(KColorScheme::createApplicationPalette(KSharedConfig::openConfig()));
+    }
 }
 
 void ColorSchemeSwitcher::reapplyCurrent()
