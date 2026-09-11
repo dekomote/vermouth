@@ -1,5 +1,5 @@
 Name:           vermouth
-Version:        2.2.0
+Version:        2.2.1
 Release:        1%{?dist}
 Summary:        A no-frills Wine/Proton game launcher for KDE
 License:        MIT
@@ -76,6 +76,8 @@ RomM library with RetroArch - all from one place.
 %{_datadir}/locale/*/LC_MESSAGES/vermouth.mo
 
 %changelog
+* Fri Sep 11 2026 Dejan Noveski <deko@duck.com> - 2.2.1-1
+- Fix Battle.net and other installed launchers in flatpak, KDE status bar permission
 * Thu Sep 10 2026 Dejan Noveski <deko@duck.com> - 2.2.0-1
 - Theme switcher, dark theme for Lights Out and Big Screen, cross-platform theming fixes
 * Tue Sep 8 2026 Dejan Noveski <deko@duck.com> - 2.1.0-1

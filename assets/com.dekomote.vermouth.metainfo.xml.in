@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="2.2.1" date="2026-09-11">
+        <description>
+          <p>This release fixes some issues with Battle.net and other installed launchers under Flatpak, and adds a missing KDE status bar permission.</p>
+        </description>
+    </release>
     <release version="2.2.0" date="2026-09-10">
         <description>
           <p>This release adds a theme switcher with several bundled color schemes, a dedicated dark theme for Lights Out and Big Screen mode, and cross-platform theming fixes.</p>

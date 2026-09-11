@@ -16,7 +16,7 @@
         default = pkgs.stdenv.mkDerivation {
           pname = "vermouth";
           dontWrapQtApps = true;
-          version = "2.2.0";
+          version = "2.2.1";
           src = ./.;
 
           nativeBuildInputs = with pkgs; [
