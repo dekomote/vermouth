@@ -39,49 +39,61 @@ Kirigami.Dialog {
             "name": "Amazon Games",
             "url": "https://download.amazongames.com/AmazonGamesSetup.exe",
             "file": "AmazonGamesSetup.exe",
-            "exe": "drive_c/users/steamuser/AppData/Local/Amazon Games/App/Amazon Games.exe"
+            "exe": "drive_c/users/steamuser/AppData/Local/Amazon Games/App/Amazon Games.exe",
+            "installEnvVars": ["PROTON_ENABLE_WAYLAND=0"]
         },
         {
             "key": "battle",
             "name": "Battle.net",
             "url": "https://downloader.battle.net/download/getInstaller?os=win&installer=Battle.net-Setup.exe",
             "file": "Battle.net-Setup.exe",
-            "exe": "drive_c/Program Files (x86)/Battle.net/Battle.net.exe"
+            "exe": "drive_c/Program Files (x86)/Battle.net/Battle.net.exe",
+            "installArgs": "%command% --installpath='C:\\Program Files (x86)\\Battle.net' --lang=enUS",
+            "installEnvVars": ["PROTON_ENABLE_WAYLAND=0", "WINE_SIMULATE_WRITECOPY=1"]
         },
         {
             "key": "ea",
             "name": "EA App",
             "url": "https://origin-a.akamaihd.net/EA-Desktop-Client-Download/installer-releases/EAappInstaller.exe",
             "file": "EAappInstaller.exe",
-            "exe": "drive_c/Program Files/Electronic Arts/EA Desktop/EA Desktop/EALauncher.exe"
+            "exe": "drive_c/Program Files/Electronic Arts/EA Desktop/EA Desktop/EALauncher.exe",
+            "installArgs": "%command% /S",
+            "installEnvVars": ["PROTON_ENABLE_WAYLAND=0"]
         },
         {
             "key": "epic",
             "name": "Epic Games Launcher",
             "url": "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/installer/download/EpicGamesLauncherInstaller.msi",
             "file": "EpicGamesLauncherInstaller.msi",
-            "exe": "drive_c/Program Files/Epic Games/Launcher/Portal/Binaries/Win64/EpicGamesLauncher.exe"
+            "exe": "drive_c/Program Files/Epic Games/Launcher/Portal/Binaries/Win64/EpicGamesLauncher.exe",
+            "installBinary": "msiexec",
+            "installArgs": "/passive",
+            "installEnvVars": ["PROTON_ENABLE_WAYLAND=0"]
         },
         {
             "key": "rockstar",
             "name": "Rockstar Games",
             "url": "https://gamedownloads.rockstargames.com/public/installer/Rockstar-Games-Launcher.exe",
             "file": "Rockstar-Games-Launcher.exe",
-            "exe": "drive_c/Program Files/Rockstar Games/Launcher/Launcher.exe"
+            "exe": "drive_c/Program Files/Rockstar Games/Launcher/Launcher.exe",
+            "installEnvVars": ["PROTON_ENABLE_WAYLAND=0"]
         },
         {
             "key": "ubisoft",
             "name": "Ubisoft Connect",
             "url": "https://static3.cdn.ubi.com/orbit/launcher_installer/UbisoftConnectInstaller.exe",
             "file": "UbisoftConnectInstaller.exe",
-            "exe": "drive_c/Program Files (x86)/Ubisoft/Ubisoft Game Launcher/UbisoftConnect.exe"
+            "exe": "drive_c/Program Files (x86)/Ubisoft/Ubisoft Game Launcher/UbisoftConnect.exe",
+            "installArgs": "%command% /S",
+            "installEnvVars": ["PROTON_ENABLE_WAYLAND=0"]
         },
         {
             "key": "wargaming",
             "name": "Wargaming Game Center",
             "url": "https://redirect.wargaming.net/WGC/Wargaming_Game_Center_Install_NA.exe",
             "file": "Wargaming-Game-Center-Install-NA.exe",
-            "exe": "drive_c/ProgramData/Wargaming.net/GameCenter/wgc.exe"
+            "exe": "drive_c/ProgramData/Wargaming.net/GameCenter/wgc.exe",
+            "installArgs": "%command% /SILENT"
         }
     ]
 
@@ -144,8 +156,15 @@ Kirigami.Dialog {
         }
     }
 
-    function runInstallerInPrefix(exePath, launchOptions, finalExePath) {
+    function runInstallerInPrefix(exePath, launchOptions, finalExePath, envVars, installBinary) {
         var rt = effectiveRuntime();
+        var runExe = exePath;
+        var opts = launchOptions || "";
+        if (installBinary) {
+            // MSI installers aren't directly executable under Wine/Proton - run them through msiexec.
+            runExe = installBinary;
+            opts = "%command% /i '" + exePath + "' " + opts;
+        }
         var app = {
             "name": nameField.text.trim(),
             "runtimeType": rt,
@@ -153,15 +172,16 @@ Kirigami.Dialog {
             "wineBinary": settingsManager.defaultWineBinary,
             "protonPrefix": dialog.installPrefix,
             "winePrefix": dialog.installPrefix,
-            "launchOptions": launchOptions || "",
+            "launchOptions": opts,
+            "envVars": envVars || [],
             "enableLogging": false
         };
-        dialog.installExe = exePath;
+        dialog.installExe = runExe;
         if (finalExePath !== "")
             dialog.finalExe = finalExePath;
         dialog.statusText = i18n("Installing in prefix…");
         dialog.installing = true;
-        dialog.installPid = launcher.runInPrefix(app, exePath);
+        dialog.installPid = launcher.runInPrefix(app, runExe);
         if (dialog.installPid <= 0) {
             dialog.installing = false;
             dialog.installPid = 0;
@@ -190,6 +210,7 @@ Kirigami.Dialog {
 
         var exe = dialog.finalExe;
         if (exe !== "") {
+            var selLauncher = dialog.selectedLauncher();
             var app = {
                 "name": nameField.text.trim(),
                 "exePath": exe,
@@ -199,7 +220,8 @@ Kirigami.Dialog {
                 "wineBinary": settingsManager.defaultWineBinary,
                 "winePrefix": dialog.installPrefix,
                 "iconPath": "",
-                "launchOptions": ""
+                "launchOptions": "",
+                "envVars": selLauncher.installEnvVars || []
             };
             var extracted = iconExtractor.extractIcon(exe);
             if (extracted !== "")
@@ -339,7 +361,8 @@ Kirigami.Dialog {
                 return;
             dialog.downloading = false;
             dialog.statusText = "";
-            dialog.runInstallerInPrefix(filePath, "", dialog.finalExe);
+            var selLauncher = dialog.selectedLauncher();
+            dialog.runInstallerInPrefix(filePath, selLauncher.installArgs || "", dialog.finalExe, selLauncher.installEnvVars || [], selLauncher.installBinary || "");
         }
         function onError(message) {
             if (!dialog.downloading)
