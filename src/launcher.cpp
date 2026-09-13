@@ -268,7 +268,7 @@ QString Launcher::detectRetroarchPath() const
     return {};
 }
 
-void Launcher::launchRom(const QVariantMap &rom, bool enableLogging, const QString &launchOptions)
+void Launcher::launchRom(const QVariantMap &rom, bool enableLogging, const QString &launchOptions, bool autoHdr)
 {
     QString romPath = rom[QStringLiteral("localRomPath")].toString();
     QString name = rom[QStringLiteral("name")].toString();
@@ -317,7 +317,10 @@ void Launcher::launchRom(const QVariantMap &rom, bool enableLogging, const QStri
                    env,
                    launchOptions,
                    enableLogging,
-                   name);
+                   name,
+                   true,
+                   {},
+                   autoHdr);
         else
             launch(QStringLiteral("flatpak"),
                    QStringList{QStringLiteral("run"), QStringLiteral("org.libretro.RetroArch")} + baseFlags,
@@ -325,9 +328,12 @@ void Launcher::launchRom(const QVariantMap &rom, bool enableLogging, const QStri
                    env,
                    launchOptions,
                    enableLogging,
-                   name);
+                   name,
+                   true,
+                   {},
+                   autoHdr);
     } else
-        launch(m_retroarchBinary, baseFlags, romPath, env, launchOptions, enableLogging, name);
+        launch(m_retroarchBinary, baseFlags, romPath, env, launchOptions, enableLogging, name, true, {}, autoHdr);
 }
 
 void Launcher::setGlobalEnvVars(const QStringList &vars)
@@ -363,7 +369,8 @@ qint64 Launcher::launch(const QString &binary,
                         bool enableLogging,
                         const QString &logName,
                         bool appendExe,
-                        const QStringList &commandWrappers)
+                        const QStringList &commandWrappers,
+                        bool autoHdr)
 {
     if (binary.isEmpty()) {
         Q_EMIT launchError(exePath, QStringLiteral("No runtime is set for this game."));
@@ -380,10 +387,12 @@ qint64 Launcher::launch(const QString &binary,
     timer->start();
     m_runningProcesses.insert(exePath, proc);
     Q_EMIT runningExePathsChanged();
-    connect(proc, &QProcess::finished, this, [this, exePath, proc, timer, enableLogging](int exitCode) {
+    connect(proc, &QProcess::finished, this, [this, exePath, proc, timer, enableLogging, autoHdr](int exitCode) {
         m_runningProcesses.remove(exePath);
         Q_EMIT runningExePathsChanged();
         Q_EMIT processFinished(exitCode);
+        if (autoHdr && m_hdrEnabled)
+            toggleHdr();
         if (exitCode != 0 && !enableLogging && timer->elapsed() < 5000) {
             QString out = QString::fromLocal8Bit(proc->readAllStandardOutput()).trimmed();
             if (!out.isEmpty()) {
@@ -483,6 +492,12 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         }
     }
 
+    // Steam manages its own process, so we can turn HDR on before handing off to it, but
+    // have no way to detect the game closing to turn it back off (no launch()/processFinished for it).
+    const bool autoHdr = app[QStringLiteral("enableAutoHdr")].toBool();
+    if (autoHdr && m_hdrSupported && !m_hdrEnabled)
+        toggleHdr();
+
     if (m_hdrEnabled) {
         env.insert(QStringLiteral("PROTON_ENABLE_HDR"), QStringLiteral("1"));
         env.insert(QStringLiteral("PROTON_ENABLE_WAYLAND"), QStringLiteral("1"));
@@ -577,7 +592,7 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         rom[QStringLiteral("platformSlug")] = platformSlug;
         rom[QStringLiteral("customCorePath")] = customCore;
         rom[QStringLiteral("romId")] = 0;
-        launchRom(rom, logging, opts);
+        launchRom(rom, logging, opts, autoHdr);
         return -1;
     }
 
@@ -599,7 +614,7 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         }
         if (isInsideFlatpak())
             baseArgs.prepend(QStringLiteral("--appimage-extract-and-run"));
-        return launch(binary, baseArgs, exePath, env, opts, logging, name, false, commandWrappers);
+        return launch(binary, baseArgs, exePath, env, opts, logging, name, false, commandWrappers, autoHdr);
     }
 
     if (runtimeType == QStringLiteral("proton")) {
@@ -629,11 +644,11 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
             env.insert(QStringLiteral("GAMEID"), protonGameIdForUmu.isEmpty() ? QStringLiteral("0") : protonGameIdForUmu);
             env.insert(QStringLiteral("WINEPREFIX"), prefix);
             env.insert(QStringLiteral("UMU_CONTAINER_NSENTER"), QStringLiteral("1"));
-            return launch(umuBin, {}, exePath, env, opts, logging, name, true, commandWrappers);
+            return launch(umuBin, {}, exePath, env, opts, logging, name, true, commandWrappers, autoHdr);
         } else {
             env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));
             env.insert(QStringLiteral("STEAM_COMPAT_DATA_PATH"), prefix);
-            return launch(protonPath + QStringLiteral("/proton"), {QStringLiteral("run")}, exePath, env, opts, logging, name, true, commandWrappers);
+            return launch(protonPath + QStringLiteral("/proton"), {QStringLiteral("run")}, exePath, env, opts, logging, name, true, commandWrappers, autoHdr);
         }
     } else if (runtimeType == QStringLiteral("native")) {
         QString binary = exePath;
@@ -662,7 +677,7 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         if (!exePath.endsWith(QStringLiteral(".desktop"), Qt::CaseInsensitive) && !fi.isExecutable())
             QFile::setPermissions(binary, fi.permissions() | QFileDevice::ExeOwner | QFileDevice::ExeGroup | QFileDevice::ExeOther);
         env.insert(QStringLiteral("APPIMAGE"), exePath);
-        return launch(binary, baseArgs, exePath, env, opts, logging, name, false, commandWrappers);
+        return launch(binary, baseArgs, exePath, env, opts, logging, name, false, commandWrappers, autoHdr);
     } else {
         QString wineBinary = app[QStringLiteral("wineBinary")].toString();
         if (wineBinary.isEmpty()) {
@@ -674,7 +689,7 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
             QDir().mkpath(prefix);
             env.insert(QStringLiteral("WINEPREFIX"), prefix);
         }
-        return launch(wineBinary, {}, exePath, env, opts, logging, name, true, commandWrappers);
+        return launch(wineBinary, {}, exePath, env, opts, logging, name, true, commandWrappers, autoHdr);
     }
 }
 
@@ -689,6 +704,7 @@ qint64 Launcher::runInPrefix(const QVariantMap &app, const QString &exePath)
 {
     QVariantMap copy = app;
     copy[QStringLiteral("exePath")] = exePath;
+    copy[QStringLiteral("enableAutoHdr")] = false;
     return launchEntry(copy);
 }
 
@@ -698,6 +714,7 @@ void Launcher::runWinecfg(const QVariantMap &app)
     copy[QStringLiteral("launchOptions")] = QString();
     copy[QStringLiteral("enableLogging")] = false;
     copy[QStringLiteral("exePath")] = QStringLiteral("winecfg");
+    copy[QStringLiteral("enableAutoHdr")] = false;
     launchEntry(copy);
 }
 
@@ -707,6 +724,7 @@ void Launcher::runRegedit(const QVariantMap &app)
     copy[QStringLiteral("launchOptions")] = QString();
     copy[QStringLiteral("enableLogging")] = false;
     copy[QStringLiteral("exePath")] = QStringLiteral("regedit");
+    copy[QStringLiteral("enableAutoHdr")] = false;
     launchEntry(copy);
 }
 

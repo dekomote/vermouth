@@ -32,7 +32,7 @@ public:
     }
 
     Q_INVOKABLE qint64 launchEntry(const QVariantMap &app);
-    Q_INVOKABLE void launchRom(const QVariantMap &rom, bool enableLogging = false, const QString &launchOptions = {});
+    Q_INVOKABLE void launchRom(const QVariantMap &rom, bool enableLogging = false, const QString &launchOptions = {}, bool autoHdr = false);
     Q_INVOKABLE QString detectRetroarchPath() const;
     Q_INVOKABLE QStringList availableCoresForPlatform(const QString &platformSlug) const;
     Q_INVOKABLE QString buildRomLaunchCommand(const QVariantMap &rom) const;
@@ -84,7 +84,8 @@ private:
                   bool enableLogging,
                   const QString &logName,
                   bool appendExe = true,
-                  const QStringList &commandWrappers = QStringList());
+                  const QStringList &commandWrappers = QStringList(),
+                  bool autoHdr = false);
     void setupLogging(QProcess *proc, const QString &name);
     void refreshHdrState();
     void cacheRetroarchBinary();

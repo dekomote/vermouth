@@ -75,6 +75,7 @@ public:
     bool lsfgPerformanceMode = false;
     QString lsfgPresentMode;
     QStringList envVars;
+    bool enableAutoHdr = false;
 
     QJsonObject toJson() const;
     QVariantMap toVariantMap() const;

@@ -65,6 +65,7 @@ QJsonObject AppEntry::toJson() const
     obj[QStringLiteral("lsfgPerformanceMode")] = lsfgPerformanceMode;
     obj[QStringLiteral("lsfgPresentMode")] = lsfgPresentMode;
     obj[QStringLiteral("envVars")] = QJsonArray::fromStringList(envVars);
+    obj[QStringLiteral("enableAutoHdr")] = enableAutoHdr;
     return obj;
 }
 
@@ -105,6 +106,7 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("lsfgPerformanceMode"), lsfgPerformanceMode},
         {QStringLiteral("lsfgPresentMode"), lsfgPresentMode},
         {QStringLiteral("envVars"), envVars},
+        {QStringLiteral("enableAutoHdr"), enableAutoHdr},
     };
 }
 
@@ -152,6 +154,7 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     const QJsonArray envArr = obj[QStringLiteral("envVars")].toArray();
     for (const QJsonValue &v : envArr)
         e.envVars << v.toString();
+    e.enableAutoHdr = obj[QStringLiteral("enableAutoHdr")].toBool(false);
     return e;
 }
 
@@ -191,4 +194,5 @@ void AppEntry::updateFromVariantMap(const QVariantMap &app)
     lsfgPerformanceMode = app.value(QStringLiteral("lsfgPerformanceMode"), false).toBool();
     lsfgPresentMode = app.value(QStringLiteral("lsfgPresentMode"), QString()).toString();
     envVars = app.value(QStringLiteral("envVars"), QStringList()).toStringList();
+    enableAutoHdr = app.value(QStringLiteral("enableAutoHdr"), false).toBool();
 }

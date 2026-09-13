@@ -91,6 +91,7 @@ Kirigami.Dialog {
         enableMangohudCheck.checked = false;
         enableGamemodeCheck.checked = false;
         enablePreferSdlCheck.checked = false;
+        enableAutoHdrCheck.checked = false;
         enableLsfgCheck.checked = false;
         lsfgMultiplierSpin.value = 2;
         lsfgFlowScaleSpin.value = 50;
@@ -199,6 +200,7 @@ Kirigami.Dialog {
         enableMangohudCheck.checked = app.enableMangohud || false;
         enableGamemodeCheck.checked = app.enableGamemode || false;
         enablePreferSdlCheck.checked = app.enablePreferSdl || false;
+        enableAutoHdrCheck.checked = app.enableAutoHdr || false;
         enableLsfgCheck.checked = app.enableLsfg || false;
         lsfgMultiplierSpin.value = app.lsfgMultiplier || 2;
         lsfgFlowScaleSpin.value = app.lsfgFlowScale || 50;
@@ -325,6 +327,7 @@ Kirigami.Dialog {
             "enableMangohud": enableMangohudCheck.checked,
             "enableGamemode": enableGamemodeCheck.checked,
             "enablePreferSdl": enablePreferSdlCheck.checked,
+            "enableAutoHdr": enableAutoHdrCheck.checked,
             "enableLsfg": enableLsfgCheck.checked,
             "lsfgMultiplier": lsfgMultiplierSpin.value,
             "lsfgFlowScale": lsfgFlowScaleSpin.value,
@@ -788,6 +791,15 @@ Kirigami.Dialog {
                     id: enableGamemodeCheck
                     text: i18n("Enable GameMode (gamemoderun)")
                     visible: dialog.showAdvancedOptions && dialog.gamemodeAvailable
+                }
+
+                QQC2.CheckBox {
+                    id: enableAutoHdrCheck
+                    text: i18n("Auto-enable HDR while running")
+                    enabled: launcher.hdrSupported
+                    QQC2.ToolTip.text: runtimePicker.runtimeType === "steam" ? i18n("Turns HDR on when launching. Steam runs the game itself, so Vermouth can't tell when it closes to turn HDR back off.") : i18n("Turns HDR on when the game launches and off again when it closes.")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
 
                 QQC2.TextField {

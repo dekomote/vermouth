@@ -179,6 +179,8 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.envVars;
     case LastPlayedRole:
         return e.lastPlayed;
+    case EnableAutoHdrRole:
+        return e.enableAutoHdr;
     }
     return {};
 }
@@ -219,6 +221,7 @@ QHash<int, QByteArray> AppModel::roleNames() const
         {LsfgPresentModeRole, "lsfgPresentMode"},
         {EnvVarsRole, "envVars"},
         {LastPlayedRole, "lastPlayed"},
+        {EnableAutoHdrRole, "enableAutoHdr"},
     };
 }
 
