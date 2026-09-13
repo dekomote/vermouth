@@ -46,6 +46,7 @@ public:
         LsfgPerformanceModeRole,
         LsfgPresentModeRole,
         EnvVarsRole,
+        LastPlayedRole,
     };
 
     explicit AppModel(QObject *parent = nullptr);

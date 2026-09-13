@@ -336,6 +336,12 @@ Kirigami.ApplicationWindow {
                             checked: gridView.sortField === "playtime"
                             onTriggered: gridView.sortField = "playtime"
                         }
+                        QQC2.MenuItem {
+                            text: i18n("Last Played")
+                            checkable: true
+                            checked: gridView.sortField === "lastplayed"
+                            onTriggered: gridView.sortField = "lastplayed"
+                        }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {
                             text: i18n("A–Z")
@@ -825,6 +831,12 @@ Kirigami.ApplicationWindow {
                             checkable: true
                             checked: gridView.sortField === "playtime"
                             onTriggered: gridView.sortField = "playtime"
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Last Played")
+                            checkable: true
+                            checked: gridView.sortField === "lastplayed"
+                            onTriggered: gridView.sortField = "lastplayed"
                         }
                         QQC2.MenuSeparator {}
                         QQC2.MenuItem {

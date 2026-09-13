@@ -62,6 +62,7 @@ public:
     bool hidden = false;
     qint64 playTime = 0; // seconds
     QDateTime dateAdded;
+    QDateTime lastPlayed;
 
     // Advanced game settings
     QString protonGameId;

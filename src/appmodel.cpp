@@ -42,6 +42,12 @@ void AppModel::rebuildFilter()
             result = ea.playTime < eb.playTime ? -1 : (ea.playTime > eb.playTime ? 1 : 0);
             if (result == 0)
                 result = ea.name.compare(eb.name, Qt::CaseInsensitive);
+        } else if (m_sortField == QLatin1String("lastplayed")) {
+            const qint64 la = ea.lastPlayed.isValid() ? ea.lastPlayed.toSecsSinceEpoch() : Q_INT64_C(-1);
+            const qint64 lb = eb.lastPlayed.isValid() ? eb.lastPlayed.toSecsSinceEpoch() : Q_INT64_C(-1);
+            result = la < lb ? -1 : (la > lb ? 1 : 0);
+            if (result == 0)
+                result = ea.name.compare(eb.name, Qt::CaseInsensitive);
         } else {
             result = ea.name.compare(eb.name, Qt::CaseInsensitive);
         }
@@ -171,6 +177,8 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.lsfgPresentMode;
     case EnvVarsRole:
         return e.envVars;
+    case LastPlayedRole:
+        return e.lastPlayed;
     }
     return {};
 }
@@ -210,6 +218,7 @@ QHash<int, QByteArray> AppModel::roleNames() const
         {LsfgPerformanceModeRole, "lsfgPerformanceMode"},
         {LsfgPresentModeRole, "lsfgPresentMode"},
         {EnvVarsRole, "envVars"},
+        {LastPlayedRole, "lastPlayed"},
     };
 }
 
@@ -314,10 +323,11 @@ void AppModel::addPlayTime(const QString &exePath, qint64 seconds)
         if (m_entries[i].exePath != exePath)
             continue;
         m_entries[i].playTime += seconds;
+        m_entries[i].lastPlayed = QDateTime::currentDateTime();
         for (int f = 0; f < m_filtered.size(); ++f) {
             if (m_filtered[f] == i) {
                 QModelIndex idx = index(f, 0);
-                Q_EMIT dataChanged(idx, idx, {PlayTimeRole});
+                Q_EMIT dataChanged(idx, idx, {PlayTimeRole, LastPlayedRole});
                 break;
             }
         }

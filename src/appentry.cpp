@@ -54,6 +54,7 @@ QJsonObject AppEntry::toJson() const
     obj[QStringLiteral("hidden")] = hidden;
     obj[QStringLiteral("playTime")] = static_cast<double>(playTime);
     obj[QStringLiteral("dateAdded")] = dateAdded.toString(Qt::ISODate);
+    obj[QStringLiteral("lastPlayed")] = lastPlayed.isValid() ? lastPlayed.toString(Qt::ISODate) : QString();
     obj[QStringLiteral("protonGameId")] = protonGameId;
     obj[QStringLiteral("enableMangohud")] = enableMangohud;
     obj[QStringLiteral("enableGamemode")] = enableGamemode;
@@ -93,6 +94,7 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("hidden"), hidden},
         {QStringLiteral("playTime"), playTime},
         {QStringLiteral("dateAdded"), dateAdded},
+        {QStringLiteral("lastPlayed"), lastPlayed},
         {QStringLiteral("protonGameId"), protonGameId},
         {QStringLiteral("enableMangohud"), enableMangohud},
         {QStringLiteral("enableGamemode"), enableGamemode},
@@ -137,6 +139,7 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     e.hidden = obj[QStringLiteral("hidden")].toBool(false);
     e.playTime = obj.value(QStringLiteral("playTime")).toInteger(0);
     e.dateAdded = QDateTime::fromString(obj[QStringLiteral("dateAdded")].toString(), Qt::ISODate);
+    e.lastPlayed = QDateTime::fromString(obj[QStringLiteral("lastPlayed")].toString(), Qt::ISODate);
     e.protonGameId = obj[QStringLiteral("protonGameId")].toString();
     e.enableMangohud = obj[QStringLiteral("enableMangohud")].toBool(false);
     e.enableGamemode = obj[QStringLiteral("enableGamemode")].toBool(false);
