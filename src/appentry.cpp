@@ -182,7 +182,8 @@ void AppEntry::updateFromVariantMap(const QVariantMap &app)
     uzdoomMods = app.value(QStringLiteral("uzdoomMods")).toStringList();
     launchOptions = app[QStringLiteral("launchOptions")].toString();
     enableLogging = app.value(QStringLiteral("enableLogging"), false).toBool();
-    hidden = app.value(QStringLiteral("hidden"), false).toBool();
+    if (app.contains(QStringLiteral("hidden")))
+        hidden = app[QStringLiteral("hidden")].toBool();
     playTime = app.value(QStringLiteral("playTime"), 0).toLongLong();
     protonGameId = app.value(QStringLiteral("protonGameId"), QString()).toString();
     enableMangohud = app.value(QStringLiteral("enableMangohud"), false).toBool();
