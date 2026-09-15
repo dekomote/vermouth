@@ -398,7 +398,7 @@ Kirigami.ScrollablePage {
                 QQC2.TextField {
                     id: gogCacheDirField
                     Layout.fillWidth: true
-                    placeholderText: i18n("Default: ~/Gog Games/.cache")
+                    placeholderText: i18n("Default: AppData/gog")
                 }
                 QQC2.ToolButton {
                     icon.name: "document-open-symbolic"
