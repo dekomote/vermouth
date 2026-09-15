@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="2.2.2" date="2026-09-15">
+        <description>
+          <p>This release adds a last played date stamp and sort option, Auto HDR (toggle HDR automatically when launching and closing games), a fix for hidden apps unhiding themselves when edited, a fix for the RomM platform filter dropdown overlapping text, and reorganizes the GOG cache into the Vermouth data folder.</p>
+        </description>
+    </release>
     <release version="2.2.1" date="2026-09-11">
         <description>
           <p>This release fixes some issues with Battle.net and other installed launchers under Flatpak, and adds a missing KDE status bar permission.</p>
