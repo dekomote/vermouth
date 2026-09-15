@@ -603,15 +603,7 @@ Kirigami.ApplicationWindow {
                         model: rommView.platforms
                         textRole: "name"
                         implicitWidth: Kirigami.Units.gridUnit * 12
-                        displayText: count > 0 ? currentText : i18n("Select platform…")
-                        contentItem: Text {
-                            leftPadding: Kirigami.Units.smallSpacing * 2
-                            rightPadding: (rommPlatformCombo.indicator ? rommPlatformCombo.indicator.width : 0) + Kirigami.Units.smallSpacing
-                            text: rommPlatformCombo.displayText
-                            verticalAlignment: Text.AlignVCenter
-                            elide: Text.ElideRight
-                        }
-
+                        displayText: count > 0 ? currentText : i18n("Select platform...")
                         onModelChanged: {
                             var platforms = rommView.platforms;
                             if (platforms && platforms.length > 0) {
