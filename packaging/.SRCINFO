@@ -22,6 +22,6 @@ pkgbase = vermouth
 	provides = vermouth
 	conflicts = vermouth
 	source = vermouth-2.2.2.tar.gz::https://github.com/dekomote/vermouth/archive/refs/tags/v2.2.2.tar.gz
-	sha256sums = 779db6ff73db733a0aa9c52f82f59c546409f93d3fc055529c690b36d6d8bd80
+	sha256sums = fd5e719800b581217fb345980b9a9b9ea27f4fce44d11d85e6e0c1a216c154aa
 
 pkgname = vermouth
