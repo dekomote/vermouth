@@ -65,6 +65,7 @@ public:
     Q_INVOKABLE void removeApp(int index);
     Q_INVOKABLE void removeAndCleanApp(int index);
     Q_INVOKABLE void editApp(int index, const QVariantMap &app);
+    Q_INVOKABLE void editAppById(const QString &id, const QVariantMap &app);
     Q_INVOKABLE QVariantMap getApp(int index) const;
     Q_INVOKABLE QVariantMap getAppById(const QString &id) const;
     Q_INVOKABLE QVariantMap getAppByExePath(const QString &exePath) const;
@@ -105,6 +106,7 @@ Q_SIGNALS:
 private:
     int sourceIndex(int filteredIndex) const;
     void rebuildFilter();
+    bool entryLessThan(int a, int b) const;
     QString configPath() const;
 
     QVector<AppEntry> m_entries;

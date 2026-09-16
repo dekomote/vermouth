@@ -134,6 +134,7 @@ GameGridView {
                     mainCorePicker.platformSlug = cardFrame.platformSlug;
                     mainCorePicker.pendingRom = null;
                     mainCorePicker.appIndex = cardFrame.index;
+                    mainCorePicker.appId = appModel.getApp(cardFrame.index).id;
                     mainCorePicker.launchAfterPick = false;
                     mainCorePicker.open();
                 }
@@ -291,9 +292,9 @@ GameGridView {
                 text: cardFrame.hidden ? i18n("Unhide") : i18n("Hide")
                 icon.name: cardFrame.hidden ? "view-visible-symbolic" : "view-hidden-symbolic"
                 onTriggered: {
-                    var app = appModel.getApp(cardFrame.index);
+                    var app = appModel.getAppById(cardFrame.appId);
                     app.hidden = !app.hidden;
-                    appModel.editApp(cardFrame.index, app);
+                    appModel.editAppById(cardFrame.appId, app);
                 }
             }
             QQC2.MenuItem {

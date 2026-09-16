@@ -32,7 +32,7 @@ Kirigami.Dialog {
     ]
 
     property bool editMode: false
-    property int editIndex: -1
+    property string editAppId: ""
     property string prefixBasePath
     property string autoDownloadTargetId: ""
     property bool pendingAutoDownload: false
@@ -72,7 +72,7 @@ Kirigami.Dialog {
 
     function openForNew() {
         editMode = false;
-        editIndex = -1;
+        editAppId = "";
         nameField.text = "";
         exeField.text = "";
         protonPrefixField.text = "";
@@ -180,8 +180,8 @@ Kirigami.Dialog {
 
     function openForEdit(index) {
         editMode = true;
-        editIndex = index;
         var app = appModel.getApp(index);
+        editAppId = app.id;
         nameField.text = app.name;
         exeField.text = app.exePath;
         protonPrefixField.text = app.protonPrefix;
@@ -322,7 +322,6 @@ Kirigami.Dialog {
             "enableLogging": enableLoggingCheck.checked,
             "logoPath": logoField.text || "",
             "steamGridDbId": sgdbId,
-            "playTime": TimeUtils.parsePlayTime(playTimeField.text),
             "protonGameId": protonGameIdField.text || "",
             "enableMangohud": enableMangohudCheck.checked,
             "enableGamemode": enableGamemodeCheck.checked,
@@ -336,8 +335,15 @@ Kirigami.Dialog {
             "envVars": dialog.collectEnvVars()
         };
 
+        // Skip playTime while the game is running: it's live-tracked by the
+        // launcher, and the value shown here was only a snapshot from when
+        // the dialog was opened, so saving it would wipe out the running
+        // session's progress.
+        if (launcher.runningExePaths.indexOf(exeField.text) < 0)
+            app["playTime"] = TimeUtils.parsePlayTime(playTimeField.text);
+
         if (editMode) {
-            appModel.editApp(editIndex, app);
+            appModel.editAppById(editAppId, app);
         } else {
             appModel.addApp(app);
         }

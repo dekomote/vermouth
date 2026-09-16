@@ -19,6 +19,46 @@ int AppModel::sourceIndex(int filteredIndex) const
     return m_filtered[filteredIndex];
 }
 
+bool AppModel::entryLessThan(int a, int b) const
+{
+    const auto &ea = m_entries[a];
+    const auto &eb = m_entries[b];
+    int result = 0;
+    if (m_sortField == QLatin1String("runtime")) {
+        result = static_cast<int>(ea.runtimeType) - static_cast<int>(eb.runtimeType);
+        if (result == 0)
+            result = ea.name.compare(eb.name, Qt::CaseInsensitive);
+    } else if (m_sortField == QLatin1String("date")) {
+        result = ea.dateAdded > eb.dateAdded ? 1 : (ea.dateAdded < eb.dateAdded ? -1 : 0);
+        if (result == 0)
+            result = ea.name.compare(eb.name, Qt::CaseInsensitive);
+    } else if (m_sortField == QLatin1String("playtime")) {
+        result = ea.playTime < eb.playTime ? -1 : (ea.playTime > eb.playTime ? 1 : 0);
+        if (result == 0)
+            result = ea.name.compare(eb.name, Qt::CaseInsensitive);
+    } else if (m_sortField == QLatin1String("lastplayed")) {
+        const bool pa = ea.lastPlayed.isValid();
+        const bool pb = eb.lastPlayed.isValid();
+        if (pa != pb) {
+            // Played entries are always more "recent" than never-played ones.
+            result = pa ? 1 : -1;
+        } else if (pa) {
+            const qint64 la = ea.lastPlayed.toSecsSinceEpoch();
+            const qint64 lb = eb.lastPlayed.toSecsSinceEpoch();
+            result = la < lb ? -1 : (la > lb ? 1 : 0);
+        } else {
+            const qint64 da = ea.dateAdded.isValid() ? ea.dateAdded.toSecsSinceEpoch() : Q_INT64_C(-1);
+            const qint64 db = eb.dateAdded.isValid() ? eb.dateAdded.toSecsSinceEpoch() : Q_INT64_C(-1);
+            result = da < db ? -1 : (da > db ? 1 : 0);
+        }
+        if (result == 0)
+            result = ea.name.compare(eb.name, Qt::CaseInsensitive);
+    } else {
+        result = ea.name.compare(eb.name, Qt::CaseInsensitive);
+    }
+    return m_sortAscending ? (result < 0) : (result > 0);
+}
+
 void AppModel::rebuildFilter()
 {
     m_filtered.clear();
@@ -27,31 +67,7 @@ void AppModel::rebuildFilter()
             m_filtered.append(i);
     }
     std::sort(m_filtered.begin(), m_filtered.end(), [this](int a, int b) {
-        const auto &ea = m_entries[a];
-        const auto &eb = m_entries[b];
-        int result = 0;
-        if (m_sortField == QLatin1String("runtime")) {
-            result = static_cast<int>(ea.runtimeType) - static_cast<int>(eb.runtimeType);
-            if (result == 0)
-                result = ea.name.compare(eb.name, Qt::CaseInsensitive);
-        } else if (m_sortField == QLatin1String("date")) {
-            result = ea.dateAdded > eb.dateAdded ? 1 : (ea.dateAdded < eb.dateAdded ? -1 : 0);
-            if (result == 0)
-                result = ea.name.compare(eb.name, Qt::CaseInsensitive);
-        } else if (m_sortField == QLatin1String("playtime")) {
-            result = ea.playTime < eb.playTime ? -1 : (ea.playTime > eb.playTime ? 1 : 0);
-            if (result == 0)
-                result = ea.name.compare(eb.name, Qt::CaseInsensitive);
-        } else if (m_sortField == QLatin1String("lastplayed")) {
-            const qint64 la = ea.lastPlayed.isValid() ? ea.lastPlayed.toSecsSinceEpoch() : Q_INT64_C(-1);
-            const qint64 lb = eb.lastPlayed.isValid() ? eb.lastPlayed.toSecsSinceEpoch() : Q_INT64_C(-1);
-            result = la < lb ? -1 : (la > lb ? 1 : 0);
-            if (result == 0)
-                result = ea.name.compare(eb.name, Qt::CaseInsensitive);
-        } else {
-            result = ea.name.compare(eb.name, Qt::CaseInsensitive);
-        }
-        return m_sortAscending ? (result < 0) : (result > 0);
+        return entryLessThan(a, b);
     });
 }
 
@@ -292,6 +308,26 @@ void AppModel::editApp(int index, const QVariantMap &app)
     save();
 }
 
+void AppModel::editAppById(const QString &id, const QVariantMap &app)
+{
+    // Identifies the entry by its stable id rather than a grid position, since
+    // the grid can reorder (e.g. a running game's lastPlayed updating) while an
+    // edit dialog referencing a positional index is still open.
+    for (int i = 0; i < m_entries.size(); ++i) {
+        if (m_entries[i].id != id)
+            continue;
+
+        m_entries[i].updateFromVariantMap(app);
+
+        beginResetModel();
+        rebuildFilter();
+        endResetModel();
+        Q_EMIT countChanged();
+        save();
+        return;
+    }
+}
+
 void AppModel::updateAppArt(const QString &id,
                             const QString &iconPath,
                             const QString &gridPath,
@@ -327,11 +363,32 @@ void AppModel::addPlayTime(const QString &exePath, qint64 seconds)
             continue;
         m_entries[i].playTime += seconds;
         m_entries[i].lastPlayed = QDateTime::currentDateTime();
-        for (int f = 0; f < m_filtered.size(); ++f) {
-            if (m_filtered[f] == i) {
-                QModelIndex idx = index(f, 0);
-                Q_EMIT dataChanged(idx, idx, {PlayTimeRole, LastPlayedRole});
-                break;
+
+        if (m_sortField == QLatin1String("lastplayed")) {
+            QVector<int> resorted = m_filtered;
+            std::sort(resorted.begin(), resorted.end(), [this](int a, int b) {
+                return entryLessThan(a, b);
+            });
+            if (resorted != m_filtered) {
+                beginResetModel();
+                m_filtered = resorted;
+                endResetModel();
+            } else {
+                for (int f = 0; f < m_filtered.size(); ++f) {
+                    if (m_filtered[f] == i) {
+                        QModelIndex idx = index(f, 0);
+                        Q_EMIT dataChanged(idx, idx, {PlayTimeRole, LastPlayedRole});
+                        break;
+                    }
+                }
+            }
+        } else {
+            for (int f = 0; f < m_filtered.size(); ++f) {
+                if (m_filtered[f] == i) {
+                    QModelIndex idx = index(f, 0);
+                    Q_EMIT dataChanged(idx, idx, {PlayTimeRole, LastPlayedRole});
+                    break;
+                }
             }
         }
         // Throttle disk writes: flush at most every 10 seconds while a game runs.

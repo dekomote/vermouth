@@ -9,6 +9,7 @@ Kirigami.PromptDialog {
     property string platformSlug: ""
     property var pendingRom: null
     property int appIndex: -1
+    property string appId: ""
     property bool launchAfterPick: true
     property var availableCores: []
     property string customCorePath: ""
@@ -44,15 +45,16 @@ Kirigami.PromptDialog {
         availableCores = [];
         pendingRom = null;
         appIndex = -1;
+        appId = "";
     }
     onAccepted: {
         var path = resolvedPath();
         if (path === "")
             return;
-        if (appIndex >= 0) {
-            var app = appModel.getApp(appIndex);
+        if (appId !== "") {
+            var app = appModel.getAppById(appId);
             app.customCorePath = path;
-            appModel.editApp(appIndex, app);
+            appModel.editAppById(appId, app);
         } else if (pendingRom) {
             settingsManager.setRommGameCore(pendingRom.romId, path);
             if (launchAfterPick)
