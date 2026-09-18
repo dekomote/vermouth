@@ -569,10 +569,11 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         }
         QVariantMap resolved = app;
         resolved[QStringLiteral("runtimeType")] = m_defaultRuntimeType;
-        if (resolved[QStringLiteral("protonPath")].toString().isEmpty())
-            resolved[QStringLiteral("protonPath")] = m_defaultProtonPath;
-        if (resolved[QStringLiteral("wineBinary")].toString().isEmpty())
-            resolved[QStringLiteral("wineBinary")] = m_defaultWineBinary;
+        // Always follow the current Settings default, even if this entry has a
+        // path baked in from a previous save - "default" means it always tracks
+        // Settings, not just the first time it was empty.
+        resolved[QStringLiteral("protonPath")] = m_defaultProtonPath;
+        resolved[QStringLiteral("wineBinary")] = m_defaultWineBinary;
         return launchEntry(resolved);
     }
 
@@ -739,10 +740,8 @@ void Launcher::runWinetricks(const QVariantMap &app)
     QVariantMap resolved = app;
     if (resolved[QStringLiteral("runtimeType")].toString() == QStringLiteral("default")) {
         resolved[QStringLiteral("runtimeType")] = m_defaultRuntimeType;
-        if (resolved[QStringLiteral("protonPath")].toString().isEmpty())
-            resolved[QStringLiteral("protonPath")] = m_defaultProtonPath;
-        if (resolved[QStringLiteral("wineBinary")].toString().isEmpty())
-            resolved[QStringLiteral("wineBinary")] = m_defaultWineBinary;
+        resolved[QStringLiteral("protonPath")] = m_defaultProtonPath;
+        resolved[QStringLiteral("wineBinary")] = m_defaultWineBinary;
     }
 
     if (resolved[QStringLiteral("runtimeType")].toString() == QStringLiteral("proton")) {

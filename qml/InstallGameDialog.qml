@@ -214,10 +214,10 @@ Kirigami.Dialog {
             var app = {
                 "name": nameField.text.trim(),
                 "exePath": exe,
-                "runtimeType": effectiveRuntime(),
-                "protonPath": settingsManager.defaultProtonPath,
+                "runtimeType": "default",
+                "protonPath": "",
                 "protonPrefix": dialog.installPrefix,
-                "wineBinary": settingsManager.defaultWineBinary,
+                "wineBinary": "",
                 "winePrefix": dialog.installPrefix,
                 "iconPath": "",
                 "launchOptions": "",

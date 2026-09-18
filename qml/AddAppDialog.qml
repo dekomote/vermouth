@@ -296,7 +296,7 @@ Kirigami.Dialog {
 
     function doSave() {
         var rt = runtimePicker.runtimeType;
-        var protonPath = runtimePicker.protonPath;
+        var protonPath = rt === "default" ? "" : runtimePicker.protonPath;
         var protonPrefix = protonPrefixField.text.trim() !== "" ? protonPrefixField.text : resolvePrefix("proton");
         var winePrefix = winePrefixField.text.trim() !== "" ? winePrefixField.text : resolvePrefix("wine");
         var sgdbId = parseInt(steamGridDbIdField.text);
@@ -313,7 +313,7 @@ Kirigami.Dialog {
             "uzdoomMods": dialog.collectUzdoomMods(),
             "protonPath": protonPath,
             "protonPrefix": protonPrefix,
-            "wineBinary": runtimePicker.wineBinary,
+            "wineBinary": rt === "default" ? "" : runtimePicker.wineBinary,
             "winePrefix": winePrefix,
             "iconPath": iconField.text,
             "gridPath": gridField.text || "",
