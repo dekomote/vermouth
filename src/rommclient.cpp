@@ -121,6 +121,7 @@ void RommClient::fetchRoms(int platformId, const QString &search, int page)
         q.addQueryItem(QStringLiteral("search_term"), search);
     q.addQueryItem(QStringLiteral("limit"), QString::number(kPageSize));
     q.addQueryItem(QStringLiteral("offset"), QString::number((page - 1) * kPageSize));
+    q.addQueryItem(QStringLiteral("with_files"), QString::fromUtf8("true"));
     url.setQuery(q);
 
     makeRequest(url, [this](const QByteArray &data) {
