@@ -328,6 +328,32 @@ void AppModel::editAppById(const QString &id, const QVariantMap &app)
     }
 }
 
+void AppModel::setHidden(const QString &id, bool hidden)
+{
+    for (int src = 0; src < m_entries.size(); ++src) {
+        if (m_entries[src].id != id)
+            continue;
+        if (m_entries[src].hidden == hidden)
+            return;
+
+        m_entries[src].hidden = hidden;
+        const int row = m_filtered.indexOf(src);
+        if (row >= 0) {
+            if (m_showHidden) {
+                const QModelIndex idx = index(row);
+                Q_EMIT dataChanged(idx, idx, {HiddenRole});
+            } else {
+                beginRemoveRows(QModelIndex(), row, row);
+                m_filtered.removeAt(row);
+                endRemoveRows();
+                Q_EMIT countChanged();
+            }
+        }
+        save();
+        return;
+    }
+}
+
 void AppModel::updateAppArt(const QString &id,
                             const QString &iconPath,
                             const QString &gridPath,

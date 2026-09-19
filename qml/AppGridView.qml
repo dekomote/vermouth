@@ -292,9 +292,7 @@ GameGridView {
                 text: cardFrame.hidden ? i18n("Unhide") : i18n("Hide")
                 icon.name: cardFrame.hidden ? "view-visible-symbolic" : "view-hidden-symbolic"
                 onTriggered: {
-                    var app = appModel.getAppById(cardFrame.appId);
-                    app.hidden = !app.hidden;
-                    appModel.editAppById(cardFrame.appId, app);
+                    appModel.setHidden(cardFrame.appId, !cardFrame.hidden);
                 }
             }
             QQC2.MenuItem {

@@ -66,6 +66,7 @@ public:
     Q_INVOKABLE void removeAndCleanApp(int index);
     Q_INVOKABLE void editApp(int index, const QVariantMap &app);
     Q_INVOKABLE void editAppById(const QString &id, const QVariantMap &app);
+    Q_INVOKABLE void setHidden(const QString &id, bool hidden);
     Q_INVOKABLE QVariantMap getApp(int index) const;
     Q_INVOKABLE QVariantMap getAppById(const QString &id) const;
     Q_INVOKABLE QVariantMap getAppByExePath(const QString &exePath) const;
