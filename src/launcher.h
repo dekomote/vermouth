@@ -70,6 +70,9 @@ Q_SIGNALS:
     void coreAutoDetected(const QString &platformSlug, const QString &corePath);
     void prefixNotReady(const QString &name);
     void processFinished(int exitCode);
+    void logSessionStarted(const QString &id, const QString &name);
+    void logOutput(const QString &id, const QString &text);
+    void logSessionFinished(const QString &id, int exitCode);
     void runningExePathsChanged();
     void sleepInhibitedChanged();
     void hdrEnabledChanged();

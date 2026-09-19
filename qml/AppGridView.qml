@@ -168,7 +168,7 @@ GameGridView {
                     var app = appModel.getApp(cardFrame.index);
                     app.enableLogging = true;
                     launcher.launchEntry(app);
-                    Qt.openUrlExternally("file://" + launcher.logDir());
+                    logDialog.open();
                 }
             }
             QQC2.MenuSeparator {}

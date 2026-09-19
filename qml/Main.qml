@@ -468,6 +468,12 @@ Kirigami.ApplicationWindow {
                 shortcut: "Ctrl+H"
             },
             Kirigami.Action {
+                text: i18n("Game Logs")
+                icon.name: "text-x-generic-symbolic"
+                icon.color: Kirigami.Theme.textColor
+                onTriggered: logDialog.open()
+            },
+            Kirigami.Action {
                 text: i18n("&Settings")
                 icon.name: "preferences-system-symbolic"
                 icon.color: Kirigami.Theme.textColor
@@ -895,6 +901,10 @@ Kirigami.ApplicationWindow {
 
     RunExeDialog {
         id: runExeDialog
+    }
+
+    LogDialog {
+        id: logDialog
     }
 
     RunExeStandaloneDialog {

@@ -983,19 +983,25 @@ void Launcher::setupLogging(QProcess *proc, const QString &name)
     logFile->write(QStringLiteral("=== Vermouth log: %1 ===\n").arg(name).toUtf8());
     logFile->write(QStringLiteral("=== Started: %1 ===\n\n").arg(QDateTime::currentDateTime().toString()).toUtf8());
 
-    connect(proc, &QProcess::readyReadStandardOutput, proc, [proc, logFile]() {
-        logFile->write(proc->readAllStandardOutput());
+    Q_EMIT logSessionStarted(logPath, name);
+
+    connect(proc, &QProcess::readyReadStandardOutput, proc, [this, proc, logFile, logPath]() {
+        const QByteArray data = proc->readAllStandardOutput();
+        logFile->write(data);
         logFile->flush();
+        Q_EMIT logOutput(logPath, QString::fromUtf8(data));
     });
 
-    connect(proc, &QProcess::readyReadStandardError, proc, [proc, logFile]() {
-        logFile->write(QByteArrayLiteral("[stderr] "));
-        logFile->write(proc->readAllStandardError());
+    connect(proc, &QProcess::readyReadStandardError, proc, [this, proc, logFile, logPath]() {
+        const QByteArray data = QByteArrayLiteral("[stderr] ") + proc->readAllStandardError();
+        logFile->write(data);
         logFile->flush();
+        Q_EMIT logOutput(logPath, QString::fromUtf8(data));
     });
 
-    connect(proc, &QProcess::finished, proc, [logFile](int exitCode) {
+    connect(proc, &QProcess::finished, proc, [this, logFile, logPath](int exitCode) {
         logFile->write(QStringLiteral("\n=== Exited with code %1 ===\n").arg(exitCode).toUtf8());
         logFile->close();
+        Q_EMIT logSessionFinished(logPath, exitCode);
     });
 }
