@@ -37,6 +37,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(bool showTips READ showTips WRITE setShowTips NOTIFY showTipsChanged)
     Q_PROPERTY(bool sleepInhibited READ sleepInhibited WRITE setSleepInhibited NOTIFY sleepInhibitedChanged)
     Q_PROPERTY(bool gridAltBackground READ gridAltBackground WRITE setGridAltBackground NOTIFY gridAltBackgroundChanged)
+    Q_PROPERTY(bool showScrollBar READ showScrollBar WRITE setShowScrollBar NOTIFY showScrollBarChanged)
     Q_PROPERTY(bool showRunnerIcons READ showRunnerIcons WRITE setShowRunnerIcons NOTIFY showRunnerIconsChanged)
     Q_PROPERTY(bool steamShortcutsEnabled READ steamShortcutsEnabled WRITE setSteamShortcutsEnabled NOTIFY steamShortcutsEnabledChanged)
     Q_PROPERTY(QString lsfgDllPath READ lsfgDllPath WRITE setLsfgDllPath NOTIFY lsfgDllPathChanged)
@@ -133,6 +134,8 @@ public:
 
     bool gridAltBackground() const;
     Q_INVOKABLE void setGridAltBackground(bool enabled);
+    bool showScrollBar() const;
+    Q_INVOKABLE void setShowScrollBar(bool enabled);
 
     bool showRunnerIcons() const;
     Q_INVOKABLE void setShowRunnerIcons(bool enabled);
@@ -181,6 +184,7 @@ Q_SIGNALS:
     void showTipsChanged();
     void sleepInhibitedChanged();
     void gridAltBackgroundChanged();
+    void showScrollBarChanged();
     void showRunnerIconsChanged();
     void steamShortcutsEnabledChanged();
     void lsfgDllPathChanged();

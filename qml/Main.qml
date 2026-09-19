@@ -279,6 +279,13 @@ Kirigami.ApplicationWindow {
                         checked: settingsManager.showRunnerIcons
                         onTriggered: settingsManager.setShowRunnerIcons(checked)
                     }
+                    QQC2.MenuItem {
+                        text: i18n("Show scroll bar")
+                        icon.name: "view-list-symbolic"
+                        checkable: true
+                        checked: settingsManager.showScrollBar
+                        onTriggered: settingsManager.setShowScrollBar(checked)
+                    }
                     QQC2.MenuSeparator {}
                     RowLayout {
                         spacing: Kirigami.Units.smallSpacing

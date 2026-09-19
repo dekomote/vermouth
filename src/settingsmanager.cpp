@@ -434,6 +434,19 @@ void SettingsManager::setGridAltBackground(bool enabled)
     Q_EMIT gridAltBackgroundChanged();
 }
 
+bool SettingsManager::showScrollBar() const
+{
+    return m_settings.value(QStringLiteral("showScrollBar"), false).toBool();
+}
+
+void SettingsManager::setShowScrollBar(bool enabled)
+{
+    if (showScrollBar() == enabled)
+        return;
+    m_settings.setValue(QStringLiteral("showScrollBar"), enabled);
+    Q_EMIT showScrollBarChanged();
+}
+
 bool SettingsManager::showRunnerIcons() const
 {
     return m_settings.value(QStringLiteral("showRunnerIcons"), true).toBool();

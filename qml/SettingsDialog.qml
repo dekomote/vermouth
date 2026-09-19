@@ -596,6 +596,19 @@ Kirigami.ScrollablePage {
 
             RowLayout {
                 Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Show scroll bar:")
+                QQC2.Switch {
+                    checked: settingsManager.showScrollBar
+                    onToggled: settingsManager.setShowScrollBar(checked)
+                }
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Show a vertical scroll bar on the game grids.")
+                    icon.name: "help-about-symbolic"
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Theme:")
                 QQC2.ComboBox {
                     id: themeCombo

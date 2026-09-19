@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls as QQC2
 import QtCore
 import org.kde.kirigami as Kirigami
 
@@ -11,12 +12,14 @@ GridView {
     property bool showPlayTime: true
     property bool active: true
     property bool showHidden: true
+    readonly property bool showScrollBar: settingsManager.showScrollBar
+    readonly property bool scrollBarVisible: showScrollBar && contentHeight + topMargin + bottomMargin > height
     property string sortField: "name"
     property bool sortAscending: true
     topMargin: Kirigami.Units.mediumSpacing
     bottomMargin: Kirigami.Units.mediumSpacing
     leftMargin: Kirigami.Units.mediumSpacing
-    rightMargin: Kirigami.Units.mediumSpacing
+    rightMargin: Kirigami.Units.mediumSpacing + (scrollBarVisible ? vScrollBar.implicitWidth : 0)
 
     Settings {
         id: viewSettings
@@ -35,7 +38,7 @@ GridView {
         base *= scaleFactor;
         if (width <= 0 || count <= 0)
             return base;
-        var trueWidth = (width - 2 * leftMargin);
+        var trueWidth = (width - leftMargin - rightMargin);
         var cols = Math.max(1, Math.floor(trueWidth / base));
         if (count <= cols)
             return Math.floor(Math.min(trueWidth / count, base));
@@ -52,6 +55,11 @@ GridView {
     clip: true
     focus: true
     keyNavigationEnabled: true
+
+    QQC2.ScrollBar.vertical: QQC2.ScrollBar {
+        id: vScrollBar
+        policy: gridView.showScrollBar ? QQC2.ScrollBar.AsNeeded : QQC2.ScrollBar.AlwaysOff
+    }
 
     onActiveFocusChanged: {
         if (!activeFocus)
