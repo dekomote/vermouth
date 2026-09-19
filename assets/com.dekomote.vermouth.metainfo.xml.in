@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="2.3.0" date="2026-09-19">
+        <description>
+          <p>This release adds a live game log window, an optional scroll bar for the game grids, keeps the grid scroll position when hiding a game, and makes the default Proton always follow the one chosen in settings.</p>
+        </description>
+    </release>
     <release version="2.2.2" date="2026-09-15">
         <description>
           <p>This release adds a last played date stamp and sort option, Auto HDR (toggle HDR automatically when launching and closing games), a fix for hidden apps unhiding themselves when edited, a fix for the RomM platform filter dropdown overlapping text, and reorganizes the GOG cache into the Vermouth data folder.</p>
