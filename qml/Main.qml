@@ -198,28 +198,11 @@ Kirigami.ApplicationWindow {
                     leftMargin: Kirigami.Units.smallSpacing
                 }
 
-                QQC2.ToolButton {
-                    id: viewIconBtn
-                    focusPolicy: Qt.NoFocus
+                ViewModeButton {
                     readonly property var viewOrder: ["icon", "grid", "hero"]
-                    icon.name: viewMenu.viewIcons[gridView.viewType]
-                    icon.color: Kirigami.Theme.textColor
-                    onClicked: gridView.viewType = viewOrder[(viewOrder.indexOf(gridView.viewType) + 1) % viewOrder.length]
-                    QQC2.ToolTip.text: i18n("Switch view type")
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-                }
-
-                QQC2.ToolButton {
-                    focusPolicy: Qt.NoFocus
-                    icon.name: "go-down-symbolic"
-                    icon.width: Kirigami.Units.iconSizes.small
-                    icon.height: Kirigami.Units.iconSizes.small
-                    icon.color: Kirigami.Theme.textColor
-                    onClicked: viewMenu.popup(viewIconBtn, 0, viewIconBtn.height)
-                    QQC2.ToolTip.text: i18n("Switch view type")
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                    iconName: viewMenu.viewIcons[gridView.viewType]
+                    onMainClicked: gridView.viewType = viewOrder[(viewOrder.indexOf(gridView.viewType) + 1) % viewOrder.length]
+                    onMenuRequested: anchorButton => viewMenu.popup(anchorButton, 0, anchorButton.height)
                 }
 
                 QQC2.Menu {
@@ -548,16 +531,12 @@ Kirigami.ApplicationWindow {
                         icon.color: Kirigami.Theme.textColor
                     }
 
-                    QQC2.ToolButton {
-                        id: viewMenuToolbarBtn
-                        icon.name: viewMenu.viewIcons[gridView.viewType]
-                        focusPolicy: Qt.NoFocus
+                    ViewModeButton {
+                        readonly property var viewOrder: ["icon", "grid", "hero"]
                         visible: globalDrawer.modal
-                        onClicked: viewMenu.popup(viewMenuToolbarBtn, 0, viewMenuToolbarBtn.height)
-                        icon.color: Kirigami.Theme.textColor
-                        QQC2.ToolTip.text: i18n("Switch view type")
-                        QQC2.ToolTip.visible: hovered
-                        QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                        iconName: viewMenu.viewIcons[gridView.viewType]
+                        onMainClicked: gridView.viewType = viewOrder[(viewOrder.indexOf(gridView.viewType) + 1) % viewOrder.length]
+                        onMenuRequested: anchorButton => viewMenu.popup(anchorButton, 0, anchorButton.height)
                     }
 
                     QQC2.ToolButton {
