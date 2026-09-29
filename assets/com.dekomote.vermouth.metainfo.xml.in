@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="2.3.1" date="2026-09-29">
+        <description>
+          <p>This release adds an Automatic Setup button and an Install a Game button to the welcome screen, unifies the view mode button between the pinned and unpinned sidebar, fixes a power-loss issue that could wipe out your game list, and fixes fetching RomM ROM files.</p>
+        </description>
+    </release>
     <release version="2.3.0" date="2026-09-19">
         <description>
           <p>This release adds a live game log window, an optional scroll bar for the game grids, keeps the grid scroll position when hiding a game, and makes the default Proton always follow the one chosen in settings.</p>

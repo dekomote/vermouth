@@ -1,5 +1,5 @@
 Name:           vermouth
-Version:        2.3.0
+Version:        2.3.1
 Release:        1%{?dist}
 Summary:        A no-frills Wine/Proton game launcher for KDE
 License:        MIT
@@ -76,6 +76,8 @@ RomM library with RetroArch - all from one place.
 %{_datadir}/locale/*/LC_MESSAGES/vermouth.mo
 
 %changelog
+* Tue Sep 29 2026 Dejan Noveski <deko@duck.com> - 2.3.1-1
+- Automatic runtime setup and install-a-game button on the welcome screen, unified view mode button, apps.json power-loss data-loss fix, RomM ROM file fix
 * Sat Sep 19 2026 Dejan Noveski <deko@duck.com> - 2.3.0-1
 - Live game log window, optional grid scroll bar, hiding a game keeps the scroll position, default Proton follows settings
 * Tue Sep 15 2026 Dejan Noveski <deko@duck.com> - 2.2.2-1
