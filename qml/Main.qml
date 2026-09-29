@@ -45,6 +45,14 @@ Kirigami.ApplicationWindow {
             search: true
         },
         {
+            key: "itch",
+            name: i18n("itch.io Library (Beta)"),
+            icon: "applications-games",
+            enabled: true,
+            nav: true,
+            search: true
+        },
+        {
             key: "about",
             name: i18n("About Vermouth"),
             icon: "help-about",
@@ -77,7 +85,8 @@ Kirigami.ApplicationWindow {
     readonly property var pageViews: ({
             "games": gridView,
             "romm": rommView,
-            "gog": gogView
+            "gog": gogView,
+            "itch": itchView
         })
     function currentView() {
         return root.pageViews[root.currentPage] ?? gridView;
@@ -106,6 +115,12 @@ Kirigami.ApplicationWindow {
             gogLibraryModel.revalidateInstalled();
             if (gogClient.authenticated && !gogLibraryModel.busy && (gogWasSearching || gogLibraryModel.count === 0))
                 gogView.refresh();
+        } else if (key === "itch") {
+            var itchWasSearching = itchView.searchText !== "";
+            itchView.searchText = "";
+            itchLibraryModel.revalidateInstalled();
+            if (itchClient.authenticated && !itchLibraryModel.busy && (itchWasSearching || itchLibraryModel.count === 0))
+                itchView.refresh();
         }
         if (root.pageViews[key])
             Qt.callLater(() => root.currentView().forceActiveFocus());
@@ -133,6 +148,8 @@ Kirigami.ApplicationWindow {
             rommView.applySearch(text);
         } else if (root.currentPage === "gog") {
             gogView.applySearch(text);
+        } else if (root.currentPage === "itch") {
+            itchView.applySearch(text);
         }
     }
     readonly property bool sidebarPinned: !globalDrawer.modal && !root.bigPicture
@@ -679,6 +696,13 @@ Kirigami.ApplicationWindow {
                     showNames: gridView.showNames
                 }
 
+                ItchView {
+                    id: itchView
+                    viewType: gridView.viewType
+                    scaleFactor: gridView.scaleFactor
+                    showNames: gridView.showNames
+                }
+
                 Kirigami.AboutPage {
                     aboutData: About
                 }
@@ -970,6 +994,15 @@ Kirigami.ApplicationWindow {
                 footerStatusText.text = "";
             return;
         }
+        if (root.currentPage === "itch") {
+            if (itchLibraryModel.statusText !== "")
+                footerStatusText.text = itchLibraryModel.statusText;
+            else if (itchClient.username !== "")
+                footerStatusText.text = itchLibraryModel.count > 0 ? i18n("%1 — %2 games", itchClient.username, itchLibraryModel.count) : itchClient.username;
+            else
+                footerStatusText.text = "";
+            return;
+        }
         if (root.currentPage !== "games") {
             footerStatusText.text = "";
             return;
@@ -1218,6 +1251,30 @@ Kirigami.ApplicationWindow {
         function onAuthenticatedChanged() {
             if (root.currentPage === "gog" && gogClient.authenticated && gogLibraryModel.count === 0 && !gogLibraryModel.busy)
                 gogView.refresh();
+        }
+    }
+
+    Connections {
+        target: itchLibraryModel
+        function onCountChanged() {
+            if (root.currentPage === "itch")
+                root.updateFooterStatus();
+        }
+        function onStatusTextChanged() {
+            if (root.currentPage === "itch")
+                root.updateFooterStatus();
+        }
+    }
+
+    Connections {
+        target: itchClient
+        function onUsernameChanged() {
+            if (root.currentPage === "itch")
+                root.updateFooterStatus();
+        }
+        function onAuthenticatedChanged() {
+            if (root.currentPage === "itch" && itchClient.authenticated && itchLibraryModel.count === 0 && !itchLibraryModel.busy)
+                itchView.refresh();
         }
     }
 

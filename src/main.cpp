@@ -10,6 +10,11 @@
 #include "goglibrarymodel.h"
 #include "gogmodel.h"
 #include "iconextractor.h"
+#include "itchclient.h"
+#include "itchcovercache.h"
+#include "itchdownloader.h"
+#include "itchinstaller.h"
+#include "itchlibrarymodel.h"
 #include "launcher.h"
 #include "launcherdownloader.h"
 #include "protondownloader.h"
@@ -368,6 +373,40 @@ int main(int argc, char *argv[])
         gogDownloader.setCacheDir(settingsManager.gogCacheDir());
     });
 
+    // itch.io
+    ItchClient itchClient;
+    if (!settingsManager.itchApiKey().isEmpty())
+        itchClient.setApiKey(settingsManager.itchApiKey());
+
+    ItchCoverCache itchCoverCache;
+    itchCoverCache.setCacheDir(settingsManager.itchCacheDir() + QStringLiteral("/covers"));
+
+    ItchLibraryModel itchLibraryModel;
+    itchLibraryModel.setClient(&itchClient);
+    itchLibraryModel.setCoverCache(&itchCoverCache);
+    itchLibraryModel.setInstalledMap(settingsManager.itchInstalledGames());
+
+    ItchDownloader itchDownloader;
+    itchDownloader.setCacheDir(settingsManager.itchCacheDir());
+
+    ItchInstaller itchInstaller;
+    itchInstaller.setUmuPath(settingsManager.umuPath());
+
+    QObject::connect(&itchClient, &ItchClient::usernameChanged, &settingsManager, [&]() {
+        settingsManager.setItchUsername(itchClient.username());
+    });
+    QObject::connect(&settingsManager, &SettingsManager::itchApiKeyChanged, &itchClient, [&]() {
+        itchClient.setApiKey(settingsManager.itchApiKey());
+    });
+    QObject::connect(&itchCoverCache, &ItchCoverCache::coverReady, &itchLibraryModel, &ItchLibraryModel::notifyCoverCached);
+    QObject::connect(&settingsManager, &SettingsManager::umuPathChanged, &itchInstaller, [&]() {
+        itchInstaller.setUmuPath(settingsManager.umuPath());
+    });
+    QObject::connect(&settingsManager, &SettingsManager::itchCacheDirChanged, &itchCoverCache, [&]() {
+        itchCoverCache.setCacheDir(settingsManager.itchCacheDir() + QStringLiteral("/covers"));
+        itchDownloader.setCacheDir(settingsManager.itchCacheDir());
+    });
+
     QObject::connect(&settingsManager, &SettingsManager::bigPictureChanged, &colorSchemeSwitcher, applyActiveTheme);
     QObject::connect(&settingsManager, &SettingsManager::lightsOutChanged, &colorSchemeSwitcher, applyActiveTheme);
     QObject::connect(&settingsManager, &SettingsManager::themeIdChanged, &colorSchemeSwitcher, applyActiveTheme);
@@ -402,6 +441,11 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("gogCoverCache"), &gogCoverCache);
     engine.rootContext()->setContextProperty(QStringLiteral("gogDownloader"), &gogDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("gogInstaller"), &gogInstaller);
+    engine.rootContext()->setContextProperty(QStringLiteral("itchClient"), &itchClient);
+    engine.rootContext()->setContextProperty(QStringLiteral("itchLibraryModel"), &itchLibraryModel);
+    engine.rootContext()->setContextProperty(QStringLiteral("itchCoverCache"), &itchCoverCache);
+    engine.rootContext()->setContextProperty(QStringLiteral("itchDownloader"), &itchDownloader);
+    engine.rootContext()->setContextProperty(QStringLiteral("itchInstaller"), &itchInstaller);
     engine.rootContext()->setContextProperty(QStringLiteral("runtimeModel"), &runtimeTypeModel);
     engine.rootContext()->setContextProperty(QStringLiteral("rommClient"), &rommClient);
     engine.rootContext()->setContextProperty(QStringLiteral("rommModel"), &rommModel);

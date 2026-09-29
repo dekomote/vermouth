@@ -395,6 +395,89 @@ void SettingsManager::removeGogInstalledGame(const QString &gameId)
     Q_EMIT gogInstalledGamesChanged();
 }
 
+QString SettingsManager::itchApiKey() const
+{
+    return m_settings.value(QStringLiteral("itchApiKey")).toString();
+}
+
+void SettingsManager::setItchApiKey(const QString &key)
+{
+    if (itchApiKey() == key)
+        return;
+    m_settings.setValue(QStringLiteral("itchApiKey"), key);
+    Q_EMIT itchApiKeyChanged();
+}
+
+QString SettingsManager::itchUsername() const
+{
+    return m_settings.value(QStringLiteral("itchUsername")).toString();
+}
+
+void SettingsManager::setItchUsername(const QString &name)
+{
+    if (itchUsername() == name)
+        return;
+    m_settings.setValue(QStringLiteral("itchUsername"), name);
+    Q_EMIT itchUsernameChanged();
+}
+
+QString SettingsManager::itchCacheDir() const
+{
+    QString stored = m_settings.value(QStringLiteral("itchCacheDir")).toString();
+    if (!stored.isEmpty())
+        return stored;
+    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/itch");
+}
+
+void SettingsManager::setItchCacheDir(const QString &dir)
+{
+    if (m_settings.value(QStringLiteral("itchCacheDir")).toString() == dir)
+        return;
+    m_settings.setValue(QStringLiteral("itchCacheDir"), dir);
+    Q_EMIT itchCacheDirChanged();
+}
+
+QString SettingsManager::itchInstallDir() const
+{
+    QString stored = m_settings.value(QStringLiteral("itchInstallDir")).toString();
+    if (!stored.isEmpty())
+        return stored;
+    return QDir::homePath() + QStringLiteral("/itch.io Games");
+}
+
+void SettingsManager::setItchInstallDir(const QString &dir)
+{
+    if (m_settings.value(QStringLiteral("itchInstallDir")).toString() == dir)
+        return;
+    m_settings.setValue(QStringLiteral("itchInstallDir"), dir);
+    Q_EMIT itchInstallDirChanged();
+}
+
+QVariantMap SettingsManager::itchInstalledGames() const
+{
+    QString json = m_settings.value(QStringLiteral("itchInstalledGames")).toString();
+    if (json.isEmpty())
+        return {};
+    return QJsonDocument::fromJson(json.toUtf8()).object().toVariantMap();
+}
+
+void SettingsManager::setItchInstalledGame(const QString &gameId, const QString &exePath)
+{
+    QVariantMap map = itchInstalledGames();
+    map[gameId] = exePath;
+    m_settings.setValue(QStringLiteral("itchInstalledGames"), QString::fromUtf8(QJsonDocument::fromVariant(map).toJson(QJsonDocument::Compact)));
+    Q_EMIT itchInstalledGamesChanged();
+}
+
+void SettingsManager::removeItchInstalledGame(const QString &gameId)
+{
+    QVariantMap map = itchInstalledGames();
+    if (!map.remove(gameId))
+        return;
+    m_settings.setValue(QStringLiteral("itchInstalledGames"), QString::fromUtf8(QJsonDocument::fromVariant(map).toJson(QJsonDocument::Compact)));
+    Q_EMIT itchInstalledGamesChanged();
+}
+
 bool SettingsManager::firstRunComplete() const
 {
     return m_settings.value(QStringLiteral("firstRunComplete"), false).toBool();

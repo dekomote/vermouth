@@ -21,6 +21,9 @@ Kirigami.ScrollablePage {
         settingsManager.setRomCacheDir(romCacheDirField.text);
         settingsManager.setGogCacheDir(gogCacheDirField.text);
         settingsManager.setGogInstallDir(gogInstallDirField.text);
+        settingsManager.setItchApiKey(itchApiKeyField.text);
+        settingsManager.setItchCacheDir(itchCacheDirField.text);
+        settingsManager.setItchInstallDir(itchInstallDirField.text);
         settingsManager.setLsfgDllPath(lsfgDllPathField.text);
         defaultRuntimePicker.saveToSettings();
         var vars = [];
@@ -51,6 +54,9 @@ Kirigami.ScrollablePage {
         romCacheDirField.text = settingsManager.romCacheDir;
         gogCacheDirField.text = settingsManager.gogCacheDir;
         gogInstallDirField.text = settingsManager.gogInstallDir;
+        itchApiKeyField.text = settingsManager.itchApiKey;
+        itchCacheDirField.text = settingsManager.itchCacheDir;
+        itchInstallDirField.text = settingsManager.itchInstallDir;
         lsfgDllPathField.text = settingsManager.lsfgDllPath;
         pathsModel.clear();
         var paths = settingsManager.extraProtonPaths;
@@ -430,6 +436,84 @@ Kirigami.ScrollablePage {
 
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("itch.io")
+            }
+
+            QQC2.Label {
+                Kirigami.FormData.label: ""
+                text: i18n("Generate a personal API key at itch.io/user/settings/api-keys and paste it below to browse and install your owned itch.io games.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
+                font.italic: true
+                color: Kirigami.Theme.disabledTextColor
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("API Key:")
+                QQC2.TextField {
+                    id: itchApiKeyField
+                    Layout.fillWidth: true
+                    echoMode: TextInput.PasswordEchoOnEdit
+                    placeholderText: i18n("Your itch.io API key")
+                }
+                QQC2.Button {
+                    text: i18n("Log out")
+                    icon.name: "system-log-out-symbolic"
+                    enabled: itchClient.authenticated
+                    onClicked: {
+                        itchClient.logout();
+                        itchApiKeyField.text = "";
+                        settingsManager.setItchApiKey("");
+                    }
+                }
+            }
+
+            QQC2.Label {
+                Kirigami.FormData.label: i18n("Account:")
+                text: itchClient.authenticated ? (itchClient.username !== "" ? i18n("Logged in as %1", itchClient.username) : i18n("Logged in")) : i18n("Not logged in")
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Download Folder:")
+                QQC2.TextField {
+                    id: itchCacheDirField
+                    Layout.fillWidth: true
+                    placeholderText: i18n("Default: AppData/itch")
+                }
+                QQC2.ToolButton {
+                    icon.name: "document-open-symbolic"
+                    onClicked: itchCacheFolderDialog.open()
+                }
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Where itch.io downloads are cached before installation.")
+                    icon.name: "help-about-symbolic"
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Install Folder:")
+                QQC2.TextField {
+                    id: itchInstallDirField
+                    Layout.fillWidth: true
+                    placeholderText: i18n("Default: ~/itch.io Games")
+                }
+                QQC2.ToolButton {
+                    icon.name: "document-open-symbolic"
+                    onClicked: itchInstallFolderDialog.open()
+                }
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Where itch.io games are installed.")
+                    icon.name: "help-about-symbolic"
+                }
+            }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
                 Kirigami.FormData.label: i18n("RetroArch")
             }
 
@@ -788,6 +872,20 @@ Kirigami.ScrollablePage {
         title: i18n("Select GOG Install Folder")
         currentFolder: "file://" + protonScanner.homePath()
         onAccepted: gogInstallDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
+    }
+
+    FolderDialog {
+        id: itchCacheFolderDialog
+        title: i18n("Select itch.io Download Folder")
+        currentFolder: "file://" + protonScanner.homePath()
+        onAccepted: itchCacheDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
+    }
+
+    FolderDialog {
+        id: itchInstallFolderDialog
+        title: i18n("Select itch.io Install Folder")
+        currentFolder: "file://" + protonScanner.homePath()
+        onAccepted: itchInstallDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
     }
 
     FileDialog {

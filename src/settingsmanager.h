@@ -30,6 +30,10 @@ class SettingsManager : public QObject
     Q_PROPERTY(QString gogUsername READ gogUsername WRITE setGogUsername NOTIFY gogUsernameChanged)
     Q_PROPERTY(QString gogCacheDir READ gogCacheDir WRITE setGogCacheDir NOTIFY gogCacheDirChanged)
     Q_PROPERTY(QString gogInstallDir READ gogInstallDir WRITE setGogInstallDir NOTIFY gogInstallDirChanged)
+    Q_PROPERTY(QString itchApiKey READ itchApiKey WRITE setItchApiKey NOTIFY itchApiKeyChanged)
+    Q_PROPERTY(QString itchUsername READ itchUsername WRITE setItchUsername NOTIFY itchUsernameChanged)
+    Q_PROPERTY(QString itchCacheDir READ itchCacheDir WRITE setItchCacheDir NOTIFY itchCacheDirChanged)
+    Q_PROPERTY(QString itchInstallDir READ itchInstallDir WRITE setItchInstallDir NOTIFY itchInstallDirChanged)
     Q_PROPERTY(QString retroarchPath READ retroarchPath WRITE setRetroarchPath NOTIFY retroarchPathChanged)
     Q_PROPERTY(QString uzdoomPath READ uzdoomPath WRITE setUzdoomPath NOTIFY uzdoomPathChanged)
     Q_PROPERTY(QString romCacheDir READ romCacheDir WRITE setRomCacheDir NOTIFY romCacheDirChanged)
@@ -123,6 +127,19 @@ public:
     Q_INVOKABLE void setGogInstalledGame(const QString &gameId, const QString &exePath);
     Q_INVOKABLE void removeGogInstalledGame(const QString &gameId);
 
+    QString itchApiKey() const;
+    Q_INVOKABLE void setItchApiKey(const QString &key);
+    QString itchUsername() const;
+    Q_INVOKABLE void setItchUsername(const QString &name);
+    QString itchCacheDir() const;
+    Q_INVOKABLE void setItchCacheDir(const QString &dir);
+    QString itchInstallDir() const;
+    Q_INVOKABLE void setItchInstallDir(const QString &dir);
+
+    QVariantMap itchInstalledGames() const;
+    Q_INVOKABLE void setItchInstalledGame(const QString &gameId, const QString &exePath);
+    Q_INVOKABLE void removeItchInstalledGame(const QString &gameId);
+
     bool firstRunComplete() const;
     Q_INVOKABLE void setFirstRunComplete(bool complete);
 
@@ -177,6 +194,11 @@ Q_SIGNALS:
     void gogCacheDirChanged();
     void gogInstallDirChanged();
     void gogInstalledGamesChanged();
+    void itchApiKeyChanged();
+    void itchUsernameChanged();
+    void itchCacheDirChanged();
+    void itchInstallDirChanged();
+    void itchInstalledGamesChanged();
     void retroarchPathChanged();
     void uzdoomPathChanged();
     void romCacheDirChanged();

@@ -65,6 +65,11 @@ qt_add_executable(vermouth
     src/goglibrarymodel.cpp
     src/gogdownloader.cpp
     src/goginstaller.cpp
+    src/itchclient.cpp
+    src/itchcovercache.cpp
+    src/itchlibrarymodel.cpp
+    src/itchdownloader.cpp
+    src/itchinstaller.cpp
     src/runtimetypemodel.cpp
     src/rommclient.cpp
     src/rommcovercache.cpp
@@ -99,6 +104,7 @@ qt_add_qml_module(vermouth
         qml/CorePickerDialog.qml
         qml/RommView.qml
         qml/GogView.qml
+        qml/ItchView.qml
         qml/DownloaderProgress.qml
         qml/FlatpakHostHint.qml
         qml/TimeUtils.js
