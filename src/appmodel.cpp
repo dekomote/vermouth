@@ -1,10 +1,13 @@
 #include "appmodel.h"
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QStandardPaths>
 #include <QUuid>
+#include <fcntl.h>
+#include <unistd.h>
 
 AppModel::AppModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -479,10 +482,29 @@ bool AppModel::hasSteamApp(int appId) const
 
 void AppModel::load()
 {
-    QFile f(configPath());
-    if (!f.open(QIODevice::ReadOnly))
-        return;
-    auto doc = QJsonDocument::fromJson(f.readAll());
+    QString path = configPath();
+    QByteArray raw;
+    QFile f(path);
+    if (f.open(QIODevice::ReadOnly))
+        raw = f.readAll();
+
+    // Recover from a previous version's non-atomic save(): if apps.json is
+    // missing/empty but a leftover .tmp exists and parses, that's the real
+    // data - a crash/power loss landed between removing the old file and
+    // renaming the new one into place.
+    bool recoveredFromTmp = false;
+    if (raw.trimmed().isEmpty() || !QJsonDocument::fromJson(raw).isArray()) {
+        QFile tmp(path + QStringLiteral(".tmp"));
+        if (tmp.open(QIODevice::ReadOnly)) {
+            QByteArray tmpRaw = tmp.readAll();
+            if (QJsonDocument::fromJson(tmpRaw).isArray()) {
+                raw = tmpRaw;
+                recoveredFromTmp = true;
+            }
+        }
+    }
+
+    auto doc = QJsonDocument::fromJson(raw);
     if (!doc.isArray())
         return;
 
@@ -499,7 +521,7 @@ void AppModel::load()
     endResetModel();
     Q_EMIT countChanged();
 
-    if (needsMigration)
+    if (needsMigration || recoveredFromTmp)
         save();
 }
 
@@ -508,15 +530,35 @@ void AppModel::save() const
     QJsonArray arr;
     for (const auto &e : m_entries)
         arr.append(e.toJson());
+    const QByteArray data = QJsonDocument(arr).toJson();
 
-    // Atomic write: write to a temp file, then rename over the real one.
     const QString path = configPath();
     const QString tmpPath = path + QStringLiteral(".tmp");
+
     QFile f(tmpPath);
-    if (!f.open(QIODevice::WriteOnly))
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate))
         return;
-    f.write(QJsonDocument(arr).toJson());
+    if (f.write(data) != data.size()) {
+        f.close();
+        return;
+    }
+
+    f.flush();
+    fsync(f.handle());
     f.close();
-    QFile::remove(path);
-    QFile::rename(tmpPath, path);
+
+    // POSIX rename() atomically replaces an existing destination in one
+    // syscall - unlike QFile::rename(), which refuses to overwrite.
+    const QByteArray tmpPathEnc = QFile::encodeName(tmpPath);
+    const QByteArray pathEnc = QFile::encodeName(path);
+    if (::rename(tmpPathEnc.constData(), pathEnc.constData()) != 0)
+        return;
+
+    // fsync the directory too, so the rename itself survives a power loss
+    QByteArray dirEnc = QFile::encodeName(QFileInfo(path).absolutePath());
+    int dirFd = ::open(dirEnc.constData(), O_RDONLY);
+    if (dirFd >= 0) {
+        ::fsync(dirFd);
+        ::close(dirFd);
+    }
 }
