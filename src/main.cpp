@@ -91,6 +91,7 @@ int main(int argc, char *argv[])
     QCommandLineOption protonOpt(QStringLiteral("proton"), i18n("Proton path"), QStringLiteral("path"));
     QCommandLineOption wineOpt(QStringLiteral("wine"), i18n("Wine binary path"), QStringLiteral("path"));
     QCommandLineOption prefixOpt(QStringLiteral("prefix"), i18n("Prefix path"), QStringLiteral("path"));
+    // xgettext:no-c-format
     QCommandLineOption launchOptsOpt(QStringLiteral("launch-options"), i18n("Launch options (use %command% as placeholder)"), QStringLiteral("options"));
     QCommandLineOption loggingOpt(QStringLiteral("enable-logging"), i18n("Enable logging to file"));
     QCommandLineOption bigPictureOpt(QStringLiteral("big-picture"), i18n("Start in Big Picture mode"));
