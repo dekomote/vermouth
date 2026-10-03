@@ -360,6 +360,7 @@ Kirigami.ApplicationWindow {
                     icon.name: modelData.icon
                     checkable: true
                     checked: root.currentPage === modelData.key
+                    highlighted: root.currentPage === modelData.key
                     onClicked: root.navigate(modelData.key)
                 }
             },
@@ -459,7 +460,9 @@ Kirigami.ApplicationWindow {
             Kirigami.Action {
                 text: i18n("&Settings")
                 icon.name: "preferences-system-symbolic"
-                icon.color: Kirigami.Theme.textColor
+                icon.color: checked ? Kirigami.Theme.highlightedTextColor : Kirigami.Theme.textColor
+                checkable: true
+                checked: root.currentPage === "settings"
                 onTriggered: {
                     settingsPage.load();
                     root.navigate("settings");
@@ -468,7 +471,9 @@ Kirigami.ApplicationWindow {
             Kirigami.Action {
                 text: i18n("&About Vermouth")
                 icon.name: "help-about-symbolic"
-                icon.color: Kirigami.Theme.textColor
+                icon.color: checked ? Kirigami.Theme.highlightedTextColor : Kirigami.Theme.textColor
+                checkable: true
+                checked: root.currentPage === "about"
                 onTriggered: root.navigate("about")
             },
             Kirigami.Action {
