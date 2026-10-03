@@ -7,9 +7,28 @@ GameGridView {
     id: gridView
 
     signal steamShortcutCreated(string name)
+
     model: appModel
 
     property bool searchActive: false
+    property string stopArmedKey: ""
+
+    function requestStop(key) {
+        if (stopArmedKey === key) {
+            stopArmedKey = "";
+            stopArmTimer.stop();
+            launcher.stopLaunch(key);
+        } else {
+            stopArmedKey = key;
+            stopArmTimer.restart();
+        }
+    }
+
+    Timer {
+        id: stopArmTimer
+        interval: 3000
+        onTriggered: gridView.stopArmedKey = ""
+    }
 
     onShowHiddenChanged: appModel.showHidden = showHidden
     onSortFieldChanged: appModel.sortField = sortField
@@ -37,7 +56,11 @@ GameGridView {
         enabled: gridView.active && gridView.currentIndex >= 0
         onActivated: {
             var app = appModel.getApp(gridView.currentIndex);
-            launcher.launchEntry(app);
+            var key = app.runtimeType === "steam" ? "steam:" + app.steamAppId : app.exePath;
+            if (launcher.activeLaunchKeys.indexOf(key) >= 0)
+                gridView.requestStop(key);
+            else
+                launcher.launchEntry(app);
         }
     }
     Shortcut {
@@ -317,6 +340,82 @@ GameGridView {
         }
         onContextMenuRequested: {
             contextMenu.popup();
+        }
+
+        readonly property string launchKey: runtimeType === "steam" ? "steam:" + steamAppId : exePath
+        readonly property bool running: launcher.activeLaunchKeys.indexOf(launchKey) >= 0
+        Rectangle {
+            id: runningOverlay
+            opacity: cardFrame.running ? 1 : 0
+            visible: opacity > 0
+            anchors.fill: parent
+            z: 30
+            color: Qt.rgba(0, 0, 0, 0.6)
+            radius: Kirigami.Units.cornerRadius
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 150
+                }
+            }
+
+            MouseArea {
+                id: stopArea
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: gridView.requestStop(cardFrame.launchKey)
+            }
+
+            ColumnLayout {
+                anchors.centerIn: parent
+                spacing: Kirigami.Units.largeSpacing
+
+                Item {
+                    Layout.alignment: Qt.AlignHCenter
+                    implicitWidth: Kirigami.Units.gridUnit * 5
+                    implicitHeight: implicitWidth
+
+                    QQC2.BusyIndicator {
+                        anchors.fill: parent
+                        running: runningOverlay.visible
+                    }
+
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: Kirigami.Units.gridUnit * 4
+                        height: width
+                        radius: width / 2
+                        color: Qt.rgba(0, 0, 0, 0.75)
+                        border.color: "#ffffff"
+                        border.width: 2
+                        scale: stopArea.containsMouse ? 1.08 : 1.0
+
+                        Behavior on scale {
+                            NumberAnimation {
+                                duration: 120
+                                easing.type: Easing.OutCubic
+                            }
+                        }
+
+                        Kirigami.Icon {
+                            anchors.fill: parent
+                            anchors.margins: Kirigami.Units.gridUnit
+                            source: "media-playback-stop-symbolic"
+                            color: "#ffffff"
+                        }
+                    }
+                }
+                QQC2.Label {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.maximumWidth: cardFrame.width - Kirigami.Units.largeSpacing * 2
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                    color: "#ffffff"
+                    font.bold: true
+                    text: gridView.stopArmedKey === cardFrame.launchKey ? i18n("Click again to stop") : i18n("Running")
+                }
+            }
         }
     }
 

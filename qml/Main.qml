@@ -1147,6 +1147,15 @@ Kirigami.ApplicationWindow {
     }
 
     Connections {
+        target: root
+        function onActiveChanged() {
+            if (!root.active || globalDrawer.drawerOpen || searchField.activeFocus || rommPlatformCombo.popup.visible)
+                return;
+            Qt.callLater(() => root.currentView().forceActiveFocus());
+        }
+    }
+
+    Connections {
         target: globalDrawer
         function onDrawerOpenChanged() {
             if (globalDrawer.drawerOpen && globalDrawer.modal) {
@@ -1166,9 +1175,6 @@ Kirigami.ApplicationWindow {
 
     Connections {
         target: launcher
-        function onLaunched(name) {
-            showPassiveNotification(i18n("Launched: %1", name), 3000);
-        }
         function onLaunchError(name, error) {
             showPassiveNotification(i18n("Error launching: %1", error), 6000);
         }

@@ -19,10 +19,13 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMultiHash>
 #include <QRegularExpression>
+#include <QScopeGuard>
 #include <QScreen>
 #include <QStandardPaths>
 #include <QUrl>
+#include <csignal>
 #include <unistd.h>
 
 static bool isKde()
@@ -401,6 +404,7 @@ qint64 Launcher::launch(const QString &binary,
                 Q_EMIT launchError(exePath, out);
             }
         }
+        finishLaunch(exePath);
         delete timer;
         proc->deleteLater();
     });
@@ -462,12 +466,19 @@ qint64 Launcher::launch(const QString &binary,
     } else {
         Q_EMIT launched(exePath);
         qint64 pid = static_cast<qint64>(proc->processId());
+        if (!m_watchCandidate.isEmpty())
+            trackLaunch(exePath, m_watchCandidate);
         return pid;
     }
 }
 
 qint64 Launcher::launchEntry(const QVariantMap &app)
 {
+    m_watchCandidate = app;
+    auto clearWatchCandidate = qScopeGuard([this] {
+        m_watchCandidate.clear();
+    });
+
     QString exePath = app[QStringLiteral("exePath")].toString();
     QString opts = app[QStringLiteral("launchOptions")].toString();
     bool logging = app[QStringLiteral("enableLogging")].toBool();
@@ -579,8 +590,10 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
 
     if (runtimeType == QStringLiteral("steam")) {
         int steamId = app[QStringLiteral("steamAppId")].toInt();
-        if (steamId > 0)
+        if (steamId > 0) {
             QDesktopServices::openUrl(QUrl(QStringLiteral("steam://rungameid/") + QString::number(steamId)));
+            trackLaunch(QStringLiteral("steam:") + QString::number(steamId), app);
+        }
         return -1;
     }
 
@@ -694,11 +707,70 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
     }
 }
 
+static QList<qint64> descendantPids(qint64 root)
+{
+    QMultiHash<qint64, qint64> children;
+    const QDir procDir(QStringLiteral("/proc"));
+    for (const QString &entry : procDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        bool isPid = false;
+        const qint64 pid = entry.toLongLong(&isPid);
+        if (!isPid)
+            continue;
+        QFile stat(procDir.filePath(entry + QStringLiteral("/stat")));
+        if (!stat.open(QIODevice::ReadOnly))
+            continue;
+        const QByteArray line = stat.readAll();
+        const QList<QByteArray> fields = line.mid(line.lastIndexOf(')') + 2).split(' ');
+        if (fields.size() > 1)
+            children.insert(fields.at(1).toLongLong(), pid);
+    }
+
+    QList<qint64> result;
+    QList<qint64> pending{root};
+    while (!pending.isEmpty()) {
+        const qint64 pid = pending.takeFirst();
+        result << pid;
+        pending += children.values(pid);
+    }
+    return result;
+}
+
 void Launcher::stopEntry(const QVariantMap &app)
 {
     QProcess *proc = m_runningProcesses.value(app[QStringLiteral("exePath")].toString(), nullptr);
-    if (proc)
+    if (!proc)
+        return;
+    if (proc->processId() > 0) {
+        for (qint64 pid : descendantPids(proc->processId()))
+            kill(static_cast<pid_t>(pid), SIGTERM);
+    } else {
         proc->terminate();
+    }
+}
+
+void Launcher::stopLaunch(const QString &key)
+{
+    if (!m_activeLaunches.contains(key))
+        return;
+    const QVariantMap app = m_activeLaunches.value(key);
+    finishLaunch(key);
+    if (app[QStringLiteral("runtimeType")].toString() == QStringLiteral("steam")) {
+        QDesktopServices::openUrl(QUrl(QStringLiteral("steam://close/") + app[QStringLiteral("steamAppId")].toString()));
+    } else {
+        stopEntry(app);
+    }
+}
+
+void Launcher::trackLaunch(const QString &key, const QVariantMap &app)
+{
+    m_activeLaunches.insert(key, app);
+    Q_EMIT activeLaunchesChanged();
+}
+
+void Launcher::finishLaunch(const QString &key)
+{
+    if (m_activeLaunches.remove(key))
+        Q_EMIT activeLaunchesChanged();
 }
 
 qint64 Launcher::runInPrefix(const QVariantMap &app, const QString &exePath)

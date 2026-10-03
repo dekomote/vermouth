@@ -25,6 +25,12 @@ public:
     void setDefaultWineBinary(const QString &path);
     void setLsfgDllPath(const QString &path);
 
+    Q_PROPERTY(QStringList activeLaunchKeys READ activeLaunchKeys NOTIFY activeLaunchesChanged)
+    QStringList activeLaunchKeys() const
+    {
+        return m_activeLaunches.keys();
+    }
+
     Q_PROPERTY(QStringList runningExePaths READ runningExePaths NOTIFY runningExePathsChanged)
     QStringList runningExePaths() const
     {
@@ -39,6 +45,7 @@ public:
     Q_INVOKABLE void copyToClipboard(const QString &text) const;
     Q_INVOKABLE void openExternalUrl(const QString &url) const;
     Q_INVOKABLE void stopEntry(const QVariantMap &app);
+    Q_INVOKABLE void stopLaunch(const QString &key);
     Q_INVOKABLE qint64 runInPrefix(const QVariantMap &app, const QString &exePath);
     Q_INVOKABLE qint64 runningPidForExe(const QString &exePath) const;
     Q_INVOKABLE void runWinecfg(const QVariantMap &app);
@@ -65,6 +72,7 @@ public:
 Q_SIGNALS:
     void retroarchBinaryChanged();
     void launched(const QString &name);
+    void activeLaunchesChanged();
     void launchError(const QString &name, const QString &error);
     void romCoreMissing(const QString &platformSlug, const QVariantMap &rom);
     void coreAutoDetected(const QString &platformSlug, const QString &corePath);
@@ -106,6 +114,10 @@ private:
     QString m_defaultWineBinary;
     QString m_lsfgDllPath;
     QHash<QString, QProcess *> m_runningProcesses;
+    QVariantMap m_watchCandidate;
+    QHash<QString, QVariantMap> m_activeLaunches;
+    void trackLaunch(const QString &key, const QVariantMap &app);
+    void finishLaunch(const QString &key);
     int m_inhibitFd = -1;
     QString m_inhibitPortalRequestPath;
     bool m_hdrEnabled = false;

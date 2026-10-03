@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls as QQC2
+import QtQuick.Window
 import QtCore
 import org.kde.kirigami as Kirigami
 
@@ -61,9 +62,16 @@ GridView {
         policy: gridView.showScrollBar ? QQC2.ScrollBar.AsNeeded : QQC2.ScrollBar.AlwaysOff
     }
 
+    property int savedIndex: -1
+
     onActiveFocusChanged: {
-        if (!activeFocus)
+        // Keep the selection when the whole window loses focus (e.g. a game takes over).
+        if (!activeFocus && Window.active) {
+            savedIndex = currentIndex;
             currentIndex = -1;
+        } else if (activeFocus && currentIndex < 0 && savedIndex >= 0) {
+            currentIndex = Math.min(savedIndex, count - 1);
+        }
     }
 
     TapHandler {
