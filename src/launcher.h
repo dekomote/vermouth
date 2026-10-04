@@ -7,6 +7,8 @@
 #include <QStringList>
 #include <QVariantMap>
 
+class QTimer;
+
 class Launcher : public QObject
 {
     Q_OBJECT
@@ -46,6 +48,8 @@ public:
     Q_INVOKABLE void openExternalUrl(const QString &url) const;
     Q_INVOKABLE void stopEntry(const QVariantMap &app);
     Q_INVOKABLE void stopLaunch(const QString &key);
+    Q_INVOKABLE void launchSteamWithoutOptions();
+    Q_INVOKABLE void cancelSteamLaunch();
     Q_INVOKABLE qint64 runInPrefix(const QVariantMap &app, const QString &exePath);
     Q_INVOKABLE qint64 runningPidForExe(const QString &exePath) const;
     Q_INVOKABLE void runWinecfg(const QVariantMap &app);
@@ -73,6 +77,7 @@ Q_SIGNALS:
     void retroarchBinaryChanged();
     void launched(const QString &name);
     void activeLaunchesChanged();
+    void steamOverrideRequested(const QString &name, const QString &message);
     void launchError(const QString &name, const QString &error);
     void romCoreMissing(const QString &platformSlug, const QVariantMap &rom);
     void coreAutoDetected(const QString &platformSlug, const QString &corePath);
@@ -118,6 +123,13 @@ private:
     QHash<QString, QVariantMap> m_activeLaunches;
     void trackLaunch(const QString &key, const QVariantMap &app);
     void finishLaunch(const QString &key);
+    qint64 startSteamGame(const QVariantMap &app, const QProcessEnvironment &env);
+    void launchSteamUrl(const QVariantMap &steamApp);
+    QVariantMap m_pendingSteamLaunch;
+    void stopSteamGame(int appId);
+    void startSteamPoll();
+    void pollSteamLaunches();
+    QTimer *m_steamPoll = nullptr;
     int m_inhibitFd = -1;
     QString m_inhibitPortalRequestPath;
     bool m_hdrEnabled = false;

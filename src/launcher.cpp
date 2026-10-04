@@ -24,6 +24,7 @@
 #include <QScopeGuard>
 #include <QScreen>
 #include <QStandardPaths>
+#include <QTimer>
 #include <QUrl>
 #include <csignal>
 #include <unistd.h>
@@ -404,7 +405,8 @@ qint64 Launcher::launch(const QString &binary,
                 Q_EMIT launchError(exePath, out);
             }
         }
-        finishLaunch(exePath);
+        if (!exePath.startsWith(QStringLiteral("steam:")))
+            finishLaunch(exePath);
         delete timer;
         proc->deleteLater();
     });
@@ -472,6 +474,166 @@ qint64 Launcher::launch(const QString &binary,
     }
 }
 
+static QList<qint64> steamReaperPids(int appId)
+{
+    QList<qint64> pids;
+    const QString prefix = QStringLiteral("SteamLaunch AppId=%1").arg(appId);
+    const QDir procDir(QStringLiteral("/proc"));
+    for (const QString &entry : procDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        bool isPid = false;
+        const qint64 pid = entry.toLongLong(&isPid);
+        if (!isPid)
+            continue;
+        QFile cmdline(procDir.filePath(entry + QStringLiteral("/cmdline")));
+        if (!cmdline.open(QIODevice::ReadOnly))
+            continue;
+        const QString line = QString::fromUtf8(cmdline.readAll()).replace(QChar(0), QLatin1Char(' '));
+        const int idx = line.indexOf(prefix);
+        if (idx < 0 || !line.contains(QStringLiteral("reaper")))
+            continue;
+        const int end = idx + prefix.size();
+        if (end == line.size() || line.at(end) == QLatin1Char(' '))
+            pids << pid;
+    }
+    return pids;
+}
+
+static QList<qint64> steamClientPids()
+{
+    QList<qint64> pids;
+    const QDir procDir(QStringLiteral("/proc"));
+    for (const QString &entry : procDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        bool isPid = false;
+        const qint64 pid = entry.toLongLong(&isPid);
+        if (!isPid)
+            continue;
+        QFile comm(procDir.filePath(entry + QStringLiteral("/comm")));
+        if (comm.open(QIODevice::ReadOnly) && comm.readAll().trimmed() == QByteArrayLiteral("steam"))
+            pids << pid;
+    }
+    return pids;
+}
+
+static bool steamClientRunning()
+{
+    return !steamClientPids().isEmpty();
+}
+
+static bool steamFlatpakInstalled()
+{
+    return QDir(QStringLiteral("/var/lib/flatpak/app/com.valvesoftware.Steam")).exists()
+        || QDir(QDir::homePath() + QStringLiteral("/.local/share/flatpak/app/com.valvesoftware.Steam")).exists();
+}
+
+static QString steamOverrideMessage(bool steamRunning)
+{
+    if (steamRunning)
+        return QStringLiteral("Steam is running, so prefix commands and environment variables won't work. Run the game without them?");
+    if (steamFlatpakInstalled())
+        return QStringLiteral("Prefix commands and environment variables don't work with Flatpak Steam. Run the game without them?");
+    return QStringLiteral("Prefix commands and environment variables need native Steam. Run the game without them?");
+}
+
+static void splitSteamOptions(const QVariantMap &app, QString &preCommand, QString &gameArgs)
+{
+    const QString opts = app[QStringLiteral("launchOptions")].toString().trimmed();
+    const int commandIdx = opts.indexOf(QStringLiteral("%command%"));
+    if (commandIdx >= 0) {
+        preCommand = opts.left(commandIdx).trimmed();
+        gameArgs = opts.mid(commandIdx + 9).trimmed();
+    } else if (opts.startsWith(QLatin1Char('-'))) {
+        preCommand.clear();
+        gameArgs = opts;
+    } else {
+        preCommand = opts;
+        gameArgs.clear();
+    }
+}
+
+void Launcher::launchSteamUrl(const QVariantMap &steamApp)
+{
+    const int steamId = steamApp[QStringLiteral("steamAppId")].toInt();
+    QString preCommand;
+    QString gameArgs;
+    splitSteamOptions(steamApp, preCommand, gameArgs);
+    if (gameArgs.isEmpty())
+        QDesktopServices::openUrl(QUrl(QStringLiteral("steam://rungameid/") + QString::number(steamId)));
+    else
+        QDesktopServices::openUrl(QUrl(QStringLiteral("steam://run/") + QString::number(steamId) + QStringLiteral("//") + gameArgs + QStringLiteral("/")));
+    trackLaunch(QStringLiteral("steam:") + QString::number(steamId), steamApp);
+    startSteamPoll();
+}
+
+void Launcher::launchSteamWithoutOptions()
+{
+    if (m_pendingSteamLaunch.isEmpty())
+        return;
+    const QVariantMap steamApp = m_pendingSteamLaunch;
+    m_pendingSteamLaunch.clear();
+    launchSteamUrl(steamApp);
+}
+
+void Launcher::cancelSteamLaunch()
+{
+    m_pendingSteamLaunch.clear();
+}
+
+qint64 Launcher::startSteamGame(const QVariantMap &app, const QProcessEnvironment &env)
+{
+    const int steamId = app[QStringLiteral("steamAppId")].toInt();
+    if (steamId <= 0)
+        return -1;
+
+    QString preCommand;
+    QString gameArgs;
+    splitSteamOptions(app, preCommand, gameArgs);
+    const bool hasPrefix = !preCommand.isEmpty();
+    const bool hasEnv = !m_globalEnvVars.isEmpty() || !app[QStringLiteral("envVars")].toStringList().isEmpty();
+
+    QVariantMap steamApp = app;
+    steamApp[QStringLiteral("steamStartedMs")] = QDateTime::currentMSecsSinceEpoch();
+
+    if (!hasPrefix && !hasEnv) {
+        launchSteamUrl(steamApp);
+        return -1;
+    }
+
+    const QString name = app[QStringLiteral("name")].toString();
+    const bool steamRunning = steamClientRunning();
+    if (steamRunning) {
+        if (hasPrefix) {
+            m_pendingSteamLaunch = steamApp;
+            Q_EMIT steamOverrideRequested(name, steamOverrideMessage(true));
+            return -1;
+        }
+        launchSteamUrl(steamApp);
+        return -1;
+    }
+
+    const QString steamBinary = QStandardPaths::findExecutable(QStringLiteral("steam"));
+    if (steamBinary.isEmpty()) {
+        m_pendingSteamLaunch = steamApp;
+        Q_EMIT steamOverrideRequested(name, steamOverrideMessage(false));
+        return -1;
+    }
+
+    const QString key = QStringLiteral("steam:") + QString::number(steamId);
+    m_watchCandidate = steamApp;
+    QStringList wrappers = QProcess::splitCommand(preCommand);
+    QProcessEnvironment steamEnv = env;
+    while (!wrappers.isEmpty() && wrappers.first().indexOf(QLatin1Char('=')) > 0) {
+        const QString assignment = wrappers.takeFirst();
+        const int eq = assignment.indexOf(QLatin1Char('='));
+        steamEnv.insert(assignment.left(eq), assignment.mid(eq + 1));
+    }
+
+    QStringList steamArgs{QStringLiteral("-applaunch"), QString::number(steamId)};
+    steamArgs << QProcess::splitCommand(gameArgs);
+    const qint64 pid = launch(steamBinary, steamArgs, key, steamEnv, QString(), app[QStringLiteral("enableLogging")].toBool(), name, false, wrappers, false);
+    startSteamPoll();
+    return pid;
+}
+
 qint64 Launcher::launchEntry(const QVariantMap &app)
 {
     m_watchCandidate = app;
@@ -492,9 +654,9 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
             env.insert(kv.left(sep), kv.mid(sep + 1));
     }
 
-    // Per-game env vars override global ones (not applicable to Steam/RetroArch)
+    // Per-game env vars override global ones (not applicable to RetroArch)
     const QString rtForEnvVars = app[QStringLiteral("runtimeType")].toString();
-    if (rtForEnvVars != QStringLiteral("steam") && rtForEnvVars != QStringLiteral("retroarch")) {
+    if (rtForEnvVars != QStringLiteral("retroarch")) {
         const QStringList gameEnvVars = app[QStringLiteral("envVars")].toStringList();
         for (const QString &kv : gameEnvVars) {
             int sep = kv.indexOf(QLatin1Char('='));
@@ -588,14 +750,8 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         return launchEntry(resolved);
     }
 
-    if (runtimeType == QStringLiteral("steam")) {
-        int steamId = app[QStringLiteral("steamAppId")].toInt();
-        if (steamId > 0) {
-            QDesktopServices::openUrl(QUrl(QStringLiteral("steam://rungameid/") + QString::number(steamId)));
-            trackLaunch(QStringLiteral("steam:") + QString::number(steamId), app);
-        }
-        return -1;
-    }
+    if (runtimeType == QStringLiteral("steam"))
+        return startSteamGame(app, env);
 
     if (runtimeType == QStringLiteral("retroarch")) {
         QString platformSlug = app[QStringLiteral("platformSlug")].toString();
@@ -754,11 +910,57 @@ void Launcher::stopLaunch(const QString &key)
         return;
     const QVariantMap app = m_activeLaunches.value(key);
     finishLaunch(key);
-    if (app[QStringLiteral("runtimeType")].toString() == QStringLiteral("steam")) {
-        QDesktopServices::openUrl(QUrl(QStringLiteral("steam://close/") + app[QStringLiteral("steamAppId")].toString()));
-    } else {
+    if (app[QStringLiteral("runtimeType")].toString() == QStringLiteral("steam"))
+        stopSteamGame(app[QStringLiteral("steamAppId")].toInt());
+    else
         stopEntry(app);
+}
+
+void Launcher::stopSteamGame(int appId)
+{
+    for (qint64 reaper : steamReaperPids(appId)) {
+        for (qint64 pid : descendantPids(reaper))
+            kill(static_cast<pid_t>(pid), SIGTERM);
     }
+    for (qint64 pid : steamClientPids())
+        kill(static_cast<pid_t>(pid), SIGTERM);
+}
+
+void Launcher::startSteamPoll()
+{
+    if (!m_steamPoll) {
+        m_steamPoll = new QTimer(this);
+        m_steamPoll->setInterval(2000);
+        connect(m_steamPoll, &QTimer::timeout, this, &Launcher::pollSteamLaunches);
+    }
+    m_steamPoll->start();
+}
+
+void Launcher::pollSteamLaunches()
+{
+    constexpr qint64 kSteamStartTimeoutMs = 120000;
+    constexpr qint64 kSteamGoneGraceMs = 15000;
+    bool anySteam = false;
+    for (const QString &key : m_activeLaunches.keys()) {
+        QVariantMap app = m_activeLaunches.value(key);
+        if (app[QStringLiteral("runtimeType")].toString() != QStringLiteral("steam"))
+            continue;
+        anySteam = true;
+        const qint64 now = QDateTime::currentMSecsSinceEpoch();
+        if (!steamReaperPids(app[QStringLiteral("steamAppId")].toInt()).isEmpty()) {
+            app[QStringLiteral("steamSeen")] = true;
+            app[QStringLiteral("steamLastSeenMs")] = now;
+            m_activeLaunches.insert(key, app);
+            continue;
+        }
+        const bool seen = app.value(QStringLiteral("steamSeen")).toBool();
+        const bool gone = seen && now - app.value(QStringLiteral("steamLastSeenMs")).toLongLong() > kSteamGoneGraceMs;
+        const bool timedOut = !seen && now - app.value(QStringLiteral("steamStartedMs")).toLongLong() > kSteamStartTimeoutMs;
+        if (gone || timedOut)
+            finishLaunch(key);
+    }
+    if (!anySteam)
+        m_steamPoll->stop();
 }
 
 void Launcher::trackLaunch(const QString &key, const QVariantMap &app)

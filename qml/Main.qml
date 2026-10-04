@@ -925,6 +925,14 @@ Kirigami.ApplicationWindow {
     }
 
     Kirigami.PromptDialog {
+        id: steamOverrideDialog
+        title: i18n("Run without prefix commands?")
+        standardButtons: Kirigami.Dialog.Ok | Kirigami.Dialog.Cancel
+        onAccepted: launcher.launchSteamWithoutOptions()
+        onRejected: launcher.cancelSteamLaunch()
+    }
+
+    Kirigami.PromptDialog {
         id: prefixNotReadyDialog
         property string appName
         title: i18n("Prefix not ready")
@@ -1175,6 +1183,10 @@ Kirigami.ApplicationWindow {
 
     Connections {
         target: launcher
+        function onSteamOverrideRequested(name, message) {
+            steamOverrideDialog.subtitle = message;
+            steamOverrideDialog.open();
+        }
         function onLaunchError(name, error) {
             showPassiveNotification(i18n("Error launching: %1", error), 6000);
         }
