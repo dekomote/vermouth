@@ -52,16 +52,6 @@ modules:
           /app/lib32
           /app/lib/i386-linux-gnu
 
-  - name: winetricks
-    no-autogen: true
-    make-install-args:
-      - PREFIX=/app
-    sources:
-      - type: git
-        url: https://github.com/Winetricks/winetricks.git
-        tag: '20260125'
-        commit: b76e1ee79ac57d7aceb384f74518fc423265810c
-
   - name: icoutils
     config-opts:
       - CFLAGS=-std=gnu17
@@ -74,6 +64,16 @@ modules:
           type: anitya
           project-id: 1360
           url-template: https://download.savannah.gnu.org/releases/icoutils/icoutils-$version.tar.bz2
+
+  - name: winetricks
+    no-autogen: true
+    make-install-args:
+      - PREFIX=/app
+    sources:
+      - type: git
+        url: https://github.com/Winetricks/winetricks.git
+        tag: '20260125'
+        commit: b76e1ee79ac57d7aceb384f74518fc423265810c
 
     modules:
       - name: 7zip
