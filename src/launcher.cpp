@@ -665,6 +665,8 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         }
     }
 
+    env.insert(QStringLiteral("VERMOUTH_APP_ID"), app[QStringLiteral("id")].toString());
+
     // Steam manages its own process, so we can turn HDR on before handing off to it, but
     // have no way to detect the game closing to turn it back off (no launch()/processFinished for it).
     const bool autoHdr = app[QStringLiteral("enableAutoHdr")].toBool();
@@ -891,17 +893,53 @@ static QList<qint64> descendantPids(qint64 root)
     return result;
 }
 
+static QList<qint64> pidsWithEnvEntry(const QByteArray &entry)
+{
+    QList<qint64> pids;
+    const QDir procDir(QStringLiteral("/proc"));
+    for (const QString &dir : procDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        bool isPid = false;
+        const qint64 pid = dir.toLongLong(&isPid);
+        if (!isPid)
+            continue;
+        QFile environ(procDir.filePath(dir + QStringLiteral("/environ")));
+        if (!environ.open(QIODevice::ReadOnly))
+            continue;
+        if (environ.readAll().split('\0').contains(entry))
+            pids << pid;
+    }
+    return pids;
+}
+
 void Launcher::stopEntry(const QVariantMap &app)
 {
     QProcess *proc = m_runningProcesses.value(app[QStringLiteral("exePath")].toString(), nullptr);
     if (!proc)
         return;
-    if (proc->processId() > 0) {
-        for (qint64 pid : descendantPids(proc->processId()))
-            kill(static_cast<pid_t>(pid), SIGTERM);
-    } else {
+    if (proc->processId() <= 0) {
         proc->terminate();
+        return;
     }
+
+    const QList<qint64> treePids = descendantPids(proc->processId());
+    for (qint64 pid : treePids)
+        kill(static_cast<pid_t>(pid), SIGTERM);
+
+    const QString appId = app[QStringLiteral("id")].toString();
+    if (appId.isEmpty())
+        return;
+    const QByteArray marker = QByteArrayLiteral("VERMOUTH_APP_ID=") + appId.toUtf8();
+    for (qint64 pid : pidsWithEnvEntry(marker))
+        kill(static_cast<pid_t>(pid), SIGTERM);
+    QTimer::singleShot(5000, this, [treePids, marker] {
+        QList<qint64> pids = pidsWithEnvEntry(marker);
+        for (qint64 pid : treePids) {
+            if (QFile::exists(QStringLiteral("/proc/%1").arg(pid)))
+                pids << pid;
+        }
+        for (qint64 pid : pids)
+            kill(static_cast<pid_t>(pid), SIGKILL);
+    });
 }
 
 void Launcher::stopLaunch(const QString &key)
@@ -918,6 +956,7 @@ void Launcher::stopLaunch(const QString &key)
 
 void Launcher::stopSteamGame(int appId)
 {
+    QDesktopServices::openUrl(QUrl(QStringLiteral("steam://close/") + QString::number(appId)));
     for (qint64 reaper : steamReaperPids(appId)) {
         for (qint64 pid : descendantPids(reaper))
             kill(static_cast<pid_t>(pid), SIGTERM);
