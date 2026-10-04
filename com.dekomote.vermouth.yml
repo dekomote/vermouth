@@ -52,6 +52,19 @@ modules:
           /app/lib32
           /app/lib/i386-linux-gnu
 
+  - name: icoutils
+    config-opts:
+      - CFLAGS=-std=gnu17
+    buildsystem: autotools
+    sources:
+      - type: archive
+        url: https://download.savannah.gnu.org/releases/icoutils/icoutils-0.32.3.tar.bz2
+        sha256: 17abe02d043a253b68b47e3af69c9fc755b895db68fdc8811786125df564c6e0
+        x-checker-data:
+          type: anitya
+          project-id: 1360
+          url-template: https://download.savannah.gnu.org/releases/icoutils/icoutils-$version.tar.bz2
+
   - name: winetricks
     no-autogen: true
     make-install-args:
@@ -61,6 +74,7 @@ modules:
         url: https://github.com/Winetricks/winetricks.git
         tag: '20260125'
         commit: b76e1ee79ac57d7aceb384f74518fc423265810c
+
 
     modules:
       - name: 7zip

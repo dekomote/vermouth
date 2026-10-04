@@ -47,6 +47,7 @@ Kirigami.Dialog {
     property bool gamemodeAvailable: false
     property bool lsfgAvailable: false
     readonly property bool showAdvancedOptions: runtimePicker.runtimeType !== "steam" && runtimePicker.runtimeType !== "retroarch"
+    readonly property bool showLaunchAndEnv: runtimePicker.runtimeType !== "retroarch"
     property var lsfgPresentModes: [
         {
             "text": i18n("Default"),
@@ -819,7 +820,7 @@ Kirigami.Dialog {
                 Kirigami.Separator {
                     Kirigami.FormData.isSection: true
                     Kirigami.FormData.label: i18n("Launch")
-                    visible: dialog.showAdvancedOptions
+                    visible: dialog.showLaunchAndEnv
                 }
 
                 QQC2.TextField {
@@ -827,7 +828,7 @@ Kirigami.Dialog {
                     Layout.fillWidth: true
                     Kirigami.FormData.label: i18n("Launch Options (optional):")
                     placeholderText: i18n("e.g. mangohud %command%")
-                    visible: dialog.showAdvancedOptions
+                    visible: dialog.showLaunchAndEnv
                 }
 
                 QQC2.CheckBox {
@@ -839,13 +840,13 @@ Kirigami.Dialog {
                 Kirigami.Separator {
                     Kirigami.FormData.isSection: true
                     Kirigami.FormData.label: i18n("Environment Variables")
-                    visible: dialog.showAdvancedOptions
+                    visible: dialog.showLaunchAndEnv
                 }
 
                 ColumnLayout {
                     Kirigami.FormData.label: i18n("Variables:")
                     Layout.fillWidth: true
-                    visible: dialog.showAdvancedOptions
+                    visible: dialog.showLaunchAndEnv
 
                     Repeater {
                         model: gameEnvModel
