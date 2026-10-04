@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="2.4.0" date="2026-10-04">
+        <description>
+          <p>This release adds a Stop button on running game cards, launch options and environment variables for Steam games, and Steam games that stay on their card until they exit. Steam launches with prefix commands or environment variables now ask before running without them when Steam is open.</p>
+        </description>
+    </release>
     <release version="2.3.1" date="2026-09-29">
         <description>
           <p>This release adds an Automatic Setup button and an Install a Game button to the welcome screen, unifies the view mode button between the pinned and unpinned sidebar, fixes a power-loss issue that could wipe out your game list, and fixes fetching RomM ROM files.</p>
