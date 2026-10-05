@@ -1061,8 +1061,8 @@ msgid "RomM"
 msgstr "RomM"
 
 #: po/../qml/Main.qml:41
-msgid "GOG Library (Beta)"
-msgstr "Biblioteca do GOG (Beta)"
+msgid "GOG Library"
+msgstr "Biblioteca do GOG"
 
 #: po/../qml/Main.qml:49
 msgid "About Vermouth"

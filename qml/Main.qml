@@ -38,7 +38,7 @@ Kirigami.ApplicationWindow {
         },
         {
             key: "gog",
-            name: i18n("GOG Library (Beta)"),
+            name: i18n("GOG Library"),
             icon: "gog-symbolic",
             enabled: true,
             nav: true,

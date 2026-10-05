@@ -218,9 +218,9 @@ To enable it, open **Settings → Steam Shortcuts** and turn on **Add to Steam**
 
 There are two ways to get your GOG games into Vermouth.
 
-**GOG Library (Beta).** The **GOG Library** tab connects to your GOG account and lists everything you own. Log in once from the tab, then double-click a game to download and install it. Windows games run with your default runtime (Proton or Wine), native Linux games are installed directly. Still beta, so expect a few rough edges.
+**GOG Library:** The **GOG Library** tab connects to your GOG account and lists everything you own. Log in once from the tab, then double-click a game to download and install it. Windows games run with your default runtime (Proton or Wine), native Linux games are installed directly.
 
-**Importing an existing install.** Already have GOG games on disk? Use **Menu → Import GOG games**, point it at the folder they live in, and pick what you want. Windows games run through Proton with a dedicated prefix, native Linux games launch from their `start.sh`.
+**Importing an existing installation:** Already have GOG games on disk? Use **Menu → Import GOG games**, point it at the folder they live in, and pick what you want. Windows games run through Proton with a dedicated prefix, native Linux games launch from their `start.sh`.
 
 ---
 
@@ -410,6 +410,7 @@ For icon extraction from `.exe` files, install `icoutils` (provides `wrestool` a
 You need Qt 6.8+, KDE Frameworks 6, and CMake.
 
 **Fedora:**
+
 ```bash
 sudo dnf install cmake gcc-c++ extra-cmake-modules qt6-qtbase-devel qt6-qtdeclarative-devel \
   qt6-qtquickcontrols2-devel kf6-kirigami-devel kf6-kcoreaddons-devel kf6-ki18n-devel \
@@ -417,6 +418,7 @@ sudo dnf install cmake gcc-c++ extra-cmake-modules qt6-qtbase-devel qt6-qtdeclar
 ```
 
 **Ubuntu / Debian:**
+
 ```bash
 sudo apt install build-essential cmake extra-cmake-modules qt6-base-dev qt6-declarative-dev \
   qt6-tools-dev-tools libkirigami-dev libkf6coreaddons-dev libkf6i18n-dev \
@@ -424,6 +426,7 @@ sudo apt install build-essential cmake extra-cmake-modules qt6-base-dev qt6-decl
 ```
 
 **Arch Linux:**
+
 ```bash
 sudo pacman -S --needed base-devel cmake ninja extra-cmake-modules qt6-base qt6-declarative \
   kirigami ki18n kcoreaddons qqc2-desktop-style icoutils
@@ -448,7 +451,6 @@ Games are stored in `~/.config/vermouth/apps.json`. When umu-launcher is availab
 ## Flatpak Notes
 
 When running Vermouth as a Flatpak, it is sandboxed and only has access to your home directory by default. If your games are stored outside your home folder, grant filesystem access using [Flatseal](https://flathub.org/apps/com.github.tchx84.Flatseal) or your desktop environment's application permissions settings. Add the relevant paths under **Filesystem** permissions.
-
 
 HDR toggle on KDE requires the `org.freedesktop.Flatpak` talk permission — see [Flatpak RetroArch](#flatpak-retroarch) below for how to grant it.
 
