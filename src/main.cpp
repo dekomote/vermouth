@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
     });
 
     app.setWindowIcon(QIcon(QStringLiteral(":/icons/vermouth.svg")));
+    QIcon::setFallbackSearchPaths(QIcon::fallbackSearchPaths() << QStringLiteral(":/icons"));
 
     QCommandLineParser parser;
     aboutData.setupCommandLine(&parser);

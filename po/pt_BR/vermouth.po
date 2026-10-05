@@ -1146,8 +1146,8 @@ msgstr "Executar um EXE Avulso"
 
 #: po/../qml/Main.qml:395 po/../qml/SteamImportDialog.qml:8
 #: po/../qml/WelcomeScreen.qml:237
-msgid "Import from Steam"
-msgstr "Importar da Steam"
+msgid "Import Steam games"
+msgstr "Importar jogos da Steam"
 
 #: po/../qml/Main.qml:407 po/../qml/Main.qml:720
 msgid "Allow Sleep"

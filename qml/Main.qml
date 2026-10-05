@@ -39,7 +39,7 @@ Kirigami.ApplicationWindow {
         {
             key: "gog",
             name: i18n("GOG Library (Beta)"),
-            icon: "applications-games",
+            icon: "gog-symbolic",
             enabled: true,
             nav: true,
             search: true
@@ -358,6 +358,7 @@ Kirigami.ApplicationWindow {
                     Layout.fillWidth: true
                     text: modelData.name
                     icon.name: modelData.icon
+                    icon.source: modelData.icon === "gog-symbolic" ? "qrc:/icons/gog.svg" : ""
                     checkable: true
                     checked: root.currentPage === modelData.key
                     highlighted: root.currentPage === modelData.key
@@ -393,14 +394,15 @@ Kirigami.ApplicationWindow {
                 onTriggered: runExeStandaloneDialog.openDialog()
             },
             Kirigami.Action {
-                text: i18n("Import from Steam")
+                text: i18n("Import Steam games")
                 icon.name: "steam"
                 icon.color: Kirigami.Theme.textColor
                 onTriggered: steamImportDialog.openDialog()
             },
             Kirigami.Action {
                 text: i18n("Import GOG games")
-                icon.name: "applications-games-symbolic"
+                icon.name: "gog-symbolic"
+                icon.source: "qrc:/icons/gog.svg"
                 icon.color: Kirigami.Theme.textColor
                 onTriggered: gogImportDialog.openDialog()
             },
