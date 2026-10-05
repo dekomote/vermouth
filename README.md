@@ -14,8 +14,8 @@
 
 <h1 align="center">Vermouth</h1>
 
-<p align="center">A game and app launcher for Linux - native, Windows, and retro.<br>
-KDE-first, lightweight, no frills.</p>
+<p align="center"><strong>Every game you own, in one fast, tiny launcher.</strong><br>
+A native C++/Qt Linux launcher. 2.3 MB installed. Zero bloat. KDE-first.</p>
 
 
 <p align="center" style="text-align:center">
@@ -34,6 +34,7 @@ KDE-first, lightweight, no frills.</p>
 ## Table of Contents
 
 - [Table of Contents](#table-of-contents)
+- [Why Vermouth](#why-vermouth)
 - [What it does](#what-it-does)
 - [Requirements](#requirements)
 - [Quick start](#quick-start)
@@ -68,9 +69,17 @@ KDE-first, lightweight, no frills.</p>
 
 ---
 
+## Why Vermouth
+
+- **Fast** - a native C++ and Qt 6 app. No Electron, no embedded browser, no bundled Python or Java runtime, so there is nothing between you and your games but the games themselves.
+- **Small** - about 2.3 MB installed and a package under 1 MB. One binary, plus icons and translations.
+- **Simple** - one window, one grid, and a few settings. Add a game, pick a runtime, press play. Fewer buttons, checks and knobs than the big launchers, just the bare necessities.
+
+---
+
 ## What it does
 
-Vermouth is a KDE-first launcher with four modes:
+Vermouth is a KDE-first launcher with six modes:
 
 - **Windows games** - run `.exe` files with Proton or Wine, with umu-launcher support for full Steam Runtime compatibility
 - **Native apps** - launch Linux binaries, `.desktop` entries, and AppImages directly
