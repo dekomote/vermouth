@@ -5,7 +5,7 @@ import org.kde.kirigami as Kirigami
 
 Kirigami.Dialog {
     id: dialog
-    title: i18n("Import from Steam")
+    title: i18n("Import Steam games")
     preferredWidth: Kirigami.Units.gridUnit * 30
     padding: Kirigami.Units.largeSpacing
     bottomPadding: Kirigami.Units.largeSpacing

@@ -234,7 +234,7 @@ Kirigami.ScrollablePage {
             }
             QQC2.Button {
                 icon.name: "steam"
-                text: i18n("Import from Steam")
+                text: i18n("Import Steam games")
                 visible: steamModel.isSteamInstalled()
                 onClicked: steamImportDialog.openDialog()
             }
