@@ -31,7 +31,8 @@ Kirigami.ApplicationWindow {
         {
             key: "romm",
             name: i18n("RomM Library"),
-            icon: "network-server",
+            icon: "romm",
+            iconSource: "qrc:/icons/romm.svg",
             enabled: settingsManager.rommServerUrl !== "",
             nav: true,
             search: true
@@ -40,6 +41,7 @@ Kirigami.ApplicationWindow {
             key: "gog",
             name: i18n("GOG Library"),
             icon: "gog-symbolic",
+            iconSource: "qrc:/icons/gog.svg",
             enabled: true,
             nav: true,
             search: true
@@ -358,7 +360,7 @@ Kirigami.ApplicationWindow {
                     Layout.fillWidth: true
                     text: modelData.name
                     icon.name: modelData.icon
-                    icon.source: modelData.icon === "gog-symbolic" ? "qrc:/icons/gog.svg" : ""
+                    icon.source: modelData.iconSource ?? ""
                     checkable: true
                     checked: root.currentPage === modelData.key
                     highlighted: root.currentPage === modelData.key
