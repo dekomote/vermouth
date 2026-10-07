@@ -835,12 +835,26 @@ Kirigami.Dialog {
                     visible: dialog.showLaunchAndEnv
                 }
 
+                readonly property string globalLaunchOptions: settingsManager.globalLaunchOptions[runtimePicker.resolvedRuntimeType] || ""
+
                 QQC2.TextField {
                     id: launchOptionsField
                     Layout.fillWidth: true
                     Kirigami.FormData.label: i18n("Launch Options (optional):")
-                    placeholderText: i18n("e.g. mangohud %command%")
+                    placeholderText: advancedForm.globalLaunchOptions !== "" ? advancedForm.globalLaunchOptions : i18n("e.g. mangohud %command%")
                     visible: dialog.showLaunchAndEnv
+                }
+
+                QQC2.Label {
+                    Kirigami.FormData.label: ""
+                    visible: dialog.showLaunchAndEnv && advancedForm.globalLaunchOptions !== ""
+                    text: launchOptionsField.text.trim() === "" ? i18n("Using the global launch options for this runtime (shown above). Type your own to override them.") : i18n("Overrides the global launch options: %1", advancedForm.globalLaunchOptions)
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                    font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
+                    font.italic: true
+                    color: Kirigami.Theme.disabledTextColor
                 }
 
                 QQC2.CheckBox {

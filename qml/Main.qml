@@ -30,7 +30,7 @@ Kirigami.ApplicationWindow {
         },
         {
             key: "romm",
-            name: i18n("RomM"),
+            name: i18n("RomM Library"),
             icon: "network-server",
             enabled: settingsManager.rommServerUrl !== "",
             nav: true,

@@ -18,6 +18,7 @@ public:
 
     void setUmuPath(const QString &path);
     void setGlobalEnvVars(const QStringList &vars);
+    void setGlobalLaunchOptions(const QVariantMap &options);
     void setRetroarchPath(const QString &path);
     void setUzdoomPath(const QString &path);
     void setRommCoreMap(const QVariantMap &map);
@@ -114,6 +115,7 @@ private:
     QVariantMap m_rommCoreMap;
     QVariantMap m_rommGameCoreMap;
     QStringList m_globalEnvVars;
+    QVariantMap m_globalLaunchOptions;
     QString m_defaultRuntimeType;
     QString m_defaultProtonPath;
     QString m_defaultWineBinary;

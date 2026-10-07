@@ -153,6 +153,34 @@ void SettingsManager::setGlobalEnvVars(const QStringList &vars)
     Q_EMIT globalEnvVarsChanged();
 }
 
+QVariantMap SettingsManager::globalLaunchOptions() const
+{
+    QVariantMap map;
+    const QStringList runtimes = {QStringLiteral("proton"),
+                                  QStringLiteral("wine"),
+                                  QStringLiteral("native"),
+                                  QStringLiteral("uzdoom"),
+                                  QStringLiteral("steam")};
+    for (const QString &rt : runtimes) {
+        const QString opts = m_settings.value(QStringLiteral("globalLaunchOptions/") + rt).toString();
+        if (!opts.trimmed().isEmpty())
+            map.insert(rt, opts);
+    }
+    return map;
+}
+
+void SettingsManager::setGlobalLaunchOption(const QString &runtimeType, const QString &options)
+{
+    const QString key = QStringLiteral("globalLaunchOptions/") + runtimeType;
+    if (m_settings.value(key).toString() == options)
+        return;
+    if (options.trimmed().isEmpty())
+        m_settings.remove(key);
+    else
+        m_settings.setValue(key, options);
+    Q_EMIT globalLaunchOptionsChanged();
+}
+
 bool SettingsManager::drawerPinned() const
 {
     return m_settings.value(QStringLiteral("drawerPinned"), false).toBool();

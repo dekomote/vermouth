@@ -31,6 +31,11 @@ Kirigami.ScrollablePage {
                 vars.push(k + "=" + v);
         }
         settingsManager.setGlobalEnvVars(vars);
+        settingsManager.setGlobalLaunchOption("proton", launchOptsProtonField.text.trim());
+        settingsManager.setGlobalLaunchOption("wine", launchOptsWineField.text.trim());
+        settingsManager.setGlobalLaunchOption("native", launchOptsNativeField.text.trim());
+        settingsManager.setGlobalLaunchOption("uzdoom", launchOptsUzdoomField.text.trim());
+        settingsManager.setGlobalLaunchOption("steam", launchOptsSteamField.text.trim());
     }
 
     function load() {
@@ -68,6 +73,11 @@ Kirigami.ScrollablePage {
                 "value": sep > 0 ? vars[j].substring(sep + 1) : ""
             });
         }
+        launchOptsProtonField.text = settingsManager.globalLaunchOptions["proton"] || "";
+        launchOptsWineField.text = settingsManager.globalLaunchOptions["wine"] || "";
+        launchOptsNativeField.text = settingsManager.globalLaunchOptions["native"] || "";
+        launchOptsUzdoomField.text = settingsManager.globalLaunchOptions["uzdoom"] || "";
+        launchOptsSteamField.text = settingsManager.globalLaunchOptions["steam"] || "";
         defaultRuntimePicker.reset();
     }
 
@@ -574,6 +584,57 @@ Kirigami.ScrollablePage {
                         "value": ""
                     })
                 }
+            }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("Global Launch Options")
+            }
+
+            QQC2.Label {
+                Kirigami.FormData.label: ""
+                text: i18n("Applied to every game that uses the runtime. A game's own launch options replace these. Use %command% to place the game's command, e.g. gamemoderun %command%.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
+                font.italic: true
+                color: Kirigami.Theme.disabledTextColor
+            }
+
+            QQC2.TextField {
+                id: launchOptsProtonField
+                Kirigami.FormData.label: i18n("Proton:")
+                Layout.fillWidth: true
+                placeholderText: i18n("e.g. gamemoderun %command%")
+            }
+
+            QQC2.TextField {
+                id: launchOptsWineField
+                Kirigami.FormData.label: i18n("Wine:")
+                Layout.fillWidth: true
+                placeholderText: i18n("e.g. gamemoderun %command%")
+            }
+
+            QQC2.TextField {
+                id: launchOptsNativeField
+                Kirigami.FormData.label: i18n("Native:")
+                Layout.fillWidth: true
+                placeholderText: i18n("e.g. gamemoderun %command%")
+            }
+
+            QQC2.TextField {
+                id: launchOptsUzdoomField
+                Kirigami.FormData.label: i18n("UZDOOM:")
+                Layout.fillWidth: true
+                placeholderText: i18n("e.g. -skill 3")
+            }
+
+            QQC2.TextField {
+                id: launchOptsSteamField
+                Kirigami.FormData.label: i18n("Steam:")
+                Layout.fillWidth: true
+                placeholderText: i18n("e.g. gamemoderun %command%")
             }
 
             Kirigami.Separator {

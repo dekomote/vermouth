@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QSettings>
 #include <QStringList>
+#include <QVariantMap>
 
 class SettingsManager : public QObject
 {
@@ -18,6 +19,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(bool drawerPinned READ drawerPinned WRITE setDrawerPinned NOTIFY drawerPinnedChanged)
     Q_PROPERTY(QString umuPath READ umuPath WRITE setUmuPath NOTIFY umuPathChanged)
     Q_PROPERTY(QStringList globalEnvVars READ globalEnvVars WRITE setGlobalEnvVars NOTIFY globalEnvVarsChanged)
+    Q_PROPERTY(QVariantMap globalLaunchOptions READ globalLaunchOptions NOTIFY globalLaunchOptionsChanged)
     Q_PROPERTY(bool bigPicture READ bigPicture WRITE setBigPicture NOTIFY bigPictureChanged)
     Q_PROPERTY(bool lightsOut READ lightsOut WRITE setLightsOut NOTIFY lightsOutChanged)
     Q_PROPERTY(QString themeId READ themeId WRITE setThemeId NOTIFY themeIdChanged)
@@ -80,6 +82,10 @@ public:
 
     QStringList globalEnvVars() const;
     Q_INVOKABLE void setGlobalEnvVars(const QStringList &vars);
+
+    // Launch options applied to every game of a runtime type (proton, wine, native, uzdoom, steam) unless the game sets its own.
+    QVariantMap globalLaunchOptions() const;
+    Q_INVOKABLE void setGlobalLaunchOption(const QString &runtimeType, const QString &options);
 
     bool bigPicture() const;
     Q_INVOKABLE void setBigPicture(bool enabled);
@@ -164,6 +170,7 @@ Q_SIGNALS:
     void drawerPinnedChanged();
     void umuPathChanged();
     void globalEnvVarsChanged();
+    void globalLaunchOptionsChanged();
     void bigPictureChanged();
     void lightsOutChanged();
     void themeIdChanged();

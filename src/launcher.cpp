@@ -345,6 +345,11 @@ void Launcher::setGlobalEnvVars(const QStringList &vars)
     m_globalEnvVars = vars;
 }
 
+void Launcher::setGlobalLaunchOptions(const QVariantMap &options)
+{
+    m_globalLaunchOptions = options;
+}
+
 void Launcher::setDefaultRuntimeType(const QString &type)
 {
     m_defaultRuntimeType = type;
@@ -752,8 +757,15 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         return launchEntry(resolved);
     }
 
-    if (runtimeType == QStringLiteral("steam"))
-        return startSteamGame(app, env);
+    // A game's own launch options replace the global ones for its runtime.
+    if (opts.trimmed().isEmpty())
+        opts = m_globalLaunchOptions.value(runtimeType).toString();
+
+    if (runtimeType == QStringLiteral("steam")) {
+        QVariantMap steamApp = app;
+        steamApp[QStringLiteral("launchOptions")] = opts;
+        return startSteamGame(steamApp, env);
+    }
 
     if (runtimeType == QStringLiteral("retroarch")) {
         QString platformSlug = app[QStringLiteral("platformSlug")].toString();

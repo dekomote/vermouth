@@ -121,6 +121,7 @@ int main(int argc, char *argv[])
     applyActiveTheme();
 
     launcher.setGlobalEnvVars(settingsManager.globalEnvVars());
+    launcher.setGlobalLaunchOptions(settingsManager.globalLaunchOptions());
     launcher.setUmuPath(settingsManager.umuPath());
     launcher.setRetroarchPath(settingsManager.retroarchPath());
     launcher.setUzdoomPath(settingsManager.uzdoomPath());
@@ -230,6 +231,10 @@ int main(int argc, char *argv[])
 
     QObject::connect(&settingsManager, &SettingsManager::globalEnvVarsChanged, [&]() {
         launcher.setGlobalEnvVars(settingsManager.globalEnvVars());
+    });
+
+    QObject::connect(&settingsManager, &SettingsManager::globalLaunchOptionsChanged, [&]() {
+        launcher.setGlobalLaunchOptions(settingsManager.globalLaunchOptions());
     });
 
     QObject::connect(&app, &QApplication::aboutToQuit, [&]() {
