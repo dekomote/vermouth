@@ -815,7 +815,8 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
             const QString protonGameIdForUmu = app[QStringLiteral("protonGameId")].toString();
             env.insert(QStringLiteral("GAMEID"), protonGameIdForUmu.isEmpty() ? QStringLiteral("0") : protonGameIdForUmu);
             env.insert(QStringLiteral("WINEPREFIX"), prefix);
-            env.insert(QStringLiteral("UMU_CONTAINER_NSENTER"), QStringLiteral("1"));
+            if (app[QStringLiteral("enableNsenter")].toBool())
+                env.insert(QStringLiteral("UMU_CONTAINER_NSENTER"), QStringLiteral("1"));
             return launch(umuBin, {}, exePath, env, opts, logging, name, true, commandWrappers, autoHdr);
         } else {
             env.insert(QStringLiteral("STEAM_COMPAT_CLIENT_INSTALL_PATH"), QDir::homePath() + QStringLiteral("/.steam/steam"));

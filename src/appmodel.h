@@ -40,6 +40,7 @@ public:
         EnableMangohudRole,
         EnableGamemodeRole,
         EnablePreferSdlRole,
+        EnableNsenterRole,
         EnableLsfgRole,
         LsfgMultiplierRole,
         LsfgFlowScaleRole,

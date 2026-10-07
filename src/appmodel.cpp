@@ -184,6 +184,8 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.enableGamemode;
     case EnablePreferSdlRole:
         return e.enablePreferSdl;
+    case EnableNsenterRole:
+        return e.enableNsenter;
     case EnableLsfgRole:
         return e.enableLsfg;
     case LsfgMultiplierRole:
@@ -233,6 +235,7 @@ QHash<int, QByteArray> AppModel::roleNames() const
         {EnableMangohudRole, "enableMangohud"},
         {EnableGamemodeRole, "enableGamemode"},
         {EnablePreferSdlRole, "enablePreferSdl"},
+        {EnableNsenterRole, "enableNsenter"},
         {EnableLsfgRole, "enableLsfg"},
         {LsfgMultiplierRole, "lsfgMultiplier"},
         {LsfgFlowScaleRole, "lsfgFlowScale"},

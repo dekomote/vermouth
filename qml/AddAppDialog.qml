@@ -92,6 +92,7 @@ Kirigami.Dialog {
         enableMangohudCheck.checked = false;
         enableGamemodeCheck.checked = false;
         enablePreferSdlCheck.checked = false;
+        enableNsenterCheck.checked = false;
         enableAutoHdrCheck.checked = false;
         enableLsfgCheck.checked = false;
         lsfgMultiplierSpin.value = 2;
@@ -201,6 +202,7 @@ Kirigami.Dialog {
         enableMangohudCheck.checked = app.enableMangohud || false;
         enableGamemodeCheck.checked = app.enableGamemode || false;
         enablePreferSdlCheck.checked = app.enablePreferSdl || false;
+        enableNsenterCheck.checked = app.enableNsenter || false;
         enableAutoHdrCheck.checked = app.enableAutoHdr || false;
         enableLsfgCheck.checked = app.enableLsfg || false;
         lsfgMultiplierSpin.value = app.lsfgMultiplier || 2;
@@ -327,6 +329,7 @@ Kirigami.Dialog {
             "enableMangohud": enableMangohudCheck.checked,
             "enableGamemode": enableGamemodeCheck.checked,
             "enablePreferSdl": enablePreferSdlCheck.checked,
+            "enableNsenter": enableNsenterCheck.checked,
             "enableAutoHdr": enableAutoHdrCheck.checked,
             "enableLsfg": enableLsfgCheck.checked,
             "lsfgMultiplier": lsfgMultiplierSpin.value,
@@ -786,6 +789,15 @@ Kirigami.Dialog {
                     id: enablePreferSdlCheck
                     text: i18n("Prefer SDL input for Proton (PROTON_PREFER_SDL)")
                     visible: runtimePicker.resolvedRuntimeType === "proton"
+                }
+
+                QQC2.CheckBox {
+                    id: enableNsenterCheck
+                    text: i18n("Join running container for this prefix (UMU_CONTAINER_NSENTER)")
+                    visible: runtimePicker.resolvedRuntimeType === "proton"
+                    QQC2.ToolTip.text: i18n("Starts this program inside the umu container that is already running for this prefix, instead of a new one. Needed for trainers, mod managers, cheat tools and anything else that has to see or talk to a game that is already running. Adds several seconds to launch when no container is running, so leave it off for normal games.")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }
 
                 QQC2.CheckBox {

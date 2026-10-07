@@ -69,6 +69,7 @@ public:
     bool enableMangohud = false;
     bool enableGamemode = false;
     bool enablePreferSdl = false;
+    bool enableNsenter = false;
     bool enableLsfg = false;
     int lsfgMultiplier = 2;
     int lsfgFlowScale = 50;
