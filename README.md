@@ -18,10 +18,6 @@
 A native C++/Qt Linux launcher. 2.3 MB installed. Zero bloat. KDE-first.</p>
 
 
-<p align="center" style="text-align:center">
-    <a href="https://www.buymeacoffee.com/dekomote" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="Buy Me a Coffee" width="217" height="60" style="height: 60px !important;width: 217px !important;" ></a>
-</p>
-
 <p align="center">
   <img src="assets/screen1.png?t=1.9" alt="Game library" width="400">
   <img src="assets/screen2.png?t=1.9" alt="Game settings" width="400"><br>
@@ -84,7 +80,7 @@ Vermouth is a KDE-first launcher with six modes:
 - **Windows games** - run `.exe` files with Proton or Wine, with umu-launcher support for full Steam Runtime compatibility
 - **Native apps** - launch Linux binaries, `.desktop` entries, and AppImages directly
 - **Steam games** - import your installed Steam library with one click and launch games directly via Steam
-- **GOG games** - log into your GOG account and browse, download, and install your whole library from inside the app (beta), or import games you've already installed from a folder
+- **GOG games** - log into your GOG account and browse, download, and install your whole library from inside the app, or import games you've already installed from a folder
 - **Retro games** - browse and launch your [RomM](https://github.com/rommapp/romm) library via RetroArch, with platform filtering, cover art, and ROM downloads; or add ROM files directly to your library
 - **Doom engine games** - launch WAD/PK3 files with [UZDOOM](https://github.com/UZDoom/UZDoom) (beta)
 
@@ -99,6 +95,7 @@ It works like Lutris, Heroic, or Bottles, but lighter and KDE-first - less butto
 - Run a separate `.exe` inside an existing prefix (useful for installers and config tools)
 - Run common Wine utilities - winecfg, regedit, winetricks
 - Toggle HDR per-session on KDE - sets the required Proton environment variables automatically
+- Global launch options per runtime, which each game can override
 
 **Library**
 - Extracts icons from `.exe` files automatically (requires `icoutils`)
@@ -108,6 +105,12 @@ It works like Lutris, Heroic, or Bottles, but lighter and KDE-first - less butto
 
 **UI**
 - Big screen / Big Picture mode with full gamepad navigation
+
+<p align="center">If you like Vermouth, consider buying me a coffee.</p>
+
+<p align="center" style="text-align:center">
+    <a href="https://www.buymeacoffee.com/dekomote" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="Buy Me a Coffee" width="217" height="60" style="height: 60px !important;width: 217px !important;" ></a>
+</p>
 
 ---
 
@@ -132,7 +135,7 @@ Ubuntu 25.04 / Debian Trixie or newer are required on Debian-based systems due t
 3. Choose a runtime - Proton, Wine, RetroArch, UZDOOM, or native
 4. Double-click to launch
 
-For Steam games, use **Menu → Import from Steam** if you don't want to search for game IDs.
+For Steam games, use **Menu → Import Steam games** if you don't want to search for game IDs.
 
 ---
 
@@ -142,9 +145,13 @@ For Steam games, use **Menu → Import from Steam** if you don't want to search 
 
 The **Launch Options** field wraps the command with tools like `mangohud`, `gamescope`, or `gamemoderun`. Use `%command%` as the placeholder - if omitted, options are prepended automatically. You can also set environment variables here, e.g. `GAMEID=12345 %command%` to pass a Steam App ID to umu-launcher.
 
-**Steam games:** Click **Menu → Import from Steam**. Vermouth scans your Steam library, shows all installed games, and lets you select which ones to import. Art is resolved from your local Steam cache and any gaps are filled from SteamGridDB automatically.
+**Global launch options:** Open **Settings → Global Launch Options** to set launch options once for every game that uses a runtime. There is one field each for Proton, Wine, Native, UZDOOM, and Steam, for example `gamemoderun %command%`. A game with its own **Launch Options** replaces the global ones for that runtime. When a global option is set, the game editor shows it in the Launch Options field and says whether the game is using it or overriding it. To opt a single game out of the global options, enter `%command%` in its Launch Options field. Installers, `winecfg`, `regedit` and other prefix tools never use the global options. Games added from RomM and RetroArch ROMs don't either.
 
-**GOG games:** Open the **GOG Library** tab to log into your GOG account and download, install, and play your games straight from the app. This is still in beta. If you'd rather use games you already have on disk, click **Menu → Import GOG games** and point Vermouth at the folder where they live. See [GOG support](#gog-support) for the full rundown.
+**Trainers and other helper programs:** For Proton games run through umu-launcher, the game editor has a **Join running container for this prefix** option (`UMU_CONTAINER_NSENTER`). Turn it on for a trainer, mod manager or similar tool that has to see a game that is already running in the same prefix, so it starts inside the game's container instead of a new one. Leave it off for ordinary games - when no container is running, umu waits several seconds before it gives up and starts a new one, which delays the launch.
+
+**Steam games:** Click **Menu → Import Steam games**. Vermouth scans your Steam library, shows all installed games, and lets you select which ones to import. Art is resolved from your local Steam cache and any gaps are filled from SteamGridDB automatically.
+
+**GOG games:** Open the **GOG Library** tab to log into your GOG account and download, install, and play your games straight from the app. If you'd rather use games you already have on disk, click **Menu → Import GOG games** and point Vermouth at the folder where they live. See [GOG support](#gog-support) for the full rundown.
 
 **RetroArch games:** Click **Add Game**, select **RetroArch** as the runtime, choose the ROM file and platform. Vermouth will pick the right core automatically or prompt you to select one.
 
@@ -195,7 +202,7 @@ Vermouth supports [SteamGridDB](https://www.steamgriddb.com) for fetching icons,
 
 ## Steam support
 
-Vermouth can import your installed Steam library in one click. Go to **Menu → Import from Steam**, select the games you want, and they will appear in your library. Launching them opens Steam directly to that game. Art is fetched from your local Steam cache automatically; any missing artwork is downloaded from SteamGridDB if you have an API key configured.
+Vermouth can import your installed Steam library in one click. Go to **Menu → Import Steam games**, select the games you want, and they will appear in your library. Launching them opens Steam directly to that game. Art is fetched from your local Steam cache automatically; any missing artwork is downloaded from SteamGridDB if you have an API key configured.
 
 Steam is detected from all standard install locations, including native and Flatpak installs.
 

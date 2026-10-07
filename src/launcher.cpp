@@ -758,7 +758,8 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
     }
 
     // A game's own launch options replace the global ones for its runtime.
-    if (opts.trimmed().isEmpty())
+    // Installers and prefix tools (winecfg, regedit) must not inherit them.
+    if (opts.trimmed().isEmpty() && !app[QStringLiteral("skipGlobalLaunchOptions")].toBool())
         opts = m_globalLaunchOptions.value(runtimeType).toString();
 
     if (runtimeType == QStringLiteral("steam")) {
@@ -1032,6 +1033,7 @@ qint64 Launcher::runInPrefix(const QVariantMap &app, const QString &exePath)
     QVariantMap copy = app;
     copy[QStringLiteral("exePath")] = exePath;
     copy[QStringLiteral("enableAutoHdr")] = false;
+    copy[QStringLiteral("skipGlobalLaunchOptions")] = true;
     return launchEntry(copy);
 }
 
@@ -1042,6 +1044,7 @@ void Launcher::runWinecfg(const QVariantMap &app)
     copy[QStringLiteral("enableLogging")] = false;
     copy[QStringLiteral("exePath")] = QStringLiteral("winecfg");
     copy[QStringLiteral("enableAutoHdr")] = false;
+    copy[QStringLiteral("skipGlobalLaunchOptions")] = true;
     launchEntry(copy);
 }
 
@@ -1052,6 +1055,7 @@ void Launcher::runRegedit(const QVariantMap &app)
     copy[QStringLiteral("enableLogging")] = false;
     copy[QStringLiteral("exePath")] = QStringLiteral("regedit");
     copy[QStringLiteral("enableAutoHdr")] = false;
+    copy[QStringLiteral("skipGlobalLaunchOptions")] = true;
     launchEntry(copy);
 }
 

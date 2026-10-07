@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="2.5.0" date="2026-10-07">
+        <description>
+          <p>This release adds global launch options for each runtime (Proton, Wine, native, UZDOOM and Steam) that every game can override, shows the global options in the game editor, and makes Proton launches about five seconds faster by turning off umu's wait for an existing container. Games that need to share a container with a running program, such as trainers, get a per-game option to turn it back on. It also refreshes the GOG icon and the import menu labels.</p>
+        </description>
+    </release>
     <release version="2.4.0" date="2026-10-04">
         <description>
           <p>This release adds a Stop button on running game cards, launch options and environment variables for Steam games, and Steam games that stay on their card until they exit. Steam launches with prefix commands or environment variables now ask before running without them when Steam is open.</p>

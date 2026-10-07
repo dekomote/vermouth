@@ -1,5 +1,5 @@
 Name:           vermouth
-Version:        2.4.0
+Version:        2.5.0
 Release:        1%{?dist}
 Summary:        A no-frills Wine/Proton game launcher for KDE
 License:        MIT
@@ -76,6 +76,8 @@ RomM library with RetroArch - all from one place.
 %{_datadir}/locale/*/LC_MESSAGES/vermouth.mo
 
 %changelog
+* Wed Oct 07 2026 Dejan Noveski <deko@duck.com> - 2.5.0-1
+- Global launch options per runtime (Proton, Wine, native, UZDOOM, Steam) that each game can override, per-game option to join a running umu container, faster Proton launches, refreshed GOG icon and menu labels
 * Sun Oct 04 2026 Dejan Noveski <deko@duck.com> - 2.4.0-1
 - Stop button on running game cards, launch options and env vars for Steam games, Steam games tracked until they exit, Flatpak-aware Steam warnings, icoutils for Flatpak icon extraction
 * Tue Sep 29 2026 Dejan Noveski <deko@duck.com> - 2.3.1-1
