@@ -1,5 +1,6 @@
 #include "launcher.h"
 #include "flatpakutils.h"
+#include "gpumanager.h"
 #include "platformcores.h"
 #include <QClipboard>
 #include <QCursor>
@@ -350,6 +351,16 @@ void Launcher::setGlobalLaunchOptions(const QVariantMap &options)
     m_globalLaunchOptions = options;
 }
 
+void Launcher::setGpuManager(GpuManager *gpus)
+{
+    m_gpuManager = gpus;
+}
+
+void Launcher::setDefaultGpu(const QString &gpu)
+{
+    m_defaultGpu = gpu;
+}
+
 void Launcher::setDefaultRuntimeType(const QString &type)
 {
     m_defaultRuntimeType = type;
@@ -657,6 +668,20 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         int sep = kv.indexOf(QLatin1Char('='));
         if (sep > 0)
             env.insert(kv.left(sep), kv.mid(sep + 1));
+    }
+
+    // GPU: a game's own choice wins over the global default, "system" means no override.
+    // Steam and RetroArch don't get the environment built here, so they are left out.
+    const QString rtForGpu = app[QStringLiteral("runtimeType")].toString();
+    if (m_gpuManager && rtForGpu != QStringLiteral("steam") && rtForGpu != QStringLiteral("retroarch")) {
+        QString gpu = app[QStringLiteral("gpu")].toString();
+        if (gpu.isEmpty())
+            gpu = m_defaultGpu;
+        if (!gpu.isEmpty() && gpu != QStringLiteral("system")) {
+            const auto gpuEnv = m_gpuManager->environmentFor(gpu);
+            for (const auto &kv : gpuEnv)
+                env.insert(kv.first, kv.second);
+        }
     }
 
     // Per-game env vars override global ones (not applicable to RetroArch)

@@ -8,6 +8,7 @@
 #include <QVariantMap>
 
 class QTimer;
+class GpuManager;
 
 class Launcher : public QObject
 {
@@ -19,6 +20,8 @@ public:
     void setUmuPath(const QString &path);
     void setGlobalEnvVars(const QStringList &vars);
     void setGlobalLaunchOptions(const QVariantMap &options);
+    void setGpuManager(GpuManager *gpus);
+    void setDefaultGpu(const QString &gpu);
     void setRetroarchPath(const QString &path);
     void setUzdoomPath(const QString &path);
     void setRommCoreMap(const QVariantMap &map);
@@ -116,6 +119,8 @@ private:
     QVariantMap m_rommGameCoreMap;
     QStringList m_globalEnvVars;
     QVariantMap m_globalLaunchOptions;
+    GpuManager *m_gpuManager = nullptr;
+    QString m_defaultGpu;
     QString m_defaultRuntimeType;
     QString m_defaultProtonPath;
     QString m_defaultWineBinary;

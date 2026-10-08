@@ -9,6 +9,7 @@
 #include "goginstaller.h"
 #include "goglibrarymodel.h"
 #include "gogmodel.h"
+#include "gpumanager.h"
 #include "iconextractor.h"
 #include "launcher.h"
 #include "launcherdownloader.h"
@@ -111,6 +112,7 @@ int main(int argc, char *argv[])
     aboutData.processCommandLine(&parser);
 
     Launcher launcher;
+    GpuManager gpuManager;
     SettingsManager settingsManager;
     ColorSchemeSwitcher colorSchemeSwitcher;
 
@@ -122,6 +124,8 @@ int main(int argc, char *argv[])
 
     launcher.setGlobalEnvVars(settingsManager.globalEnvVars());
     launcher.setGlobalLaunchOptions(settingsManager.globalLaunchOptions());
+    launcher.setGpuManager(&gpuManager);
+    launcher.setDefaultGpu(settingsManager.defaultGpu());
     launcher.setUmuPath(settingsManager.umuPath());
     launcher.setRetroarchPath(settingsManager.retroarchPath());
     launcher.setUzdoomPath(settingsManager.uzdoomPath());
@@ -235,6 +239,10 @@ int main(int argc, char *argv[])
 
     QObject::connect(&settingsManager, &SettingsManager::globalLaunchOptionsChanged, [&]() {
         launcher.setGlobalLaunchOptions(settingsManager.globalLaunchOptions());
+    });
+
+    QObject::connect(&settingsManager, &SettingsManager::defaultGpuChanged, [&]() {
+        launcher.setDefaultGpu(settingsManager.defaultGpu());
     });
 
     QObject::connect(&app, &QApplication::aboutToQuit, [&]() {
@@ -390,6 +398,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("appModel"), &appModel);
     engine.rootContext()->setContextProperty(QStringLiteral("protonScanner"), &protonScanner);
     engine.rootContext()->setContextProperty(QStringLiteral("launcher"), &launcher);
+    engine.rootContext()->setContextProperty(QStringLiteral("gpuManager"), &gpuManager);
     engine.rootContext()->setContextProperty(QStringLiteral("desktopWriter"), &desktopWriter);
     engine.rootContext()->setContextProperty(QStringLiteral("iconExtractor"), &iconExtractor);
     engine.rootContext()->setContextProperty(QStringLiteral("settingsManager"), &settingsManager);

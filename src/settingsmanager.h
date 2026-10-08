@@ -20,6 +20,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(QString umuPath READ umuPath WRITE setUmuPath NOTIFY umuPathChanged)
     Q_PROPERTY(QStringList globalEnvVars READ globalEnvVars WRITE setGlobalEnvVars NOTIFY globalEnvVarsChanged)
     Q_PROPERTY(QVariantMap globalLaunchOptions READ globalLaunchOptions NOTIFY globalLaunchOptionsChanged)
+    Q_PROPERTY(QString defaultGpu READ defaultGpu WRITE setDefaultGpu NOTIFY defaultGpuChanged)
     Q_PROPERTY(bool bigPicture READ bigPicture WRITE setBigPicture NOTIFY bigPictureChanged)
     Q_PROPERTY(bool lightsOut READ lightsOut WRITE setLightsOut NOTIFY lightsOutChanged)
     Q_PROPERTY(QString themeId READ themeId WRITE setThemeId NOTIFY themeIdChanged)
@@ -86,6 +87,10 @@ public:
     // Launch options applied to every game of a runtime type (proton, wine, native, uzdoom, steam) unless the game sets its own.
     QVariantMap globalLaunchOptions() const;
     Q_INVOKABLE void setGlobalLaunchOption(const QString &runtimeType, const QString &options);
+
+    // PCI slot of the GPU games run on by default, empty for the system default.
+    QString defaultGpu() const;
+    Q_INVOKABLE void setDefaultGpu(const QString &gpu);
 
     bool bigPicture() const;
     Q_INVOKABLE void setBigPicture(bool enabled);
@@ -171,6 +176,7 @@ Q_SIGNALS:
     void umuPathChanged();
     void globalEnvVarsChanged();
     void globalLaunchOptionsChanged();
+    void defaultGpuChanged();
     void bigPictureChanged();
     void lightsOutChanged();
     void themeIdChanged();

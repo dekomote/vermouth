@@ -181,6 +181,22 @@ void SettingsManager::setGlobalLaunchOption(const QString &runtimeType, const QS
     Q_EMIT globalLaunchOptionsChanged();
 }
 
+QString SettingsManager::defaultGpu() const
+{
+    return m_settings.value(QStringLiteral("defaultGpu")).toString();
+}
+
+void SettingsManager::setDefaultGpu(const QString &gpu)
+{
+    if (defaultGpu() == gpu)
+        return;
+    if (gpu.isEmpty())
+        m_settings.remove(QStringLiteral("defaultGpu"));
+    else
+        m_settings.setValue(QStringLiteral("defaultGpu"), gpu);
+    Q_EMIT defaultGpuChanged();
+}
+
 bool SettingsManager::drawerPinned() const
 {
     return m_settings.value(QStringLiteral("drawerPinned"), false).toBool();

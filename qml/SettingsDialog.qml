@@ -36,6 +36,8 @@ Kirigami.ScrollablePage {
         settingsManager.setGlobalLaunchOption("native", launchOptsNativeField.text.trim());
         settingsManager.setGlobalLaunchOption("uzdoom", launchOptsUzdoomField.text.trim());
         settingsManager.setGlobalLaunchOption("steam", launchOptsSteamField.text.trim());
+        if (gpuManager.available && defaultGpuCombo.currentIndex >= 0)
+            settingsManager.setDefaultGpu(defaultGpuCombo.value);
     }
 
     function load() {
@@ -78,6 +80,7 @@ Kirigami.ScrollablePage {
         launchOptsNativeField.text = settingsManager.globalLaunchOptions["native"] || "";
         launchOptsUzdoomField.text = settingsManager.globalLaunchOptions["uzdoom"] || "";
         launchOptsSteamField.text = settingsManager.globalLaunchOptions["steam"] || "";
+        defaultGpuCombo.load(settingsManager.defaultGpu);
         defaultRuntimePicker.reset();
     }
 
@@ -635,6 +638,22 @@ Kirigami.ScrollablePage {
                 Kirigami.FormData.label: i18n("Steam:")
                 Layout.fillWidth: true
                 placeholderText: i18n("e.g. gamemoderun %command%")
+            }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("Graphics")
+                visible: gpuManager.available
+            }
+
+            GpuPicker {
+                id: defaultGpuCombo
+                Kirigami.FormData.label: i18n("Default GPU:")
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                QQC2.ToolTip.text: i18n("The GPU games run on unless a game picks its own. Not used for Steam and RetroArch games.")
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
             }
 
             Kirigami.Separator {

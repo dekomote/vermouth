@@ -70,6 +70,7 @@ public:
     bool enableGamemode = false;
     bool enablePreferSdl = false;
     bool enableNsenter = false;
+    QString gpu;
     bool enableLsfg = false;
     int lsfgMultiplier = 2;
     int lsfgFlowScale = 50;

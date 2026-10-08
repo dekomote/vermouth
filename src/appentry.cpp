@@ -60,6 +60,7 @@ QJsonObject AppEntry::toJson() const
     obj[QStringLiteral("enableGamemode")] = enableGamemode;
     obj[QStringLiteral("enablePreferSdl")] = enablePreferSdl;
     obj[QStringLiteral("enableNsenter")] = enableNsenter;
+    obj[QStringLiteral("gpu")] = gpu;
     obj[QStringLiteral("enableLsfg")] = enableLsfg;
     obj[QStringLiteral("lsfgMultiplier")] = lsfgMultiplier;
     obj[QStringLiteral("lsfgFlowScale")] = lsfgFlowScale;
@@ -102,6 +103,7 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("enableGamemode"), enableGamemode},
         {QStringLiteral("enablePreferSdl"), enablePreferSdl},
         {QStringLiteral("enableNsenter"), enableNsenter},
+        {QStringLiteral("gpu"), gpu},
         {QStringLiteral("enableLsfg"), enableLsfg},
         {QStringLiteral("lsfgMultiplier"), lsfgMultiplier},
         {QStringLiteral("lsfgFlowScale"), lsfgFlowScale},
@@ -149,6 +151,7 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     e.enableGamemode = obj[QStringLiteral("enableGamemode")].toBool(false);
     e.enablePreferSdl = obj[QStringLiteral("enablePreferSdl")].toBool(false);
     e.enableNsenter = obj[QStringLiteral("enableNsenter")].toBool(false);
+    e.gpu = obj[QStringLiteral("gpu")].toString();
     e.enableLsfg = obj[QStringLiteral("enableLsfg")].toBool(false);
     e.lsfgMultiplier = obj[QStringLiteral("lsfgMultiplier")].toInt(2);
     e.lsfgFlowScale = obj[QStringLiteral("lsfgFlowScale")].toInt(50);
@@ -194,6 +197,7 @@ void AppEntry::updateFromVariantMap(const QVariantMap &app)
     enableGamemode = app.value(QStringLiteral("enableGamemode"), false).toBool();
     enablePreferSdl = app.value(QStringLiteral("enablePreferSdl"), false).toBool();
     enableNsenter = app.value(QStringLiteral("enableNsenter"), false).toBool();
+    gpu = app.value(QStringLiteral("gpu"), QString()).toString();
     enableLsfg = app.value(QStringLiteral("enableLsfg"), false).toBool();
     lsfgMultiplier = app.value(QStringLiteral("lsfgMultiplier"), 2).toInt();
     lsfgFlowScale = app.value(QStringLiteral("lsfgFlowScale"), 50).toInt();

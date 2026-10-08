@@ -42,6 +42,7 @@ qt_add_executable(vermouth
     src/appmodel.cpp
     src/protonscanner.cpp
     src/launcher.cpp
+    src/gpumanager.cpp
     src/desktopfilewriter.cpp
     src/iconextractor.cpp
     src/settingsmanager.cpp
@@ -92,6 +93,7 @@ qt_add_qml_module(vermouth
         qml/LogDialog.qml
         qml/RunExeStandaloneDialog.qml
         qml/RuntimePicker.qml
+        qml/GpuPicker.qml
         qml/SettingsDialog.qml
         qml/SteamGridDBPickerDialog.qml
         qml/SteamImportDialog.qml

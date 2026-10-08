@@ -96,6 +96,7 @@ It works like Lutris, Heroic, or Bottles, but lighter and KDE-first - less butto
 - Run common Wine utilities - winecfg, regedit, winetricks
 - Toggle HDR per-session on KDE - sets the required Proton environment variables automatically
 - Global launch options per runtime, which each game can override
+- GPU selector for systems with more than one GPU - a default in Settings and an override per game
 
 **Library**
 - Extracts icons from `.exe` files automatically (requires `icoutils`)
@@ -146,6 +147,8 @@ For Steam games, use **Menu → Import Steam games** if you don't want to search
 The **Launch Options** field wraps the command with tools like `mangohud`, `gamescope`, or `gamemoderun`. Use `%command%` as the placeholder - if omitted, options are prepended automatically. You can also set environment variables here, e.g. `GAMEID=12345 %command%` to pass a Steam App ID to umu-launcher.
 
 **Global launch options:** Open **Settings → Global Launch Options** to set launch options once for every game that uses a runtime. There is one field each for Proton, Wine, Native, UZDOOM, and Steam, for example `gamemoderun %command%`. A game with its own **Launch Options** replaces the global ones for that runtime. When a global option is set, the game editor shows it in the Launch Options field and says whether the game is using it or overriding it. To opt a single game out of the global options, enter `%command%` in its Launch Options field. Installers, `winecfg`, `regedit` and other prefix tools never use the global options. Games added from RomM and RetroArch ROMs don't either.
+
+**Choosing a GPU:** On a system with two or more GPUs, **Settings → Graphics** has a **Default GPU** and each game's **Advanced Options** has a **GPU** setting that can follow the global one, use the system default, or pick a specific GPU. Vermouth finds the GPUs itself and sets `DRI_PRIME` to the chosen card's PCI slot, which works for NVIDIA and AMD cards alike, including several cards of the same model. For OpenGL games on NVIDIA it also sets NVIDIA's render offload variables. The option is hidden when there is only one GPU, and it doesn't apply to Steam and RetroArch games. Per-game environment variables still override whatever it sets.
 
 **Trainers and other helper programs:** For Proton games run through umu-launcher, the game editor has a **Join running container for this prefix** option (`UMU_CONTAINER_NSENTER`). Turn it on for a trainer, mod manager or similar tool that has to see a game that is already running in the same prefix, so it starts inside the game's container instead of a new one. Leave it off for ordinary games - when no container is running, umu waits several seconds before it gives up and starts a new one, which delays the launch.
 

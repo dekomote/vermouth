@@ -93,6 +93,7 @@ Kirigami.Dialog {
         enableGamemodeCheck.checked = false;
         enablePreferSdlCheck.checked = false;
         enableNsenterCheck.checked = false;
+        gpuCombo.load("");
         enableAutoHdrCheck.checked = false;
         enableLsfgCheck.checked = false;
         lsfgMultiplierSpin.value = 2;
@@ -203,6 +204,7 @@ Kirigami.Dialog {
         enableGamemodeCheck.checked = app.enableGamemode || false;
         enablePreferSdlCheck.checked = app.enablePreferSdl || false;
         enableNsenterCheck.checked = app.enableNsenter || false;
+        gpuCombo.load(app.gpu || "");
         enableAutoHdrCheck.checked = app.enableAutoHdr || false;
         enableLsfgCheck.checked = app.enableLsfg || false;
         lsfgMultiplierSpin.value = app.lsfgMultiplier || 2;
@@ -330,6 +332,7 @@ Kirigami.Dialog {
             "enableGamemode": enableGamemodeCheck.checked,
             "enablePreferSdl": enablePreferSdlCheck.checked,
             "enableNsenter": enableNsenterCheck.checked,
+            "gpu": gpuCombo.value,
             "enableAutoHdr": enableAutoHdrCheck.checked,
             "enableLsfg": enableLsfgCheck.checked,
             "lsfgMultiplier": lsfgMultiplierSpin.value,
@@ -796,6 +799,17 @@ Kirigami.Dialog {
                     text: i18n("Join running container for this prefix (UMU_CONTAINER_NSENTER)")
                     visible: runtimePicker.resolvedRuntimeType === "proton"
                     QQC2.ToolTip.text: i18n("Starts this program inside the umu container that is already running for this prefix, instead of a new one. Needed for trainers, mod managers, cheat tools and anything else that has to see or talk to a game that is already running. Adds several seconds to launch when no container is running, so leave it off for normal games.")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                }
+
+                GpuPicker {
+                    id: gpuCombo
+                    allowInherit: true
+                    Layout.fillWidth: true
+                    Kirigami.FormData.label: i18n("GPU:")
+                    visible: dialog.showAdvancedOptions && gpuManager.available
+                    QQC2.ToolTip.text: i18n("Which GPU this game runs on. \"Global setting\" follows the default GPU in Settings.")
                     QQC2.ToolTip.visible: hovered
                     QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
                 }

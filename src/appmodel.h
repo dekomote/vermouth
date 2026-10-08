@@ -41,6 +41,7 @@ public:
         EnableGamemodeRole,
         EnablePreferSdlRole,
         EnableNsenterRole,
+        GpuRole,
         EnableLsfgRole,
         LsfgMultiplierRole,
         LsfgFlowScaleRole,
