@@ -40,7 +40,7 @@ Kirigami.ApplicationWindow {
         {
             key: "gog",
             name: i18n("GOG Library"),
-            icon: "gog-symbolic",
+            icon: "gog",
             iconSource: "qrc:/icons/gog.svg",
             enabled: true,
             nav: true,
@@ -403,9 +403,8 @@ Kirigami.ApplicationWindow {
             },
             Kirigami.Action {
                 text: i18n("Import GOG games")
-                icon.name: "gog-symbolic"
+                icon.name: "gog"
                 icon.source: "qrc:/icons/gog.svg"
-                icon.color: Kirigami.Theme.textColor
                 onTriggered: gogImportDialog.openDialog()
             },
             Kirigami.Action {
