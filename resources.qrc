@@ -3,10 +3,12 @@
         <file alias="vermouth.svg">assets/com.dekomote.vermouth.svg</file>
         <file alias="gog.svg">assets/gog_logo.svg</file>
         <file alias="gog-symbolic.svg">assets/gog_logo.svg</file>
+        <file alias="romm.svg">assets/romm_logo.svg</file>
     </qresource>
     <qresource prefix="/icons/hicolor/scalable/apps">
         <file alias="gog.svg">assets/gog_logo.svg</file>
         <file alias="gog-symbolic.svg">assets/gog_logo.svg</file>
+        <file alias="romm.svg">assets/romm_logo.svg</file>
     </qresource>
     <qresource prefix="/org.kde.kcolorscheme/color-schemes">
         <file alias="VermouthDark.colors">assets/color-schemes/VermouthDark.colors</file>
