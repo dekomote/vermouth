@@ -51,6 +51,7 @@ qt_add_executable(vermouth
     src/winescanner.cpp
     src/umudownloader.cpp
     src/uzdoomdownloader.cpp
+    src/dosboxdownloader.cpp
     src/downloader.cpp
     src/launcherdownloader.cpp
     src/steamshortcutwriter.cpp

@@ -46,6 +46,8 @@ Kirigami.Dialog {
     property bool mangohudAvailable: false
     property bool gamemodeAvailable: false
     property bool lsfgAvailable: false
+    // DOSBox Staging is a plain native process: GameMode and frame generation make no sense for it.
+    readonly property bool isDosbox: runtimePicker.runtimeType === "dosbox"
     readonly property bool showAdvancedOptions: runtimePicker.runtimeType !== "steam" && runtimePicker.runtimeType !== "retroarch"
     readonly property bool showLaunchAndEnv: runtimePicker.runtimeType !== "retroarch"
     property var lsfgPresentModes: [
@@ -128,9 +130,9 @@ Kirigami.Dialog {
             if (/^\.desktop$/i.test(filename))
                 nameField.text = filename.replace(/\.desktop$/i, "");
             else
-                nameField.text = filename.replace(/\.(exe|sh|py|pl|rb|run|bash|zsh|AppImage|appimage|wad|pk3)$/i, "");
+                nameField.text = filename.replace(/\.(exe|com|bat|conf|sh|py|pl|rb|run|bash|zsh|AppImage|appimage|wad|pk3)$/i, "");
         }
-        if (runtimePicker.runtimeType === "native" || runtimePicker.runtimeType === "uzdoom") {
+        if (runtimePicker.runtimeType === "native" || runtimePicker.runtimeType === "uzdoom" || runtimePicker.runtimeType === "dosbox") {
             protonPrefixField.text = "";
             winePrefixField.text = "";
             return;
@@ -315,6 +317,7 @@ Kirigami.Dialog {
             "steamAppId": rt === "steam" ? (steamIdField.text !== "" ? parseInt(steamIdField.text) : 0) : 0,
             "platformSlug": rt === "retroarch" ? (platformCombo.currentValue || "") : "",
             "uzdoomPath": runtimePicker.uzdoomPath,
+            "dosboxPath": runtimePicker.dosboxPath,
             "uzdoomMods": dialog.collectUzdoomMods(),
             "protonPath": protonPath,
             "protonPrefix": protonPrefix,
@@ -329,12 +332,12 @@ Kirigami.Dialog {
             "steamGridDbId": sgdbId,
             "protonGameId": protonGameIdField.text || "",
             "enableMangohud": enableMangohudCheck.checked,
-            "enableGamemode": enableGamemodeCheck.checked,
+            "enableGamemode": enableGamemodeCheck.checked && rt !== "dosbox",
             "enablePreferSdl": enablePreferSdlCheck.checked,
             "enableNsenter": enableNsenterCheck.checked,
             "gpu": gpuCombo.value,
             "enableAutoHdr": enableAutoHdrCheck.checked,
-            "enableLsfg": enableLsfgCheck.checked,
+            "enableLsfg": enableLsfgCheck.checked && rt !== "dosbox",
             "lsfgMultiplier": lsfgMultiplierSpin.value,
             "lsfgFlowScale": lsfgFlowScaleSpin.value,
             "lsfgPerformanceMode": lsfgPerformanceModeCheck.checked,
@@ -460,15 +463,22 @@ Kirigami.Dialog {
                     RowLayout {
                         Layout.fillWidth: true
                         visible: runtimePicker.runtimeType !== "steam"
-                        Kirigami.FormData.label: runtimePicker.runtimeType === "retroarch" ? i18n("ROM File:") : runtimePicker.runtimeType === "uzdoom" ? i18n("WAD File:") : runtimePicker.runtimeType === "native" ? i18n("Executable / AppImage:") : i18n("Executable (.exe):")
+                        Kirigami.FormData.label: runtimePicker.runtimeType === "retroarch" ? i18n("ROM File:") : runtimePicker.runtimeType === "uzdoom" ? i18n("WAD File:") : runtimePicker.runtimeType === "dosbox" ? i18n("Game Folder / Program / .conf:") : runtimePicker.runtimeType === "native" ? i18n("Executable / AppImage:") : i18n("Executable (.exe):")
                         QQC2.TextField {
                             id: exeField
                             Layout.fillWidth: true
-                            placeholderText: runtimePicker.runtimeType === "retroarch" ? "/path/to/rom.sfc" : runtimePicker.runtimeType === "uzdoom" ? "/path/to/game.wad" : runtimePicker.runtimeType === "native" ? "/path/to/app.AppImage" : "/path/to/game.exe"
+                            placeholderText: runtimePicker.runtimeType === "retroarch" ? "/path/to/rom.sfc" : runtimePicker.runtimeType === "uzdoom" ? "/path/to/game.wad" : runtimePicker.runtimeType === "dosbox" ? "/path/to/game-folder or game.conf" : runtimePicker.runtimeType === "native" ? "/path/to/app.AppImage" : "/path/to/game.exe"
                         }
                         QQC2.ToolButton {
                             icon.name: "document-open-symbolic"
                             onClicked: runtimePicker.runtimeType === "retroarch" ? romFileDialog.open() : exeFileDialog.open()
+                        }
+                        QQC2.ToolButton {
+                            visible: runtimePicker.runtimeType === "dosbox"
+                            icon.name: "folder-open-symbolic"
+                            QQC2.ToolTip.visible: hovered
+                            QQC2.ToolTip.text: i18n("Pick a game folder")
+                            onClicked: dosboxFolderDialog.open()
                         }
                         QQC2.ToolButton {
                             visible: runtimePicker.resolvedRuntimeType === "wine" || runtimePicker.resolvedRuntimeType === "proton"
@@ -823,7 +833,7 @@ Kirigami.Dialog {
                 QQC2.CheckBox {
                     id: enableGamemodeCheck
                     text: i18n("Enable GameMode (gamemoderun)")
-                    visible: dialog.showAdvancedOptions && dialog.gamemodeAvailable
+                    visible: dialog.showAdvancedOptions && dialog.gamemodeAvailable && !dialog.isDosbox
                 }
 
                 QQC2.CheckBox {
@@ -933,13 +943,13 @@ Kirigami.Dialog {
                 Kirigami.Separator {
                     Kirigami.FormData.isSection: true
                     Kirigami.FormData.label: i18n("Lossless Scaling Frame Generation")
-                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable
+                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && !dialog.isDosbox
                 }
 
                 QQC2.CheckBox {
                     id: enableLsfgCheck
                     text: i18n("Enable LSFG frame generation")
-                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable
+                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && !dialog.isDosbox
                 }
 
                 QQC2.SpinBox {
@@ -952,7 +962,7 @@ Kirigami.Dialog {
                     textFromValue: function (v) {
                         return v + "x";
                     }
-                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && enableLsfgCheck.checked
+                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && !dialog.isDosbox && enableLsfgCheck.checked
                 }
 
                 QQC2.SpinBox {
@@ -962,13 +972,13 @@ Kirigami.Dialog {
                     from: 0
                     to: 100
                     editable: true
-                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && enableLsfgCheck.checked
+                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && !dialog.isDosbox && enableLsfgCheck.checked
                 }
 
                 QQC2.CheckBox {
                     id: lsfgPerformanceModeCheck
                     text: i18n("Performance mode")
-                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && enableLsfgCheck.checked
+                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && !dialog.isDosbox && enableLsfgCheck.checked
                 }
 
                 QQC2.ComboBox {
@@ -978,7 +988,7 @@ Kirigami.Dialog {
                     model: dialog.lsfgPresentModes
                     textRole: "text"
                     valueRole: "value"
-                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && enableLsfgCheck.checked
+                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && !dialog.isDosbox && enableLsfgCheck.checked
                 }
             }
         }
@@ -988,9 +998,19 @@ Kirigami.Dialog {
         id: exeFileDialog
         title: i18n("Select Executable")
         currentFolder: "file://" + protonScanner.homePath()
-        nameFilters: runtimePicker.runtimeType === "native" ? [i18n("Binaries, scripts & AppImages (*.sh *.py *.pl *.rb *.run *.bash *.zsh *.AppImage *.appimage *.desktop)"), i18n("All files (*)")] : runtimePicker.runtimeType === "uzdoom" ? [i18n("WAD files (*.wad)"), i18n("All files (*)")] : [i18n("Executables (*.exe)"), i18n("All files (*)")]
+        nameFilters: runtimePicker.runtimeType === "native" ? [i18n("Binaries, scripts & AppImages (*.sh *.py *.pl *.rb *.run *.bash *.zsh *.AppImage *.appimage *.desktop)"), i18n("All files (*)")] : runtimePicker.runtimeType === "uzdoom" ? [i18n("WAD files (*.wad)"), i18n("All files (*)")] : runtimePicker.runtimeType === "dosbox" ? [i18n("DOS programs & configs (*.conf *.exe *.com *.bat)"), i18n("All files (*)")] : [i18n("Executables (*.exe)"), i18n("All files (*)")]
         onAccepted: {
             var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
+            dialog.applyExePath(path);
+        }
+    }
+
+    FolderDialog {
+        id: dosboxFolderDialog
+        title: i18n("Select game folder")
+        currentFolder: "file://" + protonScanner.homePath()
+        onAccepted: {
+            var path = decodeURIComponent(selectedFolder.toString().replace("file://", ""));
             dialog.applyExePath(path);
         }
     }

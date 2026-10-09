@@ -31,6 +31,7 @@ public:
         PlatformSlugRole,
         CustomCorePathRole,
         UzdoomPathRole,
+        DosboxPathRole,
         UzdoomModsRole,
         LaunchOptionsRole,
         EnableLoggingRole,

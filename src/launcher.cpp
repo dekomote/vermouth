@@ -81,6 +81,11 @@ void Launcher::setUzdoomPath(const QString &path)
     m_uzdoomPath = path;
 }
 
+void Launcher::setDosboxPath(const QString &path)
+{
+    m_dosboxPath = path;
+}
+
 void Launcher::setLsfgDllPath(const QString &path)
 {
     m_lsfgDllPath = path;
@@ -824,6 +829,28 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         }
         if (isInsideFlatpak())
             baseArgs.prepend(QStringLiteral("--appimage-extract-and-run"));
+        return launch(binary, baseArgs, exePath, env, opts, logging, name, false, commandWrappers, autoHdr);
+    }
+
+    if (runtimeType == QStringLiteral("dosbox")) {
+        QString binary = app[QStringLiteral("dosboxPath")].toString();
+        if (binary.isEmpty())
+            binary = m_dosboxPath;
+        if (binary.isEmpty())
+            binary = QStandardPaths::findExecutable(QStringLiteral("dosbox-staging"));
+        if (binary.isEmpty()) {
+            Q_EMIT launchError(name, QStringLiteral("DOSBox Staging not set. Download it or pick it in the game settings."));
+            return -1;
+        }
+        QFileInfo fi(binary);
+        if (!fi.isExecutable())
+            QFile::setPermissions(binary, fi.permissions() | QFileDevice::ExeOwner | QFileDevice::ExeGroup | QFileDevice::ExeOther);
+        // A config file is loaded as is. A folder or a DOS program gets mounted as C: by DOSBox itself.
+        QStringList baseArgs;
+        if (exePath.endsWith(QStringLiteral(".conf"), Qt::CaseInsensitive))
+            baseArgs << QStringLiteral("-conf") << exePath;
+        else
+            baseArgs << exePath;
         return launch(binary, baseArgs, exePath, env, opts, logging, name, false, commandWrappers, autoHdr);
     }
 

@@ -166,6 +166,8 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.customCorePath;
     case UzdoomPathRole:
         return e.uzdoomPath;
+    case DosboxPathRole:
+        return e.dosboxPath;
     case UzdoomModsRole:
         return e.uzdoomMods;
     case LaunchOptionsRole:
@@ -228,6 +230,7 @@ QHash<int, QByteArray> AppModel::roleNames() const
         {PlatformSlugRole, "platformSlug"},
         {CustomCorePathRole, "customCorePath"},
         {UzdoomPathRole, "uzdoomPath"},
+        {DosboxPathRole, "dosboxPath"},
         {UzdoomModsRole, "uzdoomMods"},
         {LaunchOptionsRole, "launchOptions"},
         {EnableLoggingRole, "enableLogging"},

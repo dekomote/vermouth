@@ -160,6 +160,7 @@ QVariantMap SettingsManager::globalLaunchOptions() const
                                   QStringLiteral("wine"),
                                   QStringLiteral("native"),
                                   QStringLiteral("uzdoom"),
+                                  QStringLiteral("dosbox"),
                                   QStringLiteral("steam")};
     for (const QString &rt : runtimes) {
         const QString opts = m_settings.value(QStringLiteral("globalLaunchOptions/") + rt).toString();
@@ -338,6 +339,19 @@ void SettingsManager::setUzdoomPath(const QString &path)
         return;
     m_settings.setValue(QStringLiteral("uzdoomPath"), path);
     Q_EMIT uzdoomPathChanged();
+}
+
+QString SettingsManager::dosboxPath() const
+{
+    return m_settings.value(QStringLiteral("dosboxPath")).toString();
+}
+
+void SettingsManager::setDosboxPath(const QString &path)
+{
+    if (dosboxPath() == path)
+        return;
+    m_settings.setValue(QStringLiteral("dosboxPath"), path);
+    Q_EMIT dosboxPathChanged();
 }
 
 QString SettingsManager::romCacheDir() const
