@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QHash>
 #include <QList>
 #include <QObject>
 #include <QPair>
@@ -34,8 +35,13 @@ private:
         QString id;
         QString name;
         QString driver;
+        QString pciId; // "10de:2702"
+        QString icdFiles;
+        QString deviceUuid;
     };
 
+    static QString findIcdFiles(const QString &driver);
+    static QHash<QString, QString> vulkanDeviceUuids();
     static QString lookupName(const QString &slot, const QString &vendorId, const QString &deviceId);
 
     QList<Gpu> m_gpus;

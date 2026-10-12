@@ -72,6 +72,8 @@ void GpuManager::detect(const QString &drmRoot)
         Gpu gpu;
         gpu.id = slot;
         gpu.name = slot;
+        if (pciId.size() == 2)
+            gpu.pciId = pciId.join(QLatin1Char(':'));
         gpu.driver = info.value(QStringLiteral("DRIVER"));
         found << gpu;
         pciIds << qMakePair(pciId.value(0), pciId.value(1));
@@ -81,6 +83,14 @@ void GpuManager::detect(const QString &drmRoot)
     if (found.size() > 1)
         for (int i = 0; i < found.size(); ++i)
             found[i].name = lookupName(found.at(i).id, pciIds.at(i).first, pciIds.at(i).second);
+
+    if (found.size() > 1) {
+        const QHash<QString, QString> uuids = vulkanDeviceUuids();
+        for (Gpu &gpu : found) {
+            gpu.icdFiles = findIcdFiles(gpu.driver);
+            gpu.deviceUuid = uuids.value(gpu.pciId);
+        }
+    }
 
     // Identical cards would show up as identical entries, so tell them apart by slot.
     QHash<QString, int> nameCount;
@@ -133,30 +143,112 @@ QString GpuManager::lookupName(const QString &slot, const QString &vendorId, con
     return vendor.isEmpty() ? device : vendor + QLatin1Char(' ') + device;
 }
 
+// Vulkan driver manifests (ICD files) for a kernel driver, searched where the loader looks.
+QString GpuManager::findIcdFiles(const QString &driver)
+{
+    static const QHash<QString, QString> loaders{
+        {QStringLiteral("amdgpu"), QStringLiteral("radeon")},
+        {QStringLiteral("vc4-drm"), QStringLiteral("broadcom")},
+        {QStringLiteral("v3d"), QStringLiteral("broadcom")},
+        {QStringLiteral("virtio-pci"), QStringLiteral("lvp")},
+        {QStringLiteral("i915"), QStringLiteral("intel")},
+        {QStringLiteral("xe"), QStringLiteral("intel")},
+    };
+    const QString loader = loaders.value(driver, driver);
+    if (loader.isEmpty())
+        return {};
+
+    static const QStringList dataDirs{
+        QStringLiteral("/usr/local/etc"),
+        QStringLiteral("/usr/local/share"),
+        QStringLiteral("/etc"),
+        QStringLiteral("/usr/share"),
+        QStringLiteral("/usr/lib/x86_64-linux-gnu/GL"),
+        QStringLiteral("/usr/lib/i386-linux-gnu/GL"),
+        QStringLiteral("/opt/amdgpu-pro/etc"),
+    };
+    QStringList files;
+    for (const QString &dataDir : dataDirs) {
+        const QDir icdDir(dataDir + QStringLiteral("/vulkan/icd.d"));
+        const QStringList manifests = icdDir.entryList({QStringLiteral("*.json")}, QDir::Files, QDir::Name);
+        for (const QString &manifest : manifests) {
+            if (manifest.contains(loader))
+                files << icdDir.filePath(manifest);
+        }
+    }
+    return files.join(QLatin1Char(':'));
+}
+
+// Maps "vendor:device" to the Vulkan device UUID. Empty where vulkaninfo isn't installed.
+QHash<QString, QString> GpuManager::vulkanDeviceUuids()
+{
+    QHash<QString, QString> uuids;
+    const QString vulkaninfo = QStandardPaths::findExecutable(QStringLiteral("vulkaninfo"));
+    if (vulkaninfo.isEmpty())
+        return uuids;
+
+    // Overlay layers can crash vulkaninfo on exit, so they are off and the exit status is ignored.
+    QProcess proc;
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert(QStringLiteral("VK_LOADER_LAYERS_DISABLE"), QStringLiteral("~implicit~"));
+    proc.setProcessEnvironment(env);
+    proc.start(vulkaninfo, {QStringLiteral("--summary")});
+    if (!proc.waitForFinished(5000)) {
+        proc.kill();
+        return uuids;
+    }
+
+    QString vendor;
+    QString device;
+    const QStringList lines = QString::fromUtf8(proc.readAllStandardOutput()).split(QLatin1Char('\n'));
+    for (const QString &raw : lines) {
+        const QString line = raw.trimmed();
+        const int eq = line.indexOf(QStringLiteral("= "));
+        if (line.startsWith(QStringLiteral("GPU"))) {
+            vendor.clear();
+            device.clear();
+        } else if (eq > 0) {
+            const QString key = line.left(eq).trimmed();
+            const QString value = line.mid(eq + 2).trimmed();
+            if (key == QStringLiteral("vendorID"))
+                vendor = value.mid(value.startsWith(QStringLiteral("0x")) ? 2 : 0).toLower();
+            else if (key == QStringLiteral("deviceID"))
+                device = value.mid(value.startsWith(QStringLiteral("0x")) ? 2 : 0).toLower();
+            else if (key == QStringLiteral("deviceUUID") && !vendor.isEmpty() && !device.isEmpty()) {
+                const QString id = vendor + QLatin1Char(':') + device;
+                if (!uuids.contains(id))
+                    uuids.insert(id, QString(value).remove(QLatin1Char('-')));
+            }
+        }
+    }
+    return uuids;
+}
+
 QList<QPair<QString, QString>> GpuManager::environmentFor(const QString &id) const
 {
     const Gpu *chosen = nullptr;
-    bool hasNvidia = false;
     for (const Gpu &gpu : m_gpus) {
-        hasNvidia = hasNvidia || gpu.driver == QStringLiteral("nvidia");
         if (gpu.id == id)
             chosen = &gpu;
     }
-    if (!chosen)
+    if (!chosen || !available())
         return {};
 
-    // DRI_PRIME names the card by PCI slot (pci-0000_03_00_0). Mesa's Vulkan device selection honours it for
-    // every Vulkan device, NVIDIA included, which is what DXVK and VKD3D use, and it tells identical cards apart.
-    QString slot = chosen->id;
-    slot.replace(QLatin1Char(':'), QLatin1Char('_')).replace(QLatin1Char('.'), QLatin1Char('_'));
-    QList<QPair<QString, QString>> env{{QStringLiteral("DRI_PRIME"), QStringLiteral("pci-") + slot}};
-
-    // OpenGL goes through GLVND, which DRI_PRIME doesn't steer once the NVIDIA driver is installed.
+    QList<QPair<QString, QString>> env;
     if (chosen->driver == QStringLiteral("nvidia")) {
+        env.append({QStringLiteral("DRI_PRIME"), QStringLiteral("1")});
         env.append({QStringLiteral("__NV_PRIME_RENDER_OFFLOAD"), QStringLiteral("1")});
         env.append({QStringLiteral("__GLX_VENDOR_LIBRARY_NAME"), QStringLiteral("nvidia")});
-    } else if (hasNvidia) {
-        env.append({QStringLiteral("__GLX_VENDOR_LIBRARY_NAME"), QStringLiteral("mesa")});
+        env.append({QStringLiteral("__VK_LAYER_NV_optimus"), QStringLiteral("NVIDIA_only")});
+    } else if (!chosen->pciId.isEmpty()) {
+        env.append({QStringLiteral("DRI_PRIME"), chosen->pciId});
     }
+    // An empty value would hide every Vulkan driver.
+    if (!chosen->icdFiles.isEmpty()) {
+        env.append({QStringLiteral("VK_ICD_FILENAMES"), chosen->icdFiles});
+        env.append({QStringLiteral("VK_DRIVER_FILES"), chosen->icdFiles});
+    }
+    if (!chosen->deviceUuid.isEmpty())
+        env.append({QStringLiteral("DXVK_FILTER_DEVICE_UUID"), chosen->deviceUuid});
     return env;
 }
