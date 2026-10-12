@@ -47,6 +47,40 @@ static QString kscreenDoctorBin()
     return isInsideFlatpak() ? QStringLiteral("flatpak-spawn") : QStringLiteral("kscreen-doctor");
 }
 
+// Arguments that make DOSBox Staging start what the entry points at. A config file is loaded as is and a DOS
+// program gets its folder mounted as C: by DOSBox itself. A folder on its own would only give an empty DOS
+// prompt, so look for something to start in it.
+static QStringList dosboxArgs(const QString &exePath)
+{
+    if (exePath.endsWith(QStringLiteral(".conf"), Qt::CaseInsensitive))
+        return {QStringLiteral("--conf"), exePath};
+    if (!QFileInfo(exePath).isDir())
+        return {exePath};
+
+    const QDir dir(exePath);
+    const QStringList confs = dir.entryList({QStringLiteral("dosbox*.conf")}, QDir::Files, QDir::Name | QDir::IgnoreCase);
+    if (!confs.isEmpty()) {
+        // GOG ships dosbox_<game>.conf plus dosbox_<game>_single.conf, meant to be loaded together.
+        // A plain dosbox.conf stands alone.
+        QStringList toLoad = confs;
+        for (const QString &conf : confs) {
+            if (conf.compare(QStringLiteral("dosbox.conf"), Qt::CaseInsensitive) == 0)
+                toLoad = {conf};
+        }
+        QStringList args;
+        for (const QString &conf : std::as_const(toLoad))
+            args << QStringLiteral("--conf") << dir.filePath(conf);
+        // The configs mount paths relative to the game folder.
+        args << QStringLiteral("--working-dir") << exePath;
+        return args;
+    }
+
+    const QStringList programs = dir.entryList({QStringLiteral("*.bat"), QStringLiteral("*.exe"), QStringLiteral("*.com")}, QDir::Files);
+    if (programs.size() == 1)
+        return {dir.filePath(programs.first())};
+    return {exePath};
+}
+
 static QString currentScreenName()
 {
     QScreen *screen = QGuiApplication::screenAt(QCursor::pos());
@@ -845,12 +879,7 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         QFileInfo fi(binary);
         if (!fi.isExecutable())
             QFile::setPermissions(binary, fi.permissions() | QFileDevice::ExeOwner | QFileDevice::ExeGroup | QFileDevice::ExeOther);
-        // A config file is loaded as is. A folder or a DOS program gets mounted as C: by DOSBox itself.
-        QStringList baseArgs;
-        if (exePath.endsWith(QStringLiteral(".conf"), Qt::CaseInsensitive))
-            baseArgs << QStringLiteral("-conf") << exePath;
-        else
-            baseArgs << exePath;
+        const QStringList baseArgs = dosboxArgs(exePath);
         return launch(binary, baseArgs, exePath, env, opts, logging, name, false, commandWrappers, autoHdr);
     }
 

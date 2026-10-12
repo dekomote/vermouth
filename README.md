@@ -160,7 +160,7 @@ The **Launch Options** field wraps the command with tools like `mangohud`, `game
 
 **RetroArch games:** Click **Add Game**, select **RetroArch** as the runtime, choose the ROM file and platform. Vermouth will pick the right core automatically or prompt you to select one.
 
-**DOS games:** Click **Add Game**, select **DOSBox Staging** as the runtime, and pick a game folder, a DOS program (`.exe`, `.com`, `.bat`) or a DOSBox `.conf` file. A folder or program is mounted as `C:` by DOSBox; a `.conf` is loaded as is, so its `[autoexec]` section decides what starts. DOSBox Staging can be downloaded from the runtime picker or picked manually, and each game can override the binary path.
+**DOS games:** Click **Add Game**, select **DOSBox Staging** as the runtime, and pick a game folder, a DOS program (`.exe`, `.com`, `.bat`) or a DOSBox `.conf` file. A program has its folder mounted as `C:` by DOSBox; a `.conf` is loaded as is, so its `[autoexec]` section decides what starts. For a folder, Vermouth loads the `dosbox*.conf` file(s) inside it (GOG's `dosbox_<game>.conf` and `_single.conf` pair, or a plain `dosbox.conf`), otherwise runs the only `.bat`/`.exe`/`.com` in it, and only opens a bare DOS prompt when neither is found. DOSBox Staging can be downloaded from the runtime picker or picked manually, and each game can override the binary path.
 
 **UZDOOM games:** Click **Add Game**, select **UZDOOM (beta)** as the runtime, pick a base WAD, and optionally add mods (`.wad` or `.pk3`). The UZDOOM AppImage can be downloaded from the runtime picker or picked manually.
 
