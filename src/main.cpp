@@ -1,6 +1,7 @@
 #include "appmodel.h"
 #include "colorschemeswitcher.h"
 #include "desktopfilewriter.h"
+#include "dosboxdownloader.h"
 #include "flatpakutils.h"
 #include "gamepadhandler.h"
 #include "gogclient.h"
@@ -129,6 +130,7 @@ int main(int argc, char *argv[])
     launcher.setUmuPath(settingsManager.umuPath());
     launcher.setRetroarchPath(settingsManager.retroarchPath());
     launcher.setUzdoomPath(settingsManager.uzdoomPath());
+    launcher.setDosboxPath(settingsManager.dosboxPath());
     launcher.setRommCoreMap(settingsManager.rommCoreMap());
     launcher.setRommGameCoreMap(settingsManager.rommGameCoreMap());
     launcher.setDefaultRuntimeType(settingsManager.defaultRuntimeType());
@@ -213,6 +215,9 @@ int main(int argc, char *argv[])
     UzdoomDownloader uzdoomDownloader;
     uzdoomDownloader.setInstallPath(protonScanner.localAssetsPath() + QStringLiteral("/uzdoom"));
 
+    DosboxDownloader dosboxDownloader;
+    dosboxDownloader.setInstallPath(protonScanner.localAssetsPath() + QStringLiteral("/dosbox"));
+
     LauncherDownloader launcherDownloader;
     SteamShortcutWriter steamShortcutWriter;
 
@@ -290,6 +295,9 @@ int main(int argc, char *argv[])
     QObject::connect(&uzdoomDownloader, &UzdoomDownloader::finished, [&](const QString &appImagePath) {
         settingsManager.setUzdoomPath(appImagePath);
     });
+    QObject::connect(&dosboxDownloader, &DosboxDownloader::finished, [&](const QString &binaryPath) {
+        settingsManager.setDosboxPath(binaryPath);
+    });
 
     protonScanner.setExtraProtonPaths(settingsManager.extraProtonPaths());
     protonScanner.setCustomPrefixBasePath(settingsManager.defaultPrefixDir());
@@ -342,6 +350,9 @@ int main(int argc, char *argv[])
     });
     QObject::connect(&settingsManager, &SettingsManager::uzdoomPathChanged, [&]() {
         launcher.setUzdoomPath(settingsManager.uzdoomPath());
+    });
+    QObject::connect(&settingsManager, &SettingsManager::dosboxPathChanged, [&]() {
+        launcher.setDosboxPath(settingsManager.dosboxPath());
     });
 
     QObject::connect(&settingsManager, &SettingsManager::lsfgDllPathChanged, [&]() {
@@ -408,6 +419,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("wineDownloader"), &wineDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("umuDownloader"), &umuDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("uzdoomDownloader"), &uzdoomDownloader);
+    engine.rootContext()->setContextProperty(QStringLiteral("dosboxDownloader"), &dosboxDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("launcherDownloader"), &launcherDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("steamShortcutWriter"), &steamShortcutWriter);
     engine.rootContext()->setContextProperty(QStringLiteral("steamGridDb"), &steamGridDb);

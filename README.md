@@ -75,7 +75,7 @@ A native C++/Qt Linux launcher. 2.3 MB installed. Zero bloat. KDE-first.</p>
 
 ## What it does
 
-Vermouth is a KDE-first launcher with six modes:
+Vermouth is a KDE-first launcher with seven modes:
 
 - **Windows games** - run `.exe` files with Proton or Wine, with umu-launcher support for full Steam Runtime compatibility
 - **Native apps** - launch Linux binaries, `.desktop` entries, and AppImages directly
@@ -83,6 +83,7 @@ Vermouth is a KDE-first launcher with six modes:
 - **GOG games** - log into your GOG account and browse, download, and install your whole library from inside the app, or import games you've already installed from a folder
 - **Retro games** - browse and launch your [RomM](https://github.com/rommapp/romm) library via RetroArch, with platform filtering, cover art, and ROM downloads; or add ROM files directly to your library
 - **Doom engine games** - launch WAD/PK3 files with [UZDOOM](https://github.com/UZDoom/UZDoom) (beta)
+- **DOS games** - launch game folders, programs or `.conf` files with [DOSBox Staging](https://dosbox-staging.github.io/)
 
 It works like Lutris, Heroic, or Bottles, but lighter and KDE-first - less buttons, checks and knobs, just the bare necessities.
 
@@ -122,6 +123,7 @@ It works like Lutris, Heroic, or Bottles, but lighter and KDE-first - less butto
 - Proton or Wine for Windows games (GE-Proton can be downloaded from within Vermouth)
 - RetroArch with cores installed for retro games
 - [UZDOOM](https://github.com/UZDoom/UZDoom) AppImage for Doom engine games (can be downloaded from within Vermouth)
+- [DOSBox Staging](https://dosbox-staging.github.io/) for DOS games (can be downloaded from within Vermouth)
 - [umu-launcher](https://github.com/Open-Wine-Components/umu-launcher) recommended for best Windows game compatibility (can be downloaded from within Vermouth)
 - `icoutils` for automatic icon extraction from `.exe` files
 
@@ -133,7 +135,7 @@ Ubuntu 25.04 / Debian Trixie or newer are required on Debian-based systems due t
 
 1. [Install Vermouth](#installing) for your distro
 2. Click **Add Game** and browse for an `.exe`, binary, ROM, or `.desktop` file
-3. Choose a runtime - Proton, Wine, RetroArch, UZDOOM, or native
+3. Choose a runtime - Proton, Wine, RetroArch, UZDOOM, DOSBox Staging, or native
 4. Double-click to launch
 
 For Steam games, use **Menu → Import Steam games** if you don't want to search for game IDs.
@@ -146,7 +148,7 @@ For Steam games, use **Menu → Import Steam games** if you don't want to search
 
 The **Launch Options** field wraps the command with tools like `mangohud`, `gamescope`, or `gamemoderun`. Use `%command%` as the placeholder - if omitted, options are prepended automatically. You can also set environment variables here, e.g. `GAMEID=12345 %command%` to pass a Steam App ID to umu-launcher.
 
-**Global launch options:** Open **Settings → Global Launch Options** to set launch options once for every game that uses a runtime. There is one field each for Proton, Wine, Native, UZDOOM, and Steam, for example `gamemoderun %command%`. A game with its own **Launch Options** replaces the global ones for that runtime. When a global option is set, the game editor shows it in the Launch Options field and says whether the game is using it or overriding it. To opt a single game out of the global options, enter `%command%` in its Launch Options field. Installers, `winecfg`, `regedit` and other prefix tools never use the global options. Games added from RomM and RetroArch ROMs don't either.
+**Global launch options:** Open **Settings → Global Launch Options** to set launch options once for every game that uses a runtime. There is one field each for Proton, Wine, Native, UZDOOM, DOSBox Staging, and Steam, for example `gamemoderun %command%`. A game with its own **Launch Options** replaces the global ones for that runtime. When a global option is set, the game editor shows it in the Launch Options field and says whether the game is using it or overriding it. To opt a single game out of the global options, enter `%command%` in its Launch Options field. Installers, `winecfg`, `regedit` and other prefix tools never use the global options. Games added from RomM and RetroArch ROMs don't either.
 
 **Choosing a GPU:** On a system with two or more GPUs, **Settings → Graphics** has a **Default GPU**, and each game's **Advanced Options** has a **GPU** setting that can follow the global one, use the system default, or pick a specific GPU. Vermouth finds your GPUs on its own. The option is hidden when there is only one GPU, and it doesn't apply to Steam and RetroArch games.
 
@@ -157,6 +159,8 @@ The **Launch Options** field wraps the command with tools like `mangohud`, `game
 **GOG games:** Open the **GOG Library** tab to log into your GOG account and download, install, and play your games straight from the app. If you'd rather use games you already have on disk, click **Menu → Import GOG games** and point Vermouth at the folder where they live. See [GOG support](#gog-support) for the full rundown.
 
 **RetroArch games:** Click **Add Game**, select **RetroArch** as the runtime, choose the ROM file and platform. Vermouth will pick the right core automatically or prompt you to select one.
+
+**DOS games:** Click **Add Game**, select **DOSBox Staging** as the runtime, and pick a game folder, a DOS program (`.exe`, `.com`, `.bat`), a DOSBox `.conf` file, or a disc image (`.iso`, `.cue` for a CD, `.img`/`.ima` for a floppy). A program has its folder mounted as `C:` by DOSBox; a `.conf` is loaded as is, so its `[autoexec]` section decides what starts. For a folder, Vermouth loads the `dosbox*.conf` file(s) inside it (GOG's `dosbox_<game>.conf` and `_single.conf` pair, or a plain `dosbox.conf`), otherwise runs the only `.bat`/`.exe`/`.com` in it, and only opens a bare DOS prompt when neither is found. Use **Disc images** to mount extra CDs (put on `D:`, several can be swapped in DOSBox) or floppies (`A:`) next to the game, for example the install CD of a game that lives in a folder. A disc image picked as the game itself is mounted as `D:` (CD) or booted (floppy). DOSBox Staging can be downloaded from the runtime picker or picked manually, and each game can override the binary path.
 
 **UZDOOM games:** Click **Add Game**, select **UZDOOM (beta)** as the runtime, pick a base WAD, and optionally add mods (`.wad` or `.pk3`). The UZDOOM AppImage can be downloaded from the runtime picker or picked manually.
 

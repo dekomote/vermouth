@@ -35,6 +35,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(QString gogInstallDir READ gogInstallDir WRITE setGogInstallDir NOTIFY gogInstallDirChanged)
     Q_PROPERTY(QString retroarchPath READ retroarchPath WRITE setRetroarchPath NOTIFY retroarchPathChanged)
     Q_PROPERTY(QString uzdoomPath READ uzdoomPath WRITE setUzdoomPath NOTIFY uzdoomPathChanged)
+    Q_PROPERTY(QString dosboxPath READ dosboxPath WRITE setDosboxPath NOTIFY dosboxPathChanged)
     Q_PROPERTY(QString romCacheDir READ romCacheDir WRITE setRomCacheDir NOTIFY romCacheDirChanged)
     Q_PROPERTY(bool firstRunComplete READ firstRunComplete WRITE setFirstRunComplete NOTIFY firstRunCompleteChanged)
     Q_PROPERTY(bool showTips READ showTips WRITE setShowTips NOTIFY showTipsChanged)
@@ -84,7 +85,7 @@ public:
     QStringList globalEnvVars() const;
     Q_INVOKABLE void setGlobalEnvVars(const QStringList &vars);
 
-    // Launch options applied to every game of a runtime type (proton, wine, native, uzdoom, steam) unless the game sets its own.
+    // Launch options applied to every game of a runtime type (proton, wine, native, uzdoom, dosbox, steam) unless the game sets its own.
     QVariantMap globalLaunchOptions() const;
     Q_INVOKABLE void setGlobalLaunchOption(const QString &runtimeType, const QString &options);
 
@@ -118,6 +119,8 @@ public:
     Q_INVOKABLE void setRetroarchPath(const QString &path);
     QString uzdoomPath() const;
     Q_INVOKABLE void setUzdoomPath(const QString &path);
+    QString dosboxPath() const;
+    Q_INVOKABLE void setDosboxPath(const QString &path);
     QString romCacheDir() const;
     Q_INVOKABLE void setRomCacheDir(const QString &dir);
 
@@ -192,6 +195,7 @@ Q_SIGNALS:
     void gogInstalledGamesChanged();
     void retroarchPathChanged();
     void uzdoomPathChanged();
+    void dosboxPathChanged();
     void romCacheDirChanged();
     void firstRunCompleteChanged();
     void showTipsChanged();

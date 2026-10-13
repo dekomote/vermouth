@@ -35,6 +35,7 @@ Kirigami.ScrollablePage {
         settingsManager.setGlobalLaunchOption("wine", launchOptsWineField.text.trim());
         settingsManager.setGlobalLaunchOption("native", launchOptsNativeField.text.trim());
         settingsManager.setGlobalLaunchOption("uzdoom", launchOptsUzdoomField.text.trim());
+        settingsManager.setGlobalLaunchOption("dosbox", launchOptsDosboxField.text.trim());
         settingsManager.setGlobalLaunchOption("steam", launchOptsSteamField.text.trim());
         if (gpuManager.available && defaultGpuCombo.currentIndex >= 0)
             settingsManager.setDefaultGpu(defaultGpuCombo.value);
@@ -79,6 +80,7 @@ Kirigami.ScrollablePage {
         launchOptsWineField.text = settingsManager.globalLaunchOptions["wine"] || "";
         launchOptsNativeField.text = settingsManager.globalLaunchOptions["native"] || "";
         launchOptsUzdoomField.text = settingsManager.globalLaunchOptions["uzdoom"] || "";
+        launchOptsDosboxField.text = settingsManager.globalLaunchOptions["dosbox"] || "";
         launchOptsSteamField.text = settingsManager.globalLaunchOptions["steam"] || "";
         defaultGpuCombo.load(settingsManager.defaultGpu);
         defaultRuntimePicker.reset();
@@ -631,6 +633,13 @@ Kirigami.ScrollablePage {
                 Kirigami.FormData.label: i18n("UZDOOM:")
                 Layout.fillWidth: true
                 placeholderText: i18n("e.g. -skill 3")
+            }
+
+            QQC2.TextField {
+                id: launchOptsDosboxField
+                Kirigami.FormData.label: i18n("DOSBox Staging:")
+                Layout.fillWidth: true
+                placeholderText: i18n("e.g. --fullscreen")
             }
 
             QQC2.TextField {

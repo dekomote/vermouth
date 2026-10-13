@@ -1,4 +1,5 @@
 #include "launcher.h"
+#include "dosbox.h"
 #include "flatpakutils.h"
 #include "gpumanager.h"
 #include "platformcores.h"
@@ -79,6 +80,11 @@ void Launcher::setRetroarchPath(const QString &path)
 void Launcher::setUzdoomPath(const QString &path)
 {
     m_uzdoomPath = path;
+}
+
+void Launcher::setDosboxPath(const QString &path)
+{
+    m_dosboxPath = path;
 }
 
 void Launcher::setLsfgDllPath(const QString &path)
@@ -824,6 +830,23 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         }
         if (isInsideFlatpak())
             baseArgs.prepend(QStringLiteral("--appimage-extract-and-run"));
+        return launch(binary, baseArgs, exePath, env, opts, logging, name, false, commandWrappers, autoHdr);
+    }
+
+    if (runtimeType == QStringLiteral("dosbox")) {
+        QString binary = app[QStringLiteral("dosboxPath")].toString();
+        if (binary.isEmpty())
+            binary = m_dosboxPath;
+        if (binary.isEmpty())
+            binary = QStandardPaths::findExecutable(QStringLiteral("dosbox-staging"));
+        if (binary.isEmpty()) {
+            Q_EMIT launchError(name, QStringLiteral("DOSBox Staging not set. Download it or pick it in the game settings."));
+            return -1;
+        }
+        QFileInfo fi(binary);
+        if (!fi.isExecutable())
+            QFile::setPermissions(binary, fi.permissions() | QFileDevice::ExeOwner | QFileDevice::ExeGroup | QFileDevice::ExeOther);
+        const QStringList baseArgs = dosboxArgs(exePath, app[QStringLiteral("dosboxImages")].toStringList());
         return launch(binary, baseArgs, exePath, env, opts, logging, name, false, commandWrappers, autoHdr);
     }
 

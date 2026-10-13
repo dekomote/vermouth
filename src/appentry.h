@@ -25,6 +25,7 @@ public:
         Steam,
         Retroarch,
         Uzdoom,
+        Dosbox,
         Default,
         Count
     };
@@ -56,7 +57,9 @@ public:
     QString platformSlug;
     QString customCorePath;
     QString uzdoomPath;
+    QString dosboxPath;
     QStringList uzdoomMods;
+    QStringList dosboxImages;
     QString launchOptions;
     bool enableLogging = false;
     bool hidden = false;

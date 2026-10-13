@@ -7,6 +7,7 @@ const RuntimeTypeEntry AppEntry::runtimeTypeTable[] = {
     {"steam", "Steam"},
     {"retroarch", "Retroarch"},
     {"uzdoom", "UZDOOM (beta)"},
+    {"dosbox", "DOSBox Staging"},
     {"default", "Default"},
 };
 const int AppEntry::runtimeTypeCount = sizeof(runtimeTypeTable) / sizeof(runtimeTypeTable[0]);
@@ -48,7 +49,9 @@ QJsonObject AppEntry::toJson() const
     obj[QStringLiteral("platformSlug")] = platformSlug;
     obj[QStringLiteral("customCorePath")] = customCorePath;
     obj[QStringLiteral("uzdoomPath")] = uzdoomPath;
+    obj[QStringLiteral("dosboxPath")] = dosboxPath;
     obj[QStringLiteral("uzdoomMods")] = QJsonArray::fromStringList(uzdoomMods);
+    obj[QStringLiteral("dosboxImages")] = QJsonArray::fromStringList(dosboxImages);
     obj[QStringLiteral("launchOptions")] = launchOptions;
     obj[QStringLiteral("enableLogging")] = enableLogging;
     obj[QStringLiteral("hidden")] = hidden;
@@ -91,7 +94,9 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("platformSlug"), platformSlug},
         {QStringLiteral("customCorePath"), customCorePath},
         {QStringLiteral("uzdoomPath"), uzdoomPath},
+        {QStringLiteral("dosboxPath"), dosboxPath},
         {QStringLiteral("uzdoomMods"), uzdoomMods},
+        {QStringLiteral("dosboxImages"), dosboxImages},
         {QStringLiteral("launchOptions"), launchOptions},
         {QStringLiteral("enableLogging"), enableLogging},
         {QStringLiteral("hidden"), hidden},
@@ -137,9 +142,13 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     e.platformSlug = obj[QStringLiteral("platformSlug")].toString();
     e.customCorePath = obj[QStringLiteral("customCorePath")].toString();
     e.uzdoomPath = obj[QStringLiteral("uzdoomPath")].toString();
+    e.dosboxPath = obj[QStringLiteral("dosboxPath")].toString();
     QJsonArray modsArr = obj[QStringLiteral("uzdoomMods")].toArray();
     for (const auto &v : modsArr)
         e.uzdoomMods.append(v.toString());
+    const QJsonArray imagesArr = obj[QStringLiteral("dosboxImages")].toArray();
+    for (const auto &v : imagesArr)
+        e.dosboxImages.append(v.toString());
     e.launchOptions = obj[QStringLiteral("launchOptions")].toString();
     e.enableLogging = obj[QStringLiteral("enableLogging")].toBool(false);
     e.hidden = obj[QStringLiteral("hidden")].toBool(false);
@@ -185,7 +194,9 @@ void AppEntry::updateFromVariantMap(const QVariantMap &app)
     platformSlug = app[QStringLiteral("platformSlug")].toString();
     customCorePath = app[QStringLiteral("customCorePath")].toString();
     uzdoomPath = app[QStringLiteral("uzdoomPath")].toString();
+    dosboxPath = app[QStringLiteral("dosboxPath")].toString();
     uzdoomMods = app.value(QStringLiteral("uzdoomMods")).toStringList();
+    dosboxImages = app.value(QStringLiteral("dosboxImages")).toStringList();
     launchOptions = app[QStringLiteral("launchOptions")].toString();
     enableLogging = app.value(QStringLiteral("enableLogging"), false).toBool();
     if (app.contains(QStringLiteral("hidden")))

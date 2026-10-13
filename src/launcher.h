@@ -24,6 +24,7 @@ public:
     void setDefaultGpu(const QString &gpu);
     void setRetroarchPath(const QString &path);
     void setUzdoomPath(const QString &path);
+    void setDosboxPath(const QString &path);
     void setRommCoreMap(const QVariantMap &map);
     void setRommGameCoreMap(const QVariantMap &map);
     void setDefaultRuntimeType(const QString &type);
@@ -114,6 +115,7 @@ private:
     QString m_umuPath;
     QString m_retroarchPath;
     QString m_uzdoomPath;
+    QString m_dosboxPath;
     QString m_retroarchBinary;
     QVariantMap m_rommCoreMap;
     QVariantMap m_rommGameCoreMap;

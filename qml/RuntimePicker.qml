@@ -12,6 +12,7 @@ ColumnLayout {
     readonly property string protonPath: protonCombo.currentIndex >= 0 && protonCombo.currentIndex < protonModel.count ? protonModel.get(protonCombo.currentIndex).path : ""
     readonly property string wineBinary: wineCombo.currentIndex >= 0 && wineCombo.currentIndex < wineModel.count ? wineModel.get(wineCombo.currentIndex).path : ""
     readonly property string uzdoomPath: uzdoomPathField.text.trim()
+    readonly property string dosboxPath: dosboxPathField.text.trim()
     property string sectionLabel: i18n("Runtime")
     property alias formLayout: formLayout
     property var twinFormLayouts
@@ -74,6 +75,7 @@ ColumnLayout {
         else
             setRuntimeType(settingsManager.defaultRuntimeType);
         uzdoomPathField.text = settingsManager.uzdoomPath;
+        dosboxPathField.text = settingsManager.dosboxPath;
 
         var pp = settingsManager.defaultProtonPath;
         protonCombo.currentIndex = -1;
@@ -110,6 +112,7 @@ ColumnLayout {
         refreshProton();
         refreshWine();
         uzdoomPathField.text = app.uzdoomPath !== "" ? app.uzdoomPath : settingsManager.uzdoomPath;
+        dosboxPathField.text = app.dosboxPath !== "" ? app.dosboxPath : settingsManager.dosboxPath;
 
         if (app.runtimeType === "proton") {
             for (var i = 0; i < protonModel.count; i++) {
@@ -138,6 +141,9 @@ ColumnLayout {
         } else if (runtimeCombo.currentValue === "uzdoom") {
             if (uzdoomPathField.text.trim() === "")
                 return i18n("Please select or download the UZDOOM AppImage.");
+        } else if (runtimeCombo.currentValue === "dosbox") {
+            if (dosboxPathField.text.trim() === "")
+                return i18n("Please select or download DOSBox Staging.");
         } else if (runtimeCombo.currentValue === "default") {
             if (!root.defaultRuntimeAvailable)
                 return i18n("The default runtime is not fully configured in Settings.");
@@ -217,6 +223,13 @@ ColumnLayout {
         target: uzdoomDownloader
         function onFinished(path) {
             uzdoomPathField.text = path;
+        }
+    }
+
+    Connections {
+        target: dosboxDownloader
+        function onFinished(path) {
+            dosboxPathField.text = path;
         }
     }
 
@@ -458,6 +471,52 @@ ColumnLayout {
             visible: runtimeCombo.currentValue === "uzdoom" && uzdoomDownloader.busy
             progress: uzdoomDownloader.progress
             statusText: uzdoomDownloader.statusText
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            visible: runtimeCombo.currentValue === "dosbox"
+            Kirigami.FormData.label: i18n("DOSBox Staging:")
+            QQC2.TextField {
+                id: dosboxPathField
+                Layout.fillWidth: true
+                placeholderText: i18n("/path/to/dosbox")
+                text: settingsManager.dosboxPath
+                // Only promote to the global default when none is set yet, like the UZDOOM picker.
+                onTextChanged: if (settingsManager.dosboxPath === "")
+                    settingsManager.setDosboxPath(text.trim())
+            }
+            QQC2.ToolButton {
+                icon.name: "document-open-symbolic"
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.text: i18n("Browse for the DOSBox Staging binary")
+                onClicked: dosboxFileDialog.open()
+            }
+            QQC2.ToolButton {
+                icon.name: "folder-download-symbolic"
+                enabled: !dosboxDownloader.busy
+                QQC2.ToolTip.visible: hovered
+                QQC2.ToolTip.text: dosboxDownloader.statusText ? dosboxDownloader.statusText : i18n("Download latest DOSBox Staging")
+                onClicked: dosboxDownloader.downloadLatest()
+            }
+        }
+
+        DownloaderProgress {
+            Layout.fillWidth: true
+            Kirigami.FormData.label: ""
+            visible: runtimeCombo.currentValue === "dosbox" && dosboxDownloader.busy
+            progress: dosboxDownloader.progress
+            statusText: dosboxDownloader.statusText
+        }
+    }
+
+    FileDialog {
+        id: dosboxFileDialog
+        title: i18n("Select DOSBox Staging binary")
+        currentFolder: "file://" + protonScanner.homePath()
+        onAccepted: {
+            var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
+            dosboxPathField.text = path;
         }
     }
 
