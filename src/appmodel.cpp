@@ -62,11 +62,33 @@ bool AppModel::entryLessThan(int a, int b) const
     return m_sortAscending ? (result < 0) : (result > 0);
 }
 
+static QString runtimeGroup(AppEntry::RuntimeType type)
+{
+    switch (type) {
+    case AppEntry::Proton:
+    case AppEntry::Wine:
+    case AppEntry::Default:
+        return QStringLiteral("windows");
+    case AppEntry::Native:
+        return QStringLiteral("linux");
+    case AppEntry::Retroarch:
+        return QStringLiteral("retro");
+    case AppEntry::Dosbox:
+        return QStringLiteral("dosbox");
+    case AppEntry::Uzdoom:
+        return QStringLiteral("uzdoom");
+    default:
+        return {};
+    }
+}
+
 void AppModel::rebuildFilter()
 {
     m_filtered.clear();
     for (int i = 0; i < m_entries.size(); ++i) {
-        if ((m_showHidden || !m_entries[i].hidden) && (m_filter.isEmpty() || m_entries[i].name.contains(m_filter, Qt::CaseInsensitive)))
+        const AppEntry &entry = m_entries[i];
+        if ((m_showHidden || !entry.hidden) && (m_filter.isEmpty() || entry.name.contains(m_filter, Qt::CaseInsensitive))
+            && (m_runtimeFilter.isEmpty() || runtimeGroup(entry.runtimeType) == m_runtimeFilter))
             m_filtered.append(i);
     }
     std::sort(m_filtered.begin(), m_filtered.end(), [this](int a, int b) {
@@ -114,6 +136,17 @@ void AppModel::setFilterString(const QString &filter)
         return;
     beginResetModel();
     m_filter = filter;
+    rebuildFilter();
+    endResetModel();
+    Q_EMIT countChanged();
+}
+
+void AppModel::setRuntimeFilter(const QString &group)
+{
+    if (m_runtimeFilter == group)
+        return;
+    beginResetModel();
+    m_runtimeFilter = group;
     rebuildFilter();
     endResetModel();
     Q_EMIT countChanged();

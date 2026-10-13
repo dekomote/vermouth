@@ -97,7 +97,7 @@ Kirigami.ApplicationWindow {
         searchField.text = "";
         if (key === "games") {
             appModel.setFilterString("");
-            gridView.searchActive = false;
+            gridView.searchActive = root.runtimeFilter !== "";
         } else if (key === "romm") {
             rommView.searchText = "";
             if (settingsManager.rommServerUrl !== "" && rommView.platforms.length === 0 && !rommModel.busy)
@@ -126,11 +126,12 @@ Kirigami.ApplicationWindow {
     }
 
     property string searchQuery: ""
+    property string runtimeFilter: ""
     function updateSearch(text) {
         root.searchQuery = text;
         if (root.currentPage === "games") {
             appModel.setFilterString(text);
-            gridView.searchActive = text !== "";
+            gridView.searchActive = text !== "" || root.runtimeFilter !== "";
         } else if (root.currentPage === "romm") {
             rommView.applySearch(text);
         } else if (root.currentPage === "gog") {
@@ -139,7 +140,7 @@ Kirigami.ApplicationWindow {
     }
     readonly property bool sidebarPinned: !globalDrawer.modal && !root.bigPicture
 
-    readonly property real headerHeight: Math.max(searchField.implicitHeight, rommPlatformCombo.implicitHeight, addBtn.implicitHeight) + Kirigami.Units.largeSpacing * 2
+    readonly property real headerHeight: Math.max(searchField.implicitHeight, rommPlatformCombo.implicitHeight, runtimeFilterCombo.implicitHeight, addBtn.implicitHeight) + Kirigami.Units.largeSpacing * 2
 
     Settings {
         id: windowSettings
@@ -588,6 +589,46 @@ Kirigami.ApplicationWindow {
                         visible: root.bigPicture
                     }
 
+                    QQC2.ComboBox {
+                        id: runtimeFilterCombo
+                        visible: root.currentPage === "games" && !root.bigPicture
+                        focusPolicy: Qt.NoFocus
+                        textRole: "label"
+                        valueRole: "key"
+                        implicitWidth: Kirigami.Units.gridUnit * 8
+                        model: [
+                            {
+                                "label": i18n("All"),
+                                "key": ""
+                            },
+                            {
+                                "label": i18n("Windows"),
+                                "key": "windows"
+                            },
+                            {
+                                "label": i18n("Linux"),
+                                "key": "linux"
+                            },
+                            {
+                                "label": i18n("Retro"),
+                                "key": "retro"
+                            },
+                            {
+                                "label": i18n("DOSBox"),
+                                "key": "dosbox"
+                            },
+                            {
+                                "label": i18n("UZDOOM"),
+                                "key": "uzdoom"
+                            }
+                        ]
+                        onActivated: {
+                            root.runtimeFilter = currentValue;
+                            appModel.setRuntimeFilter(currentValue);
+                            gridView.searchActive = root.searchQuery !== "" || currentValue !== "";
+                        }
+                    }
+
                     QQC2.ToolButton {
                         id: addBtn
                         icon.name: "list-add-symbolic"
@@ -621,22 +662,6 @@ Kirigami.ApplicationWindow {
                                 rommView.currentPlatformId = plat.id;
                                 rommModel.fetchRoms(plat.id, rommView.searchText);
                             }
-                        }
-                    }
-
-                    QQC2.ToolButton {
-                        property bool isRunning: gridView.currentIndex >= 0 && launcher.runningExePaths.indexOf(appModel.getApp(gridView.currentIndex).exePath) >= 0
-                        visible: !root.bigPicture && root.currentPage === "games"
-                        focusPolicy: Qt.NoFocus
-                        icon.name: isRunning ? "media-playback-stop-symbolic" : "media-playback-start-symbolic"
-                        icon.color: "transparent"
-                        enabled: gridView.currentIndex >= 0
-                        onClicked: {
-                            var app = appModel.getApp(gridView.currentIndex);
-                            if (isRunning)
-                                launcher.stopEntry(app);
-                            else
-                                launcher.launchEntry(app);
                         }
                     }
 
