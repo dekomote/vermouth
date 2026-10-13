@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vermouth\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-13 06:33+0200\n"
+"POT-Creation-Date: 2026-10-13 10:53+0200\n"
 "PO-Revision-Date: 2026-06-29 13:48+0200\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: none\n"
@@ -634,7 +634,7 @@ msgstr ""
 msgid "Unhide"
 msgstr ""
 
-#: po/../qml/AppGridView.qml:316 po/../qml/Main.qml:449 po/../qml/Main.qml:717
+#: po/../qml/AppGridView.qml:316 po/../qml/Main.qml:450 po/../qml/Main.qml:742
 msgid "Hide"
 msgstr ""
 
@@ -719,7 +719,7 @@ msgid "No apps or games added yet"
 msgstr ""
 
 #: po/../qml/AppGridView.qml:551
-msgid "Try a different search term"
+msgid "Try a different search term or filter"
 msgstr ""
 
 #: po/../qml/AppGridView.qml:551
@@ -770,7 +770,7 @@ msgstr ""
 msgid "Copy command"
 msgstr ""
 
-#: po/../qml/GogImportDialog.qml:10 po/../qml/Main.qml:405
+#: po/../qml/GogImportDialog.qml:10 po/../qml/Main.qml:406
 msgid "Import GOG games"
 msgstr ""
 
@@ -834,10 +834,12 @@ msgid "Imported"
 msgstr ""
 
 #: po/../qml/GogImportDialog.qml:260 po/../qml/GogView.qml:365
+#: po/../qml/Main.qml:605
 msgid "Windows"
 msgstr ""
 
 #: po/../qml/GogImportDialog.qml:260 po/../qml/GogView.qml:370
+#: po/../qml/Main.qml:609
 msgid "Linux"
 msgstr ""
 
@@ -881,7 +883,7 @@ msgstr ""
 msgid "%1 was not installed."
 msgstr ""
 
-#: po/../qml/GogView.qml:276 po/../qml/Main.qml:885
+#: po/../qml/GogView.qml:276 po/../qml/Main.qml:910
 msgid "%1 installed"
 msgstr ""
 
@@ -1013,7 +1015,7 @@ msgstr ""
 msgid "%1 (not detected)"
 msgstr ""
 
-#: po/../qml/InstallGameDialog.qml:9 po/../qml/Main.qml:387
+#: po/../qml/InstallGameDialog.qml:9 po/../qml/Main.qml:388
 #: po/../qml/WelcomeScreen.qml:232
 msgid "Install a Game"
 msgstr ""
@@ -1077,7 +1079,7 @@ msgstr ""
 msgid "Could not download the launcher: %1"
 msgstr ""
 
-#: po/../qml/LogDialog.qml:8 po/../qml/Main.qml:458
+#: po/../qml/LogDialog.qml:8 po/../qml/Main.qml:459
 msgid "Game Logs"
 msgstr ""
 
@@ -1125,202 +1127,218 @@ msgstr ""
 msgid "Welcome to Vermouth"
 msgstr ""
 
-#: po/../qml/Main.qml:225 po/../qml/Main.qml:753
+#: po/../qml/Main.qml:226 po/../qml/Main.qml:778
 msgid "Icon view"
 msgstr ""
 
-#: po/../qml/Main.qml:232 po/../qml/Main.qml:764
+#: po/../qml/Main.qml:233 po/../qml/Main.qml:789
 msgid "Cover art view"
 msgstr ""
 
-#: po/../qml/Main.qml:239 po/../qml/Main.qml:775
+#: po/../qml/Main.qml:240 po/../qml/Main.qml:800
 msgid "Hero art view"
 msgstr ""
 
-#: po/../qml/Main.qml:247 po/../qml/Main.qml:786
+#: po/../qml/Main.qml:248 po/../qml/Main.qml:811
 msgid "Show names"
 msgstr ""
 
-#: po/../qml/Main.qml:254
+#: po/../qml/Main.qml:255
 msgid "Show play time"
 msgstr ""
 
-#: po/../qml/Main.qml:261
+#: po/../qml/Main.qml:262
 msgid "Show runner icons"
 msgstr ""
 
-#: po/../qml/Main.qml:268
+#: po/../qml/Main.qml:269
 msgid "Show scroll bar"
 msgstr ""
 
-#: po/../qml/Main.qml:305 po/../qml/Main.qml:795 po/../qml/Main.qml:801
+#: po/../qml/Main.qml:306 po/../qml/Main.qml:820 po/../qml/Main.qml:826
 msgid "Sort By"
 msgstr ""
 
-#: po/../qml/Main.qml:308 po/../qml/Main.qml:804
+#: po/../qml/Main.qml:309 po/../qml/Main.qml:829
 msgid "Name"
 msgstr ""
 
-#: po/../qml/Main.qml:314 po/../qml/Main.qml:810 po/../qml/RuntimePicker.qml:16
+#: po/../qml/Main.qml:315 po/../qml/Main.qml:835 po/../qml/RuntimePicker.qml:16
 msgid "Runtime"
 msgstr ""
 
-#: po/../qml/Main.qml:320 po/../qml/Main.qml:816
+#: po/../qml/Main.qml:321 po/../qml/Main.qml:841
 msgid "Date Added"
 msgstr ""
 
-#: po/../qml/Main.qml:326 po/../qml/Main.qml:822
+#: po/../qml/Main.qml:327 po/../qml/Main.qml:847
 msgid "Play Time"
 msgstr ""
 
-#: po/../qml/Main.qml:332 po/../qml/Main.qml:828
+#: po/../qml/Main.qml:333 po/../qml/Main.qml:853
 msgid "Last Played"
 msgstr ""
 
-#: po/../qml/Main.qml:339 po/../qml/Main.qml:835
+#: po/../qml/Main.qml:340 po/../qml/Main.qml:860
 msgid "A–Z"
 msgstr ""
 
-#: po/../qml/Main.qml:345 po/../qml/Main.qml:841
+#: po/../qml/Main.qml:346 po/../qml/Main.qml:866
 msgid "Z–A"
 msgstr ""
 
-#: po/../qml/Main.qml:381 po/../qml/WelcomeScreen.qml:227
+#: po/../qml/Main.qml:382 po/../qml/WelcomeScreen.qml:227
 msgid "Add a Game"
 msgstr ""
 
-#: po/../qml/Main.qml:393
+#: po/../qml/Main.qml:394
 msgid "Run a Standalone EXE"
 msgstr ""
 
-#: po/../qml/Main.qml:399 po/../qml/SteamImportDialog.qml:8
+#: po/../qml/Main.qml:400 po/../qml/SteamImportDialog.qml:8
 #: po/../qml/WelcomeScreen.qml:237
 msgid "Import Steam games"
 msgstr ""
 
-#: po/../qml/Main.qml:411 po/../qml/Main.qml:728
+#: po/../qml/Main.qml:412 po/../qml/Main.qml:753
 msgid "Allow Sleep"
 msgstr ""
 
-#: po/../qml/Main.qml:411 po/../qml/Main.qml:728
+#: po/../qml/Main.qml:412 po/../qml/Main.qml:753
 msgid "Prevent Sleep"
 msgstr ""
 
-#: po/../qml/Main.qml:417 po/../qml/Main.qml:741
+#: po/../qml/Main.qml:418 po/../qml/Main.qml:766
 msgid "Disable HDR"
 msgstr ""
 
-#: po/../qml/Main.qml:417 po/../qml/Main.qml:741
+#: po/../qml/Main.qml:418 po/../qml/Main.qml:766
 msgid "Enable HDR"
 msgstr ""
 
-#: po/../qml/Main.qml:425
+#: po/../qml/Main.qml:426
 msgid "Lights On"
 msgstr ""
 
-#: po/../qml/Main.qml:425
+#: po/../qml/Main.qml:426
 msgid "Lights Out"
 msgstr ""
 
-#: po/../qml/Main.qml:432
+#: po/../qml/Main.qml:433
 msgid "Exit Big Picture"
 msgstr ""
 
-#: po/../qml/Main.qml:432
+#: po/../qml/Main.qml:433
 msgid "Big Picture"
 msgstr ""
 
-#: po/../qml/Main.qml:449 po/../qml/Main.qml:717
+#: po/../qml/Main.qml:450 po/../qml/Main.qml:742
 msgid "Show Hidden"
 msgstr ""
 
-#: po/../qml/Main.qml:464
+#: po/../qml/Main.qml:465
 msgid "&Settings"
 msgstr ""
 
-#: po/../qml/Main.qml:475
+#: po/../qml/Main.qml:476
 msgid "&About Vermouth"
 msgstr ""
 
-#: po/../qml/Main.qml:483
+#: po/../qml/Main.qml:484
 msgid "Quit"
 msgstr ""
 
-#: po/../qml/Main.qml:508
+#: po/../qml/Main.qml:509
 msgid "Unpin sidebar"
 msgstr ""
 
-#: po/../qml/Main.qml:508
+#: po/../qml/Main.qml:509
 msgid "Pin sidebar"
 msgstr ""
 
-#: po/../qml/Main.qml:556 po/../qml/SteamGridDBPickerDialog.qml:336
+#: po/../qml/Main.qml:557 po/../qml/SteamGridDBPickerDialog.qml:336
 msgid "Back"
 msgstr ""
 
-#: po/../qml/Main.qml:606
-msgid "Select platform..."
+#: po/../qml/Main.qml:601
+msgid "All"
+msgstr ""
+
+#: po/../qml/Main.qml:613
+msgid "Retro"
+msgstr ""
+
+#: po/../qml/Main.qml:617
+msgid "DOSBox"
+msgstr ""
+
+#: po/../qml/Main.qml:621
+msgid "UZDOOM"
 msgstr ""
 
 #: po/../qml/Main.qml:647
-msgid "Save"
-msgstr ""
-
-#: po/../qml/Main.qml:651
-msgid "Settings saved"
+msgid "Select platform..."
 msgstr ""
 
 #: po/../qml/Main.qml:672
+msgid "Save"
+msgstr ""
+
+#: po/../qml/Main.qml:676
+msgid "Settings saved"
+msgstr ""
+
+#: po/../qml/Main.qml:697
 msgid "Steam shortcut added for %1 - restart Steam to see it."
 msgstr ""
 
-#: po/../qml/Main.qml:786
+#: po/../qml/Main.qml:811
 msgid "Hide names"
 msgstr ""
 
-#: po/../qml/Main.qml:912
+#: po/../qml/Main.qml:937
 msgid "Open Executable"
 msgstr ""
 
-#: po/../qml/Main.qml:917 po/../qml/RunExeStandaloneDialog.qml:9
+#: po/../qml/Main.qml:942 po/../qml/RunExeStandaloneDialog.qml:9
 msgid "Run Standalone"
 msgstr ""
 
-#: po/../qml/Main.qml:925
+#: po/../qml/Main.qml:950
 msgid "Add to Library"
 msgstr ""
 
-#: po/../qml/Main.qml:937
+#: po/../qml/Main.qml:962
 msgid "Run without prefix commands?"
 msgstr ""
 
-#: po/../qml/Main.qml:946
+#: po/../qml/Main.qml:971
 msgid "Prefix not ready"
 msgstr ""
 
-#: po/../qml/Main.qml:947
+#: po/../qml/Main.qml:972
 msgid ""
 "The prefix for \"%1\" has not been created yet. Please launch the game at "
 "least once first."
 msgstr ""
 
-#: po/../qml/Main.qml:975
+#: po/../qml/Main.qml:1000
 msgid "%1 ROMs"
 msgstr ""
 
-#: po/../qml/Main.qml:984
+#: po/../qml/Main.qml:1009
 msgid "%1 — %2 games"
 msgstr ""
 
-#: po/../qml/Main.qml:1006
+#: po/../qml/Main.qml:1031
 msgid "%1 - %2"
 msgstr ""
 
-#: po/../qml/Main.qml:1199
+#: po/../qml/Main.qml:1224
 msgid "Error launching: %1"
 msgstr ""
 
-#: po/../qml/Main.qml:1255
+#: po/../qml/Main.qml:1280
 msgid "Auto downloading: %1"
 msgstr ""
 
