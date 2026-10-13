@@ -548,7 +548,7 @@ GameGridView {
         width: parent.width - Kirigami.Units.gridUnit * 4
         visible: gridView.count === 0
         text: gridView.searchActive ? i18n("No apps or games found") : i18n("No apps or games added yet")
-        explanation: gridView.searchActive ? i18n("Try a different search term") : i18n("Click \"Add App/Game\" to get started")
+        explanation: gridView.searchActive ? i18n("Try a different search term or filter") : i18n("Click \"Add App/Game\" to get started")
         icon.name: "folder-games"
     }
 }

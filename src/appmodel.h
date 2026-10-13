@@ -76,6 +76,8 @@ public:
     Q_INVOKABLE QVariantMap getAppByExePath(const QString &exePath) const;
     Q_INVOKABLE bool hasSteamApp(int appId) const;
     Q_INVOKABLE void setFilterString(const QString &filter);
+    // "windows", "linux", "retro", "dosbox" or "uzdoom"; empty shows everything.
+    Q_INVOKABLE void setRuntimeFilter(const QString &group);
     Q_INVOKABLE QString generateUUID() const;
     Q_INVOKABLE void
     updateAppArt(const QString &id, const QString &iconPath, const QString &gridPath, const QString &heroPath, const QString &logoPath, int steamGridDbId = 0);
@@ -117,6 +119,7 @@ private:
     QVector<AppEntry> m_entries;
     QVector<int> m_filtered; // indices into m_entries
     QString m_filter;
+    QString m_runtimeFilter;
     bool m_showHidden = false;
     QString m_sortField = QStringLiteral("name");
     bool m_sortAscending = true;
