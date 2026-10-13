@@ -6,7 +6,7 @@
 static bool isCdImage(const QString &path)
 {
     const QString suffix = QFileInfo(path).suffix().toLower();
-    return suffix == QStringLiteral("iso") || suffix == QStringLiteral("cue") || suffix == QStringLiteral("mdf");
+    return suffix == QStringLiteral("iso") || suffix == QStringLiteral("cue");
 }
 
 // Anything up to a 2.88 MB floppy; bigger .img files are hard disk images.
@@ -67,6 +67,8 @@ QStringList dosboxArgs(const QString &exePath, const QStringList &images)
     QStringList cds;
     QStringList floppies;
     for (const QString &image : images) {
+        if (image == exePath)
+            continue;
         if (isCdImage(image))
             cds << image;
         else if (isFloppyImage(image))
