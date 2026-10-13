@@ -51,6 +51,7 @@ QJsonObject AppEntry::toJson() const
     obj[QStringLiteral("uzdoomPath")] = uzdoomPath;
     obj[QStringLiteral("dosboxPath")] = dosboxPath;
     obj[QStringLiteral("uzdoomMods")] = QJsonArray::fromStringList(uzdoomMods);
+    obj[QStringLiteral("dosboxImages")] = QJsonArray::fromStringList(dosboxImages);
     obj[QStringLiteral("launchOptions")] = launchOptions;
     obj[QStringLiteral("enableLogging")] = enableLogging;
     obj[QStringLiteral("hidden")] = hidden;
@@ -95,6 +96,7 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("uzdoomPath"), uzdoomPath},
         {QStringLiteral("dosboxPath"), dosboxPath},
         {QStringLiteral("uzdoomMods"), uzdoomMods},
+        {QStringLiteral("dosboxImages"), dosboxImages},
         {QStringLiteral("launchOptions"), launchOptions},
         {QStringLiteral("enableLogging"), enableLogging},
         {QStringLiteral("hidden"), hidden},
@@ -144,6 +146,9 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     QJsonArray modsArr = obj[QStringLiteral("uzdoomMods")].toArray();
     for (const auto &v : modsArr)
         e.uzdoomMods.append(v.toString());
+    const QJsonArray imagesArr = obj[QStringLiteral("dosboxImages")].toArray();
+    for (const auto &v : imagesArr)
+        e.dosboxImages.append(v.toString());
     e.launchOptions = obj[QStringLiteral("launchOptions")].toString();
     e.enableLogging = obj[QStringLiteral("enableLogging")].toBool(false);
     e.hidden = obj[QStringLiteral("hidden")].toBool(false);
@@ -191,6 +196,7 @@ void AppEntry::updateFromVariantMap(const QVariantMap &app)
     uzdoomPath = app[QStringLiteral("uzdoomPath")].toString();
     dosboxPath = app[QStringLiteral("dosboxPath")].toString();
     uzdoomMods = app.value(QStringLiteral("uzdoomMods")).toStringList();
+    dosboxImages = app.value(QStringLiteral("dosboxImages")).toStringList();
     launchOptions = app[QStringLiteral("launchOptions")].toString();
     enableLogging = app.value(QStringLiteral("enableLogging"), false).toBool();
     if (app.contains(QStringLiteral("hidden")))

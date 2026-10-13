@@ -108,6 +108,7 @@ Kirigami.Dialog {
         autoDownloadingInDialog = false;
         autoDownloadStatus = "";
         uzdoomModsModel.clear();
+        dosboxImagesModel.clear();
         gameEnvModel.clear();
         runtimePicker.reset();
         prefixBasePath = protonScanner.prefixBasePath();
@@ -130,7 +131,7 @@ Kirigami.Dialog {
             if (/^\.desktop$/i.test(filename))
                 nameField.text = filename.replace(/\.desktop$/i, "");
             else
-                nameField.text = filename.replace(/\.(exe|com|bat|conf|sh|py|pl|rb|run|bash|zsh|AppImage|appimage|wad|pk3)$/i, "");
+                nameField.text = filename.replace(/\.(exe|com|bat|conf|iso|cue|img|ima|sh|py|pl|rb|run|bash|zsh|AppImage|appimage|wad|pk3)$/i, "");
         }
         if (runtimePicker.runtimeType === "native" || runtimePicker.runtimeType === "uzdoom" || runtimePicker.runtimeType === "dosbox") {
             protonPrefixField.text = "";
@@ -232,6 +233,12 @@ Kirigami.Dialog {
             uzdoomModsModel.append({
                 "path": mods[mi]
             });
+        dosboxImagesModel.clear();
+        var images = app.dosboxImages || [];
+        for (var ii = 0; ii < images.length; ii++)
+            dosboxImagesModel.append({
+                "path": images[ii]
+            });
         gameEnvModel.clear();
         var gameVars = app.envVars || [];
         for (var gi = 0; gi < gameVars.length; gi++) {
@@ -249,6 +256,13 @@ Kirigami.Dialog {
     }
 
     property string validationError: ""
+
+    function collectDosboxImages() {
+        var images = [];
+        for (var i = 0; i < dosboxImagesModel.count; i++)
+            images.push(dosboxImagesModel.get(i).path);
+        return images;
+    }
 
     function collectUzdoomMods() {
         var mods = [];
@@ -319,6 +333,7 @@ Kirigami.Dialog {
             "uzdoomPath": runtimePicker.uzdoomPath,
             "dosboxPath": runtimePicker.dosboxPath,
             "uzdoomMods": dialog.collectUzdoomMods(),
+            "dosboxImages": rt === "dosbox" ? dialog.collectDosboxImages() : [],
             "protonPath": protonPath,
             "protonPrefix": protonPrefix,
             "wineBinary": rt === "default" ? "" : runtimePicker.wineBinary,
@@ -463,11 +478,11 @@ Kirigami.Dialog {
                     RowLayout {
                         Layout.fillWidth: true
                         visible: runtimePicker.runtimeType !== "steam"
-                        Kirigami.FormData.label: runtimePicker.runtimeType === "retroarch" ? i18n("ROM File:") : runtimePicker.runtimeType === "uzdoom" ? i18n("WAD File:") : runtimePicker.runtimeType === "dosbox" ? i18n("Game Folder / Program / .conf:") : runtimePicker.runtimeType === "native" ? i18n("Executable / AppImage:") : i18n("Executable (.exe):")
+                        Kirigami.FormData.label: runtimePicker.runtimeType === "retroarch" ? i18n("ROM File:") : runtimePicker.runtimeType === "uzdoom" ? i18n("WAD File:") : runtimePicker.runtimeType === "dosbox" ? i18n("Game Folder / Program / Image:") : runtimePicker.runtimeType === "native" ? i18n("Executable / AppImage:") : i18n("Executable (.exe):")
                         QQC2.TextField {
                             id: exeField
                             Layout.fillWidth: true
-                            placeholderText: runtimePicker.runtimeType === "retroarch" ? "/path/to/rom.sfc" : runtimePicker.runtimeType === "uzdoom" ? "/path/to/game.wad" : runtimePicker.runtimeType === "dosbox" ? "/path/to/game-folder or game.conf" : runtimePicker.runtimeType === "native" ? "/path/to/app.AppImage" : "/path/to/game.exe"
+                            placeholderText: runtimePicker.runtimeType === "retroarch" ? "/path/to/rom.sfc" : runtimePicker.runtimeType === "uzdoom" ? "/path/to/game.wad" : runtimePicker.runtimeType === "dosbox" ? "/path/to/game-folder, game.conf or game.iso" : runtimePicker.runtimeType === "native" ? "/path/to/app.AppImage" : "/path/to/game.exe"
                         }
                         QQC2.ToolButton {
                             icon.name: "document-open-symbolic"
@@ -564,6 +579,39 @@ Kirigami.Dialog {
                             icon.name: "list-add-symbolic"
                             flat: true
                             onClicked: uzdoomModFileDialog.open()
+                        }
+                    }
+
+                    ColumnLayout {
+                        visible: runtimePicker.runtimeType === "dosbox"
+                        Layout.fillWidth: true
+                        spacing: Kirigami.Units.smallSpacing
+
+                        Kirigami.FormData.label: i18n("Disc images:")
+                        Repeater {
+                            model: dosboxImagesModel
+                            delegate: RowLayout {
+                                required property string path
+                                required property int index
+                                Layout.fillWidth: true
+                                QQC2.TextField {
+                                    Layout.fillWidth: true
+                                    text: path
+                                    readOnly: true
+                                }
+                                QQC2.ToolButton {
+                                    icon.name: "edit-delete-symbolic"
+                                    QQC2.ToolTip.text: i18n("Remove image")
+                                    QQC2.ToolTip.visible: hovered
+                                    onClicked: dosboxImagesModel.remove(index)
+                                }
+                            }
+                        }
+                        QQC2.Button {
+                            text: i18n("Add disc image...")
+                            icon.name: "list-add-symbolic"
+                            flat: true
+                            onClicked: dosboxImageFileDialog.open()
                         }
                     }
 
@@ -998,7 +1046,7 @@ Kirigami.Dialog {
         id: exeFileDialog
         title: i18n("Select Executable")
         currentFolder: "file://" + protonScanner.homePath()
-        nameFilters: runtimePicker.runtimeType === "native" ? [i18n("Binaries, scripts & AppImages (*.sh *.py *.pl *.rb *.run *.bash *.zsh *.AppImage *.appimage *.desktop)"), i18n("All files (*)")] : runtimePicker.runtimeType === "uzdoom" ? [i18n("WAD files (*.wad)"), i18n("All files (*)")] : runtimePicker.runtimeType === "dosbox" ? [i18n("DOS programs & configs (*.conf *.exe *.com *.bat)"), i18n("All files (*)")] : [i18n("Executables (*.exe)"), i18n("All files (*)")]
+        nameFilters: runtimePicker.runtimeType === "native" ? [i18n("Binaries, scripts & AppImages (*.sh *.py *.pl *.rb *.run *.bash *.zsh *.AppImage *.appimage *.desktop)"), i18n("All files (*)")] : runtimePicker.runtimeType === "uzdoom" ? [i18n("WAD files (*.wad)"), i18n("All files (*)")] : runtimePicker.runtimeType === "dosbox" ? [i18n("DOS games (*.conf *.exe *.com *.bat *.iso *.cue *.img *.ima)"), i18n("All files (*)")] : [i18n("Executables (*.exe)"), i18n("All files (*)")]
         onAccepted: {
             var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
             dialog.applyExePath(path);
@@ -1032,8 +1080,29 @@ Kirigami.Dialog {
         }
     }
 
+    FileDialog {
+        id: dosboxImageFileDialog
+        title: i18n("Select disc image")
+        currentFolder: "file://" + protonScanner.homePath()
+        nameFilters: [i18n("Disc images (*.iso *.cue *.img *.ima)"), i18n("All files (*)")]
+        onAccepted: {
+            var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
+            for (var i = 0; i < dosboxImagesModel.count; i++) {
+                if (dosboxImagesModel.get(i).path === path)
+                    return;
+            }
+            dosboxImagesModel.append({
+                "path": path
+            });
+        }
+    }
+
     ListModel {
         id: uzdoomModsModel
+    }
+
+    ListModel {
+        id: dosboxImagesModel
     }
 
     ListModel {

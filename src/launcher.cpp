@@ -47,10 +47,32 @@ static QString kscreenDoctorBin()
     return isInsideFlatpak() ? QStringLiteral("flatpak-spawn") : QStringLiteral("kscreen-doctor");
 }
 
+static bool isCdImage(const QString &path)
+{
+    const QString suffix = QFileInfo(path).suffix().toLower();
+    return suffix == QStringLiteral("iso") || suffix == QStringLiteral("cue") || suffix == QStringLiteral("mdf");
+}
+
+// Anything up to a 2.88 MB floppy; bigger .img files are hard disk images.
+static bool isFloppyImage(const QString &path)
+{
+    const QFileInfo info(path);
+    const QString suffix = info.suffix().toLower();
+    return (suffix == QStringLiteral("img") || suffix == QStringLiteral("ima")) && info.size() <= 2949120;
+}
+
+static QString imgmountCommand(const QString &drive, const QStringList &images, const QString &type)
+{
+    QString command = QStringLiteral("imgmount ") + drive;
+    for (const QString &image : images)
+        command += QStringLiteral(" \"") + image + QLatin1Char('"');
+    return command + QStringLiteral(" -t ") + type;
+}
+
 // Arguments that make DOSBox Staging start what the entry points at. A config file is loaded as is and a DOS
 // program gets its folder mounted as C: by DOSBox itself. A folder on its own would only give an empty DOS
 // prompt, so look for something to start in it.
-static QStringList dosboxArgs(const QString &exePath)
+static QStringList dosboxTargetArgs(const QString &exePath)
 {
     if (exePath.endsWith(QStringLiteral(".conf"), Qt::CaseInsensitive))
         return {QStringLiteral("--conf"), exePath};
@@ -79,6 +101,41 @@ static QStringList dosboxArgs(const QString &exePath)
     if (programs.size() == 1)
         return {dir.filePath(programs.first())};
     return {exePath};
+}
+
+// Disc images are mounted first (several images on one drive can be swapped while running), then the entry itself
+// is started: an image as the entry means a CD to browse or a floppy to boot, anything else is handled by
+// dosboxTargetArgs.
+static QStringList dosboxArgs(const QString &exePath, const QStringList &images)
+{
+    QStringList cds;
+    QStringList floppies;
+    for (const QString &image : images) {
+        if (isCdImage(image))
+            cds << image;
+        else if (isFloppyImage(image))
+            floppies << image;
+    }
+    const bool entryIsCd = isCdImage(exePath);
+    const bool entryIsFloppy = isFloppyImage(exePath);
+    if (entryIsCd)
+        cds.prepend(exePath);
+    if (entryIsFloppy)
+        floppies.prepend(exePath);
+
+    QStringList args;
+    if (!cds.isEmpty())
+        args << QStringLiteral("-c") << imgmountCommand(QStringLiteral("d"), cds, QStringLiteral("iso"));
+    if (!floppies.isEmpty())
+        args << QStringLiteral("-c") << imgmountCommand(QStringLiteral("a"), floppies, QStringLiteral("floppy"));
+
+    if (entryIsCd)
+        args << QStringLiteral("-c") << QStringLiteral("d:");
+    else if (entryIsFloppy)
+        args << QStringLiteral("-c") << QStringLiteral("boot a:");
+    else
+        args << dosboxTargetArgs(exePath);
+    return args;
 }
 
 static QString currentScreenName()
@@ -879,7 +936,7 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
         QFileInfo fi(binary);
         if (!fi.isExecutable())
             QFile::setPermissions(binary, fi.permissions() | QFileDevice::ExeOwner | QFileDevice::ExeGroup | QFileDevice::ExeOther);
-        const QStringList baseArgs = dosboxArgs(exePath);
+        const QStringList baseArgs = dosboxArgs(exePath, app[QStringLiteral("dosboxImages")].toStringList());
         return launch(binary, baseArgs, exePath, env, opts, logging, name, false, commandWrappers, autoHdr);
     }
 

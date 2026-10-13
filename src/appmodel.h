@@ -33,6 +33,7 @@ public:
         UzdoomPathRole,
         DosboxPathRole,
         UzdoomModsRole,
+        DosboxImagesRole,
         LaunchOptionsRole,
         EnableLoggingRole,
         HiddenRole,

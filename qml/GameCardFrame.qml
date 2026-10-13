@@ -71,7 +71,7 @@ Item {
             anchors.margins: Kirigami.Units.smallSpacing
             width: 28 * frameRoot.gv.scaleFactor
             height: 28 * frameRoot.gv.scaleFactor
-            source: frameRoot.badgeType === "steam" ? "steam" : frameRoot.badgeType === "retroarch" ? "input-gaming" : ""
+            source: frameRoot.badgeType === "steam" ? "steam" : frameRoot.badgeType === "retroarch" ? "input-gaming" : frameRoot.badgeType === "dosbox" ? "dosbox" : ""
             visible: frameRoot.badgeType !== "" && settingsManager.showRunnerIcons
             z: 10
         }

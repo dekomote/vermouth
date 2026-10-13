@@ -170,6 +170,8 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.dosboxPath;
     case UzdoomModsRole:
         return e.uzdoomMods;
+    case DosboxImagesRole:
+        return e.dosboxImages;
     case LaunchOptionsRole:
         return e.launchOptions;
     case EnableLoggingRole:
@@ -232,6 +234,7 @@ QHash<int, QByteArray> AppModel::roleNames() const
         {UzdoomPathRole, "uzdoomPath"},
         {DosboxPathRole, "dosboxPath"},
         {UzdoomModsRole, "uzdoomMods"},
+        {DosboxImagesRole, "dosboxImages"},
         {LaunchOptionsRole, "launchOptions"},
         {EnableLoggingRole, "enableLogging"},
         {HiddenRole, "hidden"},

@@ -59,6 +59,7 @@ public:
     QString uzdoomPath;
     QString dosboxPath;
     QStringList uzdoomMods;
+    QStringList dosboxImages;
     QString launchOptions;
     bool enableLogging = false;
     bool hidden = false;
