@@ -40,6 +40,11 @@
   </screenshots>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="2.6.1" date="2026-10-14">
+        <description>
+          <p>This release fixes the GPU selector failing to load in the AppImage.</p>
+        </description>
+    </release>
     <release version="2.6.0" date="2026-10-13">
         <description>
           <p>This release adds a DOSBox Staging runtime for DOS games. It launches game folders, programs, .conf files and ISO, CUE and IMG disc images, can mount extra CDs and floppies next to a game, and can download DOSBox Staging for you. It also adds a GPU selector in Settings and per game on systems with more than one GPU, and a runtime filter next to the search field in the game grid.</p>

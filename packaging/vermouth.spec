@@ -1,5 +1,5 @@
 Name:           vermouth
-Version:        2.6.0
+Version:        2.6.1
 Release:        1%{?dist}
 Summary:        A no-frills Wine/Proton game launcher for KDE
 License:        MIT
@@ -76,6 +76,8 @@ RomM library with RetroArch - all from one place.
 %{_datadir}/locale/*/LC_MESSAGES/vermouth.mo
 
 %changelog
+* Wed Oct 14 2026 Dejan Noveski <deko@duck.com> - 2.6.1-1
+- Fix the GPU selector failing to load in the AppImage
 * Tue Oct 13 2026 Dejan Noveski <deko@duck.com> - 2.6.0-1
 - DOSBox Staging runtime for DOS games (folders, programs, .conf files and ISO/CUE/IMG disc images, with a one-click download), GPU selection in Settings and per game, runtime filter in the game grid
 * Wed Oct 07 2026 Dejan Noveski <deko@duck.com> - 2.5.0-1
