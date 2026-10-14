@@ -11,7 +11,7 @@ QQC2.ComboBox {
 
     property bool allowInherit: false
 
-    readonly property string value: currentIndex >= 0 ? currentValue : ""
+    readonly property string value: currentIndex >= 0 ? String(currentValue ?? "") : ""
 
     visible: gpuManager.available
     textRole: "text"
@@ -51,6 +51,6 @@ QQC2.ComboBox {
             });
         }
         model = list;
-        currentValue = selected;
+        currentIndex = Math.max(0, indexOfValue(selected));
     }
 }
