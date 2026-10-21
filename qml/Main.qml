@@ -591,16 +591,7 @@ Kirigami.ApplicationWindow {
 
                     QQC2.ComboBox {
                         id: runtimeFilterCombo
-                        visible: root.currentPage === "games" && !root.bigPicture
-                        focusPolicy: Qt.NoFocus
-                        textRole: "label"
-                        valueRole: "key"
-                        implicitWidth: Kirigami.Units.gridUnit * 8
-                        model: [
-                            {
-                                "label": i18n("All"),
-                                "key": ""
-                            },
+                        readonly property var groups: [
                             {
                                 "label": i18n("Windows"),
                                 "key": "windows"
@@ -622,6 +613,38 @@ Kirigami.ApplicationWindow {
                                 "key": "uzdoom"
                             }
                         ]
+                        readonly property var counts: appModel.runtimeCounts
+                        readonly property var entries: {
+                            var list = [];
+                            for (var i = 0; i < groups.length; i++) {
+                                var n = counts[groups[i].key] || 0;
+                                if (n > 0)
+                                    list.push({
+                                        "label": groups[i].label + " (" + n + ")",
+                                        "key": groups[i].key
+                                    });
+                            }
+                            if (list.length > 1)
+                                list.unshift({
+                                    "label": i18n("All") + " (" + (counts[""] || 0) + ")",
+                                    "key": ""
+                                });
+                            return list;
+                        }
+                        visible: root.currentPage === "games" && !root.bigPicture && entries.length > 1
+                        focusPolicy: Qt.NoFocus
+                        textRole: "label"
+                        valueRole: "key"
+                        implicitWidth: Kirigami.Units.gridUnit * 8
+                        model: entries
+                        currentIndex: Math.max(0, entries.findIndex(e => e.key === root.runtimeFilter))
+                        onEntriesChanged: {
+                            if (root.runtimeFilter !== "" && entries.length < 2 || entries.findIndex(e => e.key === root.runtimeFilter) < 0) {
+                                root.runtimeFilter = "";
+                                appModel.setRuntimeFilter("");
+                                gridView.searchActive = root.searchQuery !== "";
+                            }
+                        }
                         onActivated: {
                             root.runtimeFilter = currentValue;
                             appModel.setRuntimeFilter(currentValue);

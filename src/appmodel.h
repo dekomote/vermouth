@@ -8,6 +8,8 @@ class AppModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY countChanged)
+    // Visible games per runtime group ("windows", "linux", ...), ignoring search and runtime filter; "" is the total.
+    Q_PROPERTY(QVariantMap runtimeCounts READ runtimeCounts NOTIFY runtimeCountsChanged)
     Q_PROPERTY(bool showHidden READ showHidden WRITE setShowHidden NOTIFY showHiddenChanged)
     Q_PROPERTY(QString sortField READ sortField WRITE setSortField NOTIFY sortFieldChanged)
     Q_PROPERTY(bool sortAscending READ sortAscending WRITE setSortAscending NOTIFY sortAscendingChanged)
@@ -83,6 +85,11 @@ public:
     updateAppArt(const QString &id, const QString &iconPath, const QString &gridPath, const QString &heroPath, const QString &logoPath, int steamGridDbId = 0);
     Q_INVOKABLE void addPlayTime(const QString &exePath, qint64 seconds);
 
+    QVariantMap runtimeCounts() const
+    {
+        return m_runtimeCounts;
+    }
+
     bool showHidden() const
     {
         return m_showHidden;
@@ -106,6 +113,7 @@ public:
 
 Q_SIGNALS:
     void countChanged();
+    void runtimeCountsChanged();
     void showHiddenChanged();
     void sortFieldChanged();
     void sortAscendingChanged();
@@ -120,6 +128,7 @@ private:
     QVector<int> m_filtered; // indices into m_entries
     QString m_filter;
     QString m_runtimeFilter;
+    QVariantMap m_runtimeCounts;
     bool m_showHidden = false;
     QString m_sortField = QStringLiteral("name");
     bool m_sortAscending = true;

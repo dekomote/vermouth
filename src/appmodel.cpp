@@ -85,8 +85,15 @@ static QString runtimeGroup(AppEntry::RuntimeType type)
 void AppModel::rebuildFilter()
 {
     m_filtered.clear();
+    QMap<QString, int> counts;
     for (int i = 0; i < m_entries.size(); ++i) {
         const AppEntry &entry = m_entries[i];
+        if (m_showHidden || !entry.hidden) {
+            ++counts[QString()];
+            const QString group = runtimeGroup(entry.runtimeType);
+            if (!group.isEmpty())
+                ++counts[group];
+        }
         if ((m_showHidden || !entry.hidden) && (m_filter.isEmpty() || entry.name.contains(m_filter, Qt::CaseInsensitive))
             && (m_runtimeFilter.isEmpty() || runtimeGroup(entry.runtimeType) == m_runtimeFilter))
             m_filtered.append(i);
@@ -94,6 +101,14 @@ void AppModel::rebuildFilter()
     std::sort(m_filtered.begin(), m_filtered.end(), [this](int a, int b) {
         return entryLessThan(a, b);
     });
+
+    QVariantMap runtimeCounts;
+    for (auto it = counts.cbegin(); it != counts.cend(); ++it)
+        runtimeCounts.insert(it.key(), it.value());
+    if (runtimeCounts != m_runtimeCounts) {
+        m_runtimeCounts = runtimeCounts;
+        Q_EMIT runtimeCountsChanged();
+    }
 }
 
 void AppModel::setShowHidden(bool showHidden)
