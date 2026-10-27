@@ -1,5 +1,7 @@
 #include "settingsmanager.h"
+#include <KLocalizedString>
 #include <QDir>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QStandardPaths>
@@ -151,6 +153,67 @@ void SettingsManager::setGlobalEnvVars(const QStringList &vars)
 {
     m_settings.setValue(QStringLiteral("globalEnvVars"), vars);
     Q_EMIT globalEnvVarsChanged();
+}
+
+static QVariantMap makePreset(const QString &name, const QString &description, const QStringList &vars)
+{
+    return {{QStringLiteral("name"), name}, {QStringLiteral("description"), description}, {QStringLiteral("vars"), vars}};
+}
+
+QVariantList SettingsManager::defaultEnvPresets() const
+{
+    return {
+        makePreset(i18n("Proton Wayland"), i18n("Run games with native Wayland instead of XWayland."), {QStringLiteral("PROTON_ENABLE_WAYLAND=1")}),
+        makePreset(i18n("HDR"),
+                   i18n("Turn on HDR output. Needs an HDR display and a Wayland session."),
+                   {QStringLiteral("PROTON_ENABLE_WAYLAND=1"), QStringLiteral("PROTON_ENABLE_HDR=1")}),
+        makePreset(i18n("Proton log"), i18n("Write a Proton debug log to your home folder."), {QStringLiteral("PROTON_LOG=1")}),
+        makePreset(i18n("NTSYNC"),
+                   i18n("Use the kernel NTSYNC driver for faster synchronization. Needs a recent kernel."),
+                   {QStringLiteral("PROTON_USE_NTSYNC=1")}),
+        makePreset(i18n("DLSS upgrade"),
+                   i18n("Download and use the newest DLSS libraries. Needs GE-Proton or Proton-CachyOS."),
+                   {QStringLiteral("PROTON_DLSS_UPGRADE=1")}),
+        makePreset(i18n("NVIDIA Reflex"),
+                   i18n("Turn on NVIDIA Reflex low latency in DirectX games through DXVK-NVAPI."),
+                   {QStringLiteral("DXVK_NVAPI_VKREFLEX=1")}),
+        makePreset(i18n("NVIDIA Smooth Motion"),
+                   i18n("Turn on NVIDIA Smooth Motion frame generation. Needs a recent NVIDIA driver."),
+                   {QStringLiteral("NVPRESENT_ENABLE_SMOOTH_MOTION=1")}),
+    };
+}
+
+QVariantList SettingsManager::envPresets() const
+{
+    const QString key = QStringLiteral("envPresets");
+    if (!m_settings.contains(key))
+        return defaultEnvPresets();
+    const QJsonArray arr = QJsonDocument::fromJson(m_settings.value(key).toString().toUtf8()).array();
+    QVariantList list;
+    for (const QJsonValue &v : arr) {
+        const QJsonObject obj = v.toObject();
+        QStringList vars;
+        for (const QJsonValue &var : obj.value(QStringLiteral("vars")).toArray())
+            vars << var.toString();
+        list << makePreset(obj.value(QStringLiteral("name")).toString(), obj.value(QStringLiteral("description")).toString(), vars);
+    }
+    return list;
+}
+
+void SettingsManager::setEnvPresets(const QVariantList &presets)
+{
+    QJsonArray arr;
+    for (const QVariant &p : presets) {
+        const QVariantMap m = p.toMap();
+        const QString name = m.value(QStringLiteral("name")).toString().trimmed();
+        if (name.isEmpty())
+            continue;
+        arr.append(QJsonObject{{QStringLiteral("name"), name},
+                               {QStringLiteral("description"), m.value(QStringLiteral("description")).toString().trimmed()},
+                               {QStringLiteral("vars"), QJsonArray::fromStringList(m.value(QStringLiteral("vars")).toStringList())}});
+    }
+    m_settings.setValue(QStringLiteral("envPresets"), QString::fromUtf8(QJsonDocument(arr).toJson(QJsonDocument::Compact)));
+    Q_EMIT envPresetsChanged();
 }
 
 QVariantMap SettingsManager::globalLaunchOptions() const

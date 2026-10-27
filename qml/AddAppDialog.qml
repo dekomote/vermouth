@@ -977,14 +977,20 @@ Kirigami.Dialog {
                         }
                     }
 
-                    QQC2.Button {
-                        text: i18n("Add Variable")
-                        icon.name: "list-add-symbolic"
-                        flat: true
-                        onClicked: gameEnvModel.append({
-                            "key": "",
-                            "value": ""
-                        })
+                    RowLayout {
+                        QQC2.Button {
+                            text: i18n("Add Variable")
+                            icon.name: "list-add-symbolic"
+                            flat: true
+                            onClicked: gameEnvModel.append({
+                                "key": "",
+                                "value": ""
+                            })
+                        }
+                        EnvPresetButton {
+                            flat: true
+                            targetModel: gameEnvModel
+                        }
                     }
                 }
 

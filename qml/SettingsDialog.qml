@@ -581,13 +581,18 @@ Kirigami.ScrollablePage {
                     }
                 }
 
-                QQC2.Button {
-                    text: i18n("Add Variable")
-                    icon.name: "list-add-symbolic"
-                    onClicked: envModel.append({
-                        "key": "",
-                        "value": ""
-                    })
+                RowLayout {
+                    QQC2.Button {
+                        text: i18n("Add Variable")
+                        icon.name: "list-add-symbolic"
+                        onClicked: envModel.append({
+                            "key": "",
+                            "value": ""
+                        })
+                    }
+                    EnvPresetButton {
+                        targetModel: envModel
+                    }
                 }
             }
 

@@ -96,6 +96,8 @@ qt_add_qml_module(vermouth
         qml/RunExeStandaloneDialog.qml
         qml/RuntimePicker.qml
         qml/GpuPicker.qml
+        qml/EnvPresetButton.qml
+        qml/EnvPresetDialog.qml
         qml/SettingsDialog.qml
         qml/SteamGridDBPickerDialog.qml
         qml/SteamImportDialog.qml

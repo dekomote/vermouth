@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QSettings>
 #include <QStringList>
+#include <QVariantList>
 #include <QVariantMap>
 
 class SettingsManager : public QObject
@@ -19,6 +20,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(bool drawerPinned READ drawerPinned WRITE setDrawerPinned NOTIFY drawerPinnedChanged)
     Q_PROPERTY(QString umuPath READ umuPath WRITE setUmuPath NOTIFY umuPathChanged)
     Q_PROPERTY(QStringList globalEnvVars READ globalEnvVars WRITE setGlobalEnvVars NOTIFY globalEnvVarsChanged)
+    Q_PROPERTY(QVariantList envPresets READ envPresets NOTIFY envPresetsChanged)
     Q_PROPERTY(QVariantMap globalLaunchOptions READ globalLaunchOptions NOTIFY globalLaunchOptionsChanged)
     Q_PROPERTY(QString defaultGpu READ defaultGpu WRITE setDefaultGpu NOTIFY defaultGpuChanged)
     Q_PROPERTY(bool bigPicture READ bigPicture WRITE setBigPicture NOTIFY bigPictureChanged)
@@ -84,6 +86,11 @@ public:
 
     QStringList globalEnvVars() const;
     Q_INVOKABLE void setGlobalEnvVars(const QStringList &vars);
+
+    // Named groups of env vars, each {name, description, vars: ["KEY=value", ...]}. Seeded with defaults until the user saves their own.
+    QVariantList envPresets() const;
+    Q_INVOKABLE void setEnvPresets(const QVariantList &presets);
+    Q_INVOKABLE QVariantList defaultEnvPresets() const;
 
     // Launch options applied to every game of a runtime type (proton, wine, native, uzdoom, dosbox, steam) unless the game sets its own.
     QVariantMap globalLaunchOptions() const;
@@ -178,6 +185,7 @@ Q_SIGNALS:
     void drawerPinnedChanged();
     void umuPathChanged();
     void globalEnvVarsChanged();
+    void envPresetsChanged();
     void globalLaunchOptionsChanged();
     void defaultGpuChanged();
     void bigPictureChanged();
