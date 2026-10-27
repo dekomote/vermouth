@@ -1,5 +1,5 @@
 Name:           vermouth
-Version:        2.6.1
+Version:        2.7.0
 Release:        1%{?dist}
 Summary:        A no-frills Wine/Proton game launcher for KDE
 License:        MIT
@@ -76,6 +76,8 @@ RomM library with RetroArch - all from one place.
 %{_datadir}/locale/*/LC_MESSAGES/vermouth.mo
 
 %changelog
+* Tue Oct 27 2026 Dejan Noveski <deko@duck.com> - 2.7.0-1
+- Environment variable presets with a preset editor, runtime filter shows only runtimes that have games with their counts
 * Wed Oct 14 2026 Dejan Noveski <deko@duck.com> - 2.6.1-1
 - Fix the GPU selector failing to load in the AppImage
 * Tue Oct 13 2026 Dejan Noveski <deko@duck.com> - 2.6.0-1

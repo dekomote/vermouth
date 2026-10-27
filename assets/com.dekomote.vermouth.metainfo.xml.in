@@ -39,7 +39,21 @@
     </screenshot>
   </screenshots>
   <content_rating type="oars-1.1" />
+  <requires>
+    <display_length compare="ge">768</display_length>
+  </requires>
+  <supports>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <control>gamepad</control>
+    <control>touch</control>
+  </supports>
   <releases>
+    <release version="2.7.0" date="2026-10-27">
+        <description>
+          <p>This release adds environment variable presets. Add Preset in the game editor and in the global settings opens a table of ready-made sets, such as Proton Wayland, HDR, DLSS upgrade, NVIDIA Smooth Motion and NVIDIA Reflex, where you can add them to a game or edit, add and remove presets and their variables. The runtime filter in the game grid now lists only runtimes that have games, with the number of games next to each, and hides itself when there is nothing to filter.</p>
+        </description>
+    </release>
     <release version="2.6.1" date="2026-10-14">
         <description>
           <p>This release fixes the GPU selector failing to load in the AppImage.</p>
