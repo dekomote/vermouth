@@ -29,7 +29,7 @@ optdepends=(
     'sdl2: gamepad support'
 )
 source=("${pkgname}-${pkgver}.tar.gz::https://github.com/dekomote/vermouth/archive/refs/tags/v${pkgver}.tar.gz")
-sha256sums=('5fd296f7e216a3b91ee301f0954168715e7862121664b46e5e87d3efe0889754')
+sha256sums=('a8d61e712f65ded55c974edebfe66c46f837d1e17edd9f7bfbd4dbddfbb0b8d1')
 
 build() {
     cd "${pkgname}-${pkgver}"
