@@ -1,5 +1,5 @@
 Name:           vermouth
-Version:        2.7.0
+Version:        2.8.0
 Release:        1%{?dist}
 Summary:        A no-frills Wine/Proton game launcher for KDE
 License:        MIT
@@ -76,6 +76,8 @@ RomM library with RetroArch - all from one place.
 %{_datadir}/locale/*/LC_MESSAGES/vermouth.mo
 
 %changelog
+* Tue Nov 17 2026 Dejan Noveski <deko@duck.com> - 2.8.0-1
+- Startup check for umu-launcher and default Proton updates, "Latest" Proton builds that update in place, configurable assets, Proton, Wine and prefix folders with move and game update, GOG library switch (off by default), LSFG support removed
 * Tue Oct 27 2026 Dejan Noveski <deko@duck.com> - 2.7.0-1
 - Environment variable presets with a preset editor, runtime filter shows only runtimes that have games with their counts
 * Wed Oct 14 2026 Dejan Noveski <deko@duck.com> - 2.6.1-1
