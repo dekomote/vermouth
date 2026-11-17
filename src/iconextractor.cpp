@@ -23,7 +23,9 @@ IconExtractor::IconExtractor(QObject *parent)
 
 QString IconExtractor::cacheDir() const
 {
-    QString dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/assets/icons");
+    const QString assets =
+        !m_assetsPath.isEmpty() ? m_assetsPath : QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/assets");
+    QString dir = assets + QStringLiteral("/icons");
     QDir().mkpath(dir);
     return dir;
 }

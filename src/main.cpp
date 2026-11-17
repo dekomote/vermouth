@@ -26,7 +26,9 @@
 #include "steamgriddb.h"
 #include "steammodel.h"
 #include "steamshortcutwriter.h"
+#include "storagemigrator.h"
 #include "umudownloader.h"
+#include "updatechecker.h"
 #include "uzdoomdownloader.h"
 #include "winedownloader.h"
 #include "winescanner.h"
@@ -136,7 +138,6 @@ int main(int argc, char *argv[])
     launcher.setDefaultRuntimeType(settingsManager.defaultRuntimeType());
     launcher.setDefaultProtonPath(settingsManager.defaultProtonPath());
     launcher.setDefaultWineBinary(settingsManager.defaultWineBinary());
-    launcher.setLsfgDllPath(settingsManager.lsfgDllPath());
 
     auto launchCli = [&](const QVariantMap &entry) -> int {
         QObject::connect(&launcher, &Launcher::processFinished, &app, &QApplication::exit);
@@ -205,18 +206,12 @@ int main(int argc, char *argv[])
     DesktopFileWriter desktopWriter;
     IconExtractor iconExtractor;
     ProtonDownloader protonDownloader;
-    protonDownloader.setLocalProtonPath(protonScanner.localProtonPath());
     WineDownloader wineDownloader;
-    wineDownloader.setLocalWinePath(wineScanner.localWinePath());
 
     UmuDownloader umuDownloader;
-    umuDownloader.setInstallPath(protonScanner.localProtonPath() + QStringLiteral("/umu"));
-
     UzdoomDownloader uzdoomDownloader;
-    uzdoomDownloader.setInstallPath(protonScanner.localAssetsPath() + QStringLiteral("/uzdoom"));
 
     DosboxDownloader dosboxDownloader;
-    dosboxDownloader.setInstallPath(protonScanner.localAssetsPath() + QStringLiteral("/dosbox"));
 
     LauncherDownloader launcherDownloader;
     SteamShortcutWriter steamShortcutWriter;
@@ -289,7 +284,8 @@ int main(int argc, char *argv[])
         settingsManager.setSleepInhibited(launcher.sleepInhibited());
     });
     QObject::connect(&umuDownloader, &UmuDownloader::finished, [&](const QString &binPath) {
-        if (settingsManager.umuPath().isEmpty())
+        const QString current = settingsManager.umuPath();
+        if (current.isEmpty() || !QFileInfo::exists(current) || SettingsManager::isDownloadedUmu(current))
             settingsManager.setUmuPath(binPath);
     });
     QObject::connect(&uzdoomDownloader, &UzdoomDownloader::finished, [&](const QString &appImagePath) {
@@ -298,6 +294,20 @@ int main(int argc, char *argv[])
     QObject::connect(&dosboxDownloader, &DosboxDownloader::finished, [&](const QString &binaryPath) {
         settingsManager.setDosboxPath(binaryPath);
     });
+
+    auto applyStorageDirs = [&]() {
+        protonScanner.setCustomLocalProtonPath(settingsManager.localProtonDir());
+        protonScanner.setCustomAssetsPath(settingsManager.assetsDir());
+        wineScanner.setCustomLocalWinePath(settingsManager.localWineDir());
+        protonDownloader.setLocalProtonPath(protonScanner.localProtonPath());
+        wineDownloader.setLocalWinePath(wineScanner.localWinePath());
+        umuDownloader.setInstallPath(protonScanner.localProtonPath() + QStringLiteral("/umu"));
+        uzdoomDownloader.setInstallPath(protonScanner.localAssetsPath() + QStringLiteral("/uzdoom"));
+        dosboxDownloader.setInstallPath(protonScanner.localAssetsPath() + QStringLiteral("/dosbox"));
+        iconExtractor.setAssetsPath(protonScanner.localAssetsPath());
+    };
+    applyStorageDirs();
+    QObject::connect(&settingsManager, &SettingsManager::storageDirsChanged, applyStorageDirs);
 
     protonScanner.setExtraProtonPaths(settingsManager.extraProtonPaths());
     protonScanner.setCustomPrefixBasePath(settingsManager.defaultPrefixDir());
@@ -355,9 +365,6 @@ int main(int argc, char *argv[])
         launcher.setDosboxPath(settingsManager.dosboxPath());
     });
 
-    QObject::connect(&settingsManager, &SettingsManager::lsfgDllPathChanged, [&]() {
-        launcher.setLsfgDllPath(settingsManager.lsfgDllPath());
-    });
     QObject::connect(&launcher, &Launcher::coreAutoDetected, [&](const QString &slug, const QString &path) {
         settingsManager.setRommCore(slug, path);
     });
@@ -418,6 +425,10 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("wineScanner"), &wineScanner);
     engine.rootContext()->setContextProperty(QStringLiteral("wineDownloader"), &wineDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("umuDownloader"), &umuDownloader);
+    StorageMigrator storageMigrator(&appModel, &settingsManager);
+    engine.rootContext()->setContextProperty(QStringLiteral("storageMigrator"), &storageMigrator);
+    UpdateChecker updateChecker(&settingsManager, &protonScanner, &protonDownloader, &umuDownloader);
+    engine.rootContext()->setContextProperty(QStringLiteral("updateChecker"), &updateChecker);
     engine.rootContext()->setContextProperty(QStringLiteral("uzdoomDownloader"), &uzdoomDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("dosboxDownloader"), &dosboxDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("launcherDownloader"), &launcherDownloader);
@@ -442,6 +453,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("isFlatpak"), isInsideFlatpak());
 
     engine.load(QUrl(QStringLiteral("qrc:/qt/qml/qml/Main.qml")));
+    QTimer::singleShot(4000, &updateChecker, &UpdateChecker::check);
 
     if (engine.rootObjects().isEmpty())
         return -1;

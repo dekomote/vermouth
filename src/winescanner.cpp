@@ -45,7 +45,18 @@ bool WineScanner::isInstalled(const QString &path) const
     return fi.exists() && fi.isExecutable();
 }
 
-QString WineScanner::localWinePath() const
+QString WineScanner::defaultLocalWinePath() const
 {
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/wines");
+}
+
+void WineScanner::setCustomLocalWinePath(const QString &path)
+{
+    m_customLocalWinePath = path;
+    QDir().mkpath(localWinePath());
+}
+
+QString WineScanner::localWinePath() const
+{
+    return m_customLocalWinePath.isEmpty() ? defaultLocalWinePath() : m_customLocalWinePath;
 }

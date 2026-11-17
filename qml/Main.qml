@@ -42,7 +42,7 @@ Kirigami.ApplicationWindow {
             name: i18n("GOG Library"),
             icon: "gog",
             iconSource: "qrc:/icons/gog.svg",
-            enabled: true,
+            enabled: settingsManager.gogEnabled,
             nav: true,
             search: true
         },
@@ -72,6 +72,14 @@ Kirigami.ApplicationWindow {
         }
     ]
     property string currentPage: "games"
+
+    Connections {
+        target: settingsManager
+        function onGogEnabledChanged() {
+            if (!settingsManager.gogEnabled && root.currentPage === "gog")
+                root.navigate("games");
+        }
+    }
     property string previousPage: "games"
     readonly property var navPages: pages.filter(p => p.nav && p.enabled)
     readonly property var currentPageObject: pages.find(p => p.key === root.currentPage) ?? pages[0]
@@ -404,6 +412,7 @@ Kirigami.ApplicationWindow {
             },
             Kirigami.Action {
                 text: i18n("Import GOG games")
+                visible: settingsManager.gogEnabled
                 icon.name: "gog"
                 icon.source: "qrc:/icons/gog.svg"
                 onTriggered: gogImportDialog.openDialog()
@@ -1305,6 +1314,10 @@ Kirigami.ApplicationWindow {
         function onAutoDownloadFinished() {
             root.updateFooterStatus();
         }
+    }
+
+    UpdateDialog {
+        id: updateDialog
     }
 
     CorePickerDialog {

@@ -1,6 +1,7 @@
 #include "settingsmanager.h"
 #include <KLocalizedString>
 #include <QDir>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -16,12 +17,90 @@ QString SettingsManager::defaultPrefixDir() const
     return m_settings.value(QStringLiteral("defaultPrefixDir")).toString();
 }
 
-void SettingsManager::setDefaultPrefixDir(const QString &path)
+void SettingsManager::setDefaultPrefixDir(const QString &rawPath)
 {
+    const QString path = cleanDir(rawPath);
     if (defaultPrefixDir() == path)
         return;
     m_settings.setValue(QStringLiteral("defaultPrefixDir"), path);
     Q_EMIT defaultPrefixDirChanged();
+}
+
+static QString storageDirValue(const QSettings &settings, const char *key)
+{
+    return settings.value(QLatin1String(key)).toString();
+}
+
+static QString rebasePath(const QString &path, const QString &oldRoot, const QString &newRoot)
+{
+    if (path == oldRoot)
+        return newRoot;
+    if (path.startsWith(oldRoot + QLatin1Char('/')))
+        return newRoot + path.mid(oldRoot.size());
+    return path;
+}
+
+QString SettingsManager::cleanDir(const QString &path)
+{
+    const QString trimmed = path.trimmed();
+    return trimmed.isEmpty() ? QString() : QDir::cleanPath(trimmed);
+}
+
+QString SettingsManager::assetsDir() const
+{
+    return storageDirValue(m_settings, "assetsDir");
+}
+
+void SettingsManager::setAssetsDir(const QString &rawPath)
+{
+    const QString path = cleanDir(rawPath);
+    if (assetsDir() == path)
+        return;
+    m_settings.setValue(QStringLiteral("assetsDir"), path);
+    Q_EMIT storageDirsChanged();
+}
+
+QString SettingsManager::localProtonDir() const
+{
+    return storageDirValue(m_settings, "localProtonDir");
+}
+
+void SettingsManager::setLocalProtonDir(const QString &rawPath)
+{
+    const QString path = cleanDir(rawPath);
+    if (localProtonDir() == path)
+        return;
+    m_settings.setValue(QStringLiteral("localProtonDir"), path);
+    Q_EMIT storageDirsChanged();
+}
+
+QString SettingsManager::localWineDir() const
+{
+    return storageDirValue(m_settings, "localWineDir");
+}
+
+void SettingsManager::setLocalWineDir(const QString &rawPath)
+{
+    const QString path = cleanDir(rawPath);
+    if (localWineDir() == path)
+        return;
+    m_settings.setValue(QStringLiteral("localWineDir"), path);
+    Q_EMIT storageDirsChanged();
+}
+
+void SettingsManager::rewritePaths(const QString &oldRoot, const QString &newRoot)
+{
+    setDefaultProtonPath(rebasePath(defaultProtonPath(), oldRoot, newRoot));
+    setDefaultWineBinary(rebasePath(defaultWineBinary(), oldRoot, newRoot));
+    setUmuPath(rebasePath(umuPath(), oldRoot, newRoot));
+    setDefaultGamePrefix(rebasePath(defaultGamePrefix(), oldRoot, newRoot));
+    setDefaultWinePrefix(rebasePath(defaultWinePrefix(), oldRoot, newRoot));
+    setUzdoomPath(rebasePath(uzdoomPath(), oldRoot, newRoot));
+    setDosboxPath(rebasePath(dosboxPath(), oldRoot, newRoot));
+    QStringList extra = extraProtonPaths();
+    for (QString &path : extra)
+        path = rebasePath(path, oldRoot, newRoot);
+    setExtraProtonPaths(extra);
 }
 
 QString SettingsManager::defaultGamePrefix() const
@@ -61,6 +140,20 @@ void SettingsManager::setGamepadFullscreenButton(const QString &button)
         return;
     m_settings.setValue(QStringLiteral("gamepadFullscreenButton"), button);
     Q_EMIT gamepadFullscreenButtonChanged();
+}
+
+QStringList SettingsManager::skippedUpdates() const
+{
+    return m_settings.value(QStringLiteral("skippedUpdates")).toStringList();
+}
+
+void SettingsManager::skipUpdate(const QString &key)
+{
+    QStringList keys = skippedUpdates();
+    if (!keys.contains(key)) {
+        keys << key;
+        m_settings.setValue(QStringLiteral("skippedUpdates"), keys);
+    }
 }
 
 QStringList SettingsManager::extraProtonPaths() const
@@ -142,6 +235,12 @@ void SettingsManager::setUmuPath(const QString &path)
         return;
     m_settings.setValue(QStringLiteral("umuPath"), path);
     Q_EMIT umuPathChanged();
+}
+
+bool SettingsManager::isDownloadedUmu(const QString &path)
+{
+    const QFileInfo fi(path);
+    return fi.fileName() == QLatin1String("umu-run") && fi.dir().dirName() == QLatin1String("umu");
 }
 
 QStringList SettingsManager::globalEnvVars() const
@@ -459,6 +558,20 @@ void SettingsManager::setGogUsername(const QString &name)
     Q_EMIT gogUsernameChanged();
 }
 
+bool SettingsManager::gogEnabled() const
+{
+    // Off for new users; on for anyone who was already logged in before the switch existed.
+    return m_settings.value(QStringLiteral("gogEnabled"), !gogRefreshToken().isEmpty()).toBool();
+}
+
+void SettingsManager::setGogEnabled(bool enabled)
+{
+    if (gogEnabled() == enabled)
+        return;
+    m_settings.setValue(QStringLiteral("gogEnabled"), enabled);
+    Q_EMIT gogEnabledChanged();
+}
+
 QString SettingsManager::gogCacheDir() const
 {
     QString stored = m_settings.value(QStringLiteral("gogCacheDir")).toString();
@@ -655,17 +768,4 @@ void SettingsManager::setRommGameCore(int romId, const QString &corePath)
         map[key] = corePath;
     m_settings.setValue(QStringLiteral("rommGameCoreMap"), QString::fromUtf8(QJsonDocument::fromVariant(map).toJson(QJsonDocument::Compact)));
     Q_EMIT rommGameCoreMapChanged();
-}
-
-QString SettingsManager::lsfgDllPath() const
-{
-    return m_settings.value(QStringLiteral("lsfgDllPath"), QString()).toString();
-}
-
-void SettingsManager::setLsfgDllPath(const QString &path)
-{
-    if (lsfgDllPath() == path)
-        return;
-    m_settings.setValue(QStringLiteral("lsfgDllPath"), path);
-    Q_EMIT lsfgDllPathChanged();
 }

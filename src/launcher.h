@@ -30,7 +30,6 @@ public:
     void setDefaultRuntimeType(const QString &type);
     void setDefaultProtonPath(const QString &path);
     void setDefaultWineBinary(const QString &path);
-    void setLsfgDllPath(const QString &path);
 
     Q_PROPERTY(QStringList activeLaunchKeys READ activeLaunchKeys NOTIFY activeLaunchesChanged)
     QStringList activeLaunchKeys() const
@@ -63,7 +62,6 @@ public:
     Q_INVOKABLE bool isWinetricksAvailable() const;
     Q_INVOKABLE bool isMangohudAvailable() const;
     Q_INVOKABLE bool isGamemodeAvailable() const;
-    Q_INVOKABLE QString autoDetectLsfgDll() const;
     Q_INVOKABLE QString logDir() const;
     Q_INVOKABLE QStringList platformSlugs() const;
 
@@ -126,7 +124,6 @@ private:
     QString m_defaultRuntimeType;
     QString m_defaultProtonPath;
     QString m_defaultWineBinary;
-    QString m_lsfgDllPath;
     QHash<QString, QProcess *> m_runningProcesses;
     QVariantMap m_watchCandidate;
     QHash<QString, QVariantMap> m_activeLaunches;

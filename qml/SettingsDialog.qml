@@ -8,9 +8,77 @@ Kirigami.ScrollablePage {
     id: settingsPage
     title: i18n("Settings")
 
+    readonly property string localProtonDir: {
+        settingsManager.localProtonDir;
+        return protonScanner.localProtonPath();
+    }
+
+    function storageChanges() {
+        var defs = [
+            {
+                "kind": "assets",
+                "label": i18n("Assets"),
+                "field": assetsDirField,
+                "oldPath": protonScanner.localAssetsPath(),
+                "def": protonScanner.defaultAssetsPath()
+            },
+            {
+                "kind": "prefixes",
+                "label": i18n("Prefixes"),
+                "field": prefixDirField,
+                "oldPath": protonScanner.prefixBasePath(),
+                "def": protonScanner.defaultPrefixBasePath()
+            },
+            {
+                "kind": "protons",
+                "label": i18n("Local Proton"),
+                "field": localProtonDirField,
+                "oldPath": protonScanner.localProtonPath(),
+                "def": protonScanner.defaultLocalProtonPath()
+            },
+            {
+                "kind": "wines",
+                "label": i18n("Local Wine"),
+                "field": localWineDirField,
+                "oldPath": wineScanner.localWinePath(),
+                "def": wineScanner.defaultLocalWinePath()
+            }
+        ];
+        var list = [];
+        for (var i = 0; i < defs.length; i++) {
+            var typed = settingsManager.cleanDir(defs[i].field.text);
+            var newPath = typed !== "" ? typed : defs[i].def;
+            if (newPath !== defs[i].oldPath)
+                list.push({
+                    "kind": defs[i].kind,
+                    "label": defs[i].label,
+                    "typed": typed,
+                    "oldPath": defs[i].oldPath,
+                    "newPath": newPath
+                });
+        }
+        return list;
+    }
+
+    function applyStorageDir(change) {
+        if (change.kind === "assets")
+            settingsManager.setAssetsDir(change.typed);
+        else if (change.kind === "protons")
+            settingsManager.setLocalProtonDir(change.typed);
+        else if (change.kind === "wines")
+            settingsManager.setLocalWineDir(change.typed);
+        else if (change.kind === "prefixes")
+            settingsManager.setDefaultPrefixDir(change.typed);
+    }
+
     function save() {
         settingsManager.setUmuPath(umuPathField.text);
-        settingsManager.setDefaultPrefixDir(prefixDirField.text);
+        var changes = storageChanges();
+        if (changes.length > 0) {
+            moveDialog.errorText = "";
+            moveDialog.changes = changes;
+            moveDialog.open();
+        }
         settingsManager.setDefaultGamePrefix(gamePrefixField.text);
         settingsManager.setDefaultWinePrefix(winePrefixField.text);
         settingsManager.setGamepadFullscreenButton(gamepadFullscreenCombo.currentValue);
@@ -19,9 +87,9 @@ Kirigami.ScrollablePage {
         settingsManager.setRommApiKey(rommApiKeyField.text);
         settingsManager.setRetroarchPath(retroarchPathField.text);
         settingsManager.setRomCacheDir(romCacheDirField.text);
+        settingsManager.setGogEnabled(gogEnabledSwitch.checked);
         settingsManager.setGogCacheDir(gogCacheDirField.text);
         settingsManager.setGogInstallDir(gogInstallDirField.text);
-        settingsManager.setLsfgDllPath(lsfgDllPathField.text);
         defaultRuntimePicker.saveToSettings();
         var vars = [];
         for (var i = 0; i < envModel.count; i++) {
@@ -44,6 +112,9 @@ Kirigami.ScrollablePage {
     function load() {
         umuPathField.text = settingsManager.umuPath;
         prefixDirField.text = settingsManager.defaultPrefixDir;
+        assetsDirField.text = settingsManager.assetsDir;
+        localProtonDirField.text = settingsManager.localProtonDir;
+        localWineDirField.text = settingsManager.localWineDir;
         gamePrefixField.text = settingsManager.defaultGamePrefix;
         winePrefixField.text = settingsManager.defaultWinePrefix;
         for (var gi = 0; gi < gamepadFullscreenCombo.model.length; gi++) {
@@ -57,9 +128,9 @@ Kirigami.ScrollablePage {
         rommApiKeyField.text = settingsManager.rommApiKey;
         retroarchPathField.text = settingsManager.retroarchPath;
         romCacheDirField.text = settingsManager.romCacheDir;
+        gogEnabledSwitch.checked = settingsManager.gogEnabled;
         gogCacheDirField.text = settingsManager.gogCacheDir;
         gogInstallDirField.text = settingsManager.gogInstallDir;
-        lsfgDllPathField.text = settingsManager.lsfgDllPath;
         pathsModel.clear();
         var paths = settingsManager.extraProtonPaths;
         for (var i = 0; i < paths.length; i++) {
@@ -193,6 +264,86 @@ Kirigami.ScrollablePage {
 
             RowLayout {
                 Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Assets Folder:")
+                QQC2.TextField {
+                    id: assetsDirField
+                    Layout.fillWidth: true
+                    placeholderText: protonScanner.defaultAssetsPath()
+                }
+                QQC2.ToolButton {
+                    icon.name: "document-open-symbolic"
+                    onClicked: assetsDirFolderDialog.open()
+                }
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Where Vermouth keeps game art, extracted icons, and the DOSBox and UZDOOM it downloads. Leave empty for the default.")
+                    icon.name: "help-about-symbolic"
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Local Proton Folder:")
+                QQC2.TextField {
+                    id: localProtonDirField
+                    Layout.fillWidth: true
+                    placeholderText: protonScanner.defaultLocalProtonPath()
+                }
+                QQC2.ToolButton {
+                    icon.name: "document-open-symbolic"
+                    onClicked: localProtonDirFolderDialog.open()
+                }
+                QQC2.ToolButton {
+                    id: steamProtonButton
+                    readonly property var steamPaths: protonScanner.steamCompatToolsPaths()
+                    visible: steamPaths.length > 0
+                    icon.name: "steam"
+                    QQC2.ToolTip.text: i18n("Use Steam's compatibilitytools.d folder")
+                    QQC2.ToolTip.visible: hovered
+                    onClicked: {
+                        if (steamPaths.length === 1)
+                            localProtonDirField.text = steamPaths[0];
+                        else
+                            steamProtonMenu.popup(steamProtonButton, 0, steamProtonButton.height);
+                    }
+
+                    QQC2.Menu {
+                        id: steamProtonMenu
+                        Repeater {
+                            model: steamProtonButton.steamPaths
+                            delegate: QQC2.MenuItem {
+                                required property string modelData
+                                text: modelData
+                                onTriggered: localProtonDirField.text = modelData
+                            }
+                        }
+                    }
+                }
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Where Vermouth downloads Proton builds and umu-launcher, and the folder it scans for them. Leave empty for the default.")
+                    icon.name: "help-about-symbolic"
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Local Wine Folder:")
+                QQC2.TextField {
+                    id: localWineDirField
+                    Layout.fillWidth: true
+                    placeholderText: wineScanner.defaultLocalWinePath()
+                }
+                QQC2.ToolButton {
+                    icon.name: "document-open-symbolic"
+                    onClicked: localWineDirFolderDialog.open()
+                }
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Where Vermouth downloads Wine builds, and the folder it scans for them. Leave empty for the default.")
+                    icon.name: "help-about-symbolic"
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Default Proton Prefix:")
                 QQC2.TextField {
                     id: gamePrefixField
@@ -250,7 +401,7 @@ Kirigami.ScrollablePage {
                     icon.name: "folder-open-symbolic"
                     text: i18n("Open Vermouth Proton folder")
                     QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: protonScanner.localProtonPath()
+                    QQC2.ToolTip.text: settingsPage.localProtonDir
                     onClicked: Qt.openUrlExternally("file://" + protonScanner.localProtonPath())
                 }
                 QQC2.Button {
@@ -380,7 +531,14 @@ Kirigami.ScrollablePage {
                 Kirigami.FormData.label: i18n("GOG")
             }
 
+            QQC2.Switch {
+                id: gogEnabledSwitch
+                Kirigami.FormData.label: i18n("GOG Library:")
+                text: i18n("Enable")
+            }
+
             QQC2.Label {
+                visible: gogEnabledSwitch.checked
                 Kirigami.FormData.label: ""
                 text: i18n("Log in from the GOG Library tab to browse and install your owned GOG games.")
                 wrapMode: Text.WordWrap
@@ -392,6 +550,7 @@ Kirigami.ScrollablePage {
             }
 
             RowLayout {
+                visible: gogEnabledSwitch.checked
                 Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Account:")
                 QQC2.Label {
@@ -408,6 +567,7 @@ Kirigami.ScrollablePage {
             }
 
             RowLayout {
+                visible: gogEnabledSwitch.checked
                 Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Download Folder:")
                 QQC2.TextField {
@@ -426,6 +586,7 @@ Kirigami.ScrollablePage {
             }
 
             RowLayout {
+                visible: gogEnabledSwitch.checked
                 Layout.fillWidth: true
                 Kirigami.FormData.label: i18n("Install Folder:")
                 QQC2.TextField {
@@ -747,48 +908,6 @@ Kirigami.ScrollablePage {
 
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
-                Kirigami.FormData.label: i18n("Lossless Scaling Frame Generation")
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("LSFG DLL Path:")
-                QQC2.TextField {
-                    id: lsfgDllPathField
-                    Layout.fillWidth: true
-                    placeholderText: i18n("Path to Lossless.dll")
-                    text: settingsManager.lsfgDllPath
-                }
-                QQC2.ToolButton {
-                    icon.name: "document-open-symbolic"
-                    onClicked: lsfgDllFileDialog.open()
-                }
-                QQC2.ToolButton {
-                    icon.name: "edit-find-symbolic"
-                    onClicked: {
-                        var detectedPath = launcher.autoDetectLsfgDll();
-                        if (detectedPath !== "") {
-                            lsfgDllPathField.text = detectedPath;
-                        } else {
-                            lsfgDllPathField.text = "";
-                            root.showPassiveNotification(i18n("Could not auto-detect Lossless.dll"), 3000);
-                        }
-                    }
-                    QQC2.ToolTip.text: i18n("Auto-detect")
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-                }
-                QQC2.ToolButton {
-                    icon.name: "edit-clear"
-                    onClicked: lsfgDllPathField.text = ""
-                    QQC2.ToolTip.text: i18n("Clear")
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
-                }
-            }
-
-            Kirigami.Separator {
-                Kirigami.FormData.isSection: true
                 Kirigami.FormData.label: i18n("Gamepad")
             }
 
@@ -820,6 +939,35 @@ Kirigami.ScrollablePage {
         title: i18n("Select umu-run binary")
         currentFolder: umuPathField.text !== "" ? "file://" + umuPathField.text.substring(0, umuPathField.text.lastIndexOf("/")) : "file://" + protonScanner.homePath()
         onAccepted: umuPathField.text = decodeURIComponent(selectedFile.toString().replace("file://", ""))
+    }
+
+    StorageMoveDialog {
+        id: moveDialog
+        onApplyDirect: function (change) {
+            settingsPage.applyStorageDir(change);
+        }
+        onCancelled: settingsPage.load()
+    }
+
+    FolderDialog {
+        id: assetsDirFolderDialog
+        title: i18n("Select Assets Folder")
+        currentFolder: "file://" + protonScanner.homePath()
+        onAccepted: assetsDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
+    }
+
+    FolderDialog {
+        id: localProtonDirFolderDialog
+        title: i18n("Select Local Proton Folder")
+        currentFolder: "file://" + protonScanner.homePath()
+        onAccepted: localProtonDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
+    }
+
+    FolderDialog {
+        id: localWineDirFolderDialog
+        title: i18n("Select Local Wine Folder")
+        currentFolder: "file://" + protonScanner.homePath()
+        onAccepted: localWineDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
     }
 
     FolderDialog {
@@ -882,16 +1030,5 @@ Kirigami.ScrollablePage {
         title: i18n("Select GOG Install Folder")
         currentFolder: "file://" + protonScanner.homePath()
         onAccepted: gogInstallDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
-    }
-
-    FileDialog {
-        id: lsfgDllFileDialog
-        title: i18n("Select Lossless.dll")
-        currentFolder: lsfgDllPathField.text !== "" ? "file://" + lsfgDllPathField.text.substring(0, lsfgDllPathField.text.lastIndexOf("/")) : "file:///usr/share"
-        nameFilters: [i18n("DLL files (*.dll)"), i18n("All files (*)")]
-        onAccepted: {
-            var path = decodeURIComponent(selectedFile.toString().replace("file://", ""));
-            lsfgDllPathField.text = path;
-        }
     }
 }

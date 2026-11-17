@@ -74,11 +74,6 @@ public:
     bool enablePreferSdl = false;
     bool enableNsenter = false;
     QString gpu;
-    bool enableLsfg = false;
-    int lsfgMultiplier = 2;
-    int lsfgFlowScale = 50;
-    bool lsfgPerformanceMode = false;
-    QString lsfgPresentMode;
     QStringList envVars;
     bool enableAutoHdr = false;
 

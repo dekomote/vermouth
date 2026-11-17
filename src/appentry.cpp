@@ -64,11 +64,6 @@ QJsonObject AppEntry::toJson() const
     obj[QStringLiteral("enablePreferSdl")] = enablePreferSdl;
     obj[QStringLiteral("enableNsenter")] = enableNsenter;
     obj[QStringLiteral("gpu")] = gpu;
-    obj[QStringLiteral("enableLsfg")] = enableLsfg;
-    obj[QStringLiteral("lsfgMultiplier")] = lsfgMultiplier;
-    obj[QStringLiteral("lsfgFlowScale")] = lsfgFlowScale;
-    obj[QStringLiteral("lsfgPerformanceMode")] = lsfgPerformanceMode;
-    obj[QStringLiteral("lsfgPresentMode")] = lsfgPresentMode;
     obj[QStringLiteral("envVars")] = QJsonArray::fromStringList(envVars);
     obj[QStringLiteral("enableAutoHdr")] = enableAutoHdr;
     return obj;
@@ -109,11 +104,6 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("enablePreferSdl"), enablePreferSdl},
         {QStringLiteral("enableNsenter"), enableNsenter},
         {QStringLiteral("gpu"), gpu},
-        {QStringLiteral("enableLsfg"), enableLsfg},
-        {QStringLiteral("lsfgMultiplier"), lsfgMultiplier},
-        {QStringLiteral("lsfgFlowScale"), lsfgFlowScale},
-        {QStringLiteral("lsfgPerformanceMode"), lsfgPerformanceMode},
-        {QStringLiteral("lsfgPresentMode"), lsfgPresentMode},
         {QStringLiteral("envVars"), envVars},
         {QStringLiteral("enableAutoHdr"), enableAutoHdr},
     };
@@ -161,11 +151,6 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     e.enablePreferSdl = obj[QStringLiteral("enablePreferSdl")].toBool(false);
     e.enableNsenter = obj[QStringLiteral("enableNsenter")].toBool(false);
     e.gpu = obj[QStringLiteral("gpu")].toString();
-    e.enableLsfg = obj[QStringLiteral("enableLsfg")].toBool(false);
-    e.lsfgMultiplier = obj[QStringLiteral("lsfgMultiplier")].toInt(2);
-    e.lsfgFlowScale = obj[QStringLiteral("lsfgFlowScale")].toInt(50);
-    e.lsfgPerformanceMode = obj[QStringLiteral("lsfgPerformanceMode")].toBool(false);
-    e.lsfgPresentMode = obj[QStringLiteral("lsfgPresentMode")].toString();
     const QJsonArray envArr = obj[QStringLiteral("envVars")].toArray();
     for (const QJsonValue &v : envArr)
         e.envVars << v.toString();
@@ -209,11 +194,6 @@ void AppEntry::updateFromVariantMap(const QVariantMap &app)
     enablePreferSdl = app.value(QStringLiteral("enablePreferSdl"), false).toBool();
     enableNsenter = app.value(QStringLiteral("enableNsenter"), false).toBool();
     gpu = app.value(QStringLiteral("gpu"), QString()).toString();
-    enableLsfg = app.value(QStringLiteral("enableLsfg"), false).toBool();
-    lsfgMultiplier = app.value(QStringLiteral("lsfgMultiplier"), 2).toInt();
-    lsfgFlowScale = app.value(QStringLiteral("lsfgFlowScale"), 50).toInt();
-    lsfgPerformanceMode = app.value(QStringLiteral("lsfgPerformanceMode"), false).toBool();
-    lsfgPresentMode = app.value(QStringLiteral("lsfgPresentMode"), QString()).toString();
     envVars = app.value(QStringLiteral("envVars"), QStringList()).toStringList();
     enableAutoHdr = app.value(QStringLiteral("enableAutoHdr"), false).toBool();
 }

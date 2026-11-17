@@ -10,6 +10,9 @@ class SettingsManager : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString defaultPrefixDir READ defaultPrefixDir WRITE setDefaultPrefixDir NOTIFY defaultPrefixDirChanged)
+    Q_PROPERTY(QString assetsDir READ assetsDir WRITE setAssetsDir NOTIFY storageDirsChanged)
+    Q_PROPERTY(QString localProtonDir READ localProtonDir WRITE setLocalProtonDir NOTIFY storageDirsChanged)
+    Q_PROPERTY(QString localWineDir READ localWineDir WRITE setLocalWineDir NOTIFY storageDirsChanged)
     Q_PROPERTY(QString defaultGamePrefix READ defaultGamePrefix WRITE setDefaultGamePrefix NOTIFY defaultGamePrefixChanged)
     Q_PROPERTY(QString defaultWinePrefix READ defaultWinePrefix WRITE setDefaultWinePrefix NOTIFY defaultWinePrefixChanged)
     Q_PROPERTY(QString gamepadFullscreenButton READ gamepadFullscreenButton WRITE setGamepadFullscreenButton NOTIFY gamepadFullscreenButtonChanged)
@@ -33,6 +36,7 @@ class SettingsManager : public QObject
     Q_PROPERTY(QString rommApiKey READ rommApiKey WRITE setRommApiKey NOTIFY rommApiKeyChanged)
     Q_PROPERTY(QString gogRefreshToken READ gogRefreshToken WRITE setGogRefreshToken NOTIFY gogRefreshTokenChanged)
     Q_PROPERTY(QString gogUsername READ gogUsername WRITE setGogUsername NOTIFY gogUsernameChanged)
+    Q_PROPERTY(bool gogEnabled READ gogEnabled WRITE setGogEnabled NOTIFY gogEnabledChanged)
     Q_PROPERTY(QString gogCacheDir READ gogCacheDir WRITE setGogCacheDir NOTIFY gogCacheDirChanged)
     Q_PROPERTY(QString gogInstallDir READ gogInstallDir WRITE setGogInstallDir NOTIFY gogInstallDirChanged)
     Q_PROPERTY(QString retroarchPath READ retroarchPath WRITE setRetroarchPath NOTIFY retroarchPathChanged)
@@ -46,13 +50,24 @@ class SettingsManager : public QObject
     Q_PROPERTY(bool showScrollBar READ showScrollBar WRITE setShowScrollBar NOTIFY showScrollBarChanged)
     Q_PROPERTY(bool showRunnerIcons READ showRunnerIcons WRITE setShowRunnerIcons NOTIFY showRunnerIconsChanged)
     Q_PROPERTY(bool steamShortcutsEnabled READ steamShortcutsEnabled WRITE setSteamShortcutsEnabled NOTIFY steamShortcutsEnabledChanged)
-    Q_PROPERTY(QString lsfgDllPath READ lsfgDllPath WRITE setLsfgDllPath NOTIFY lsfgDllPathChanged)
 
 public:
     explicit SettingsManager(QObject *parent = nullptr);
 
     QString defaultPrefixDir() const;
     Q_INVOKABLE void setDefaultPrefixDir(const QString &path);
+
+    // Folders for downloaded runtimes and game art; empty means the default under the app data directory.
+    // Trims whitespace and trailing slashes; empty stays empty.
+    Q_INVOKABLE static QString cleanDir(const QString &path);
+    QString assetsDir() const;
+    Q_INVOKABLE void setAssetsDir(const QString &path);
+    QString localProtonDir() const;
+    Q_INVOKABLE void setLocalProtonDir(const QString &path);
+    QString localWineDir() const;
+    Q_INVOKABLE void setLocalWineDir(const QString &path);
+    // Points every saved setting under oldRoot at newRoot.
+    void rewritePaths(const QString &oldRoot, const QString &newRoot);
 
     QString defaultGamePrefix() const;
     Q_INVOKABLE void setDefaultGamePrefix(const QString &path);
@@ -62,6 +77,9 @@ public:
 
     QString gamepadFullscreenButton() const;
     Q_INVOKABLE void setGamepadFullscreenButton(const QString &button);
+
+    QStringList skippedUpdates() const;
+    void skipUpdate(const QString &key);
 
     QStringList extraProtonPaths() const;
     void setExtraProtonPaths(const QStringList &paths);
@@ -83,6 +101,8 @@ public:
 
     QString umuPath() const;
     Q_INVOKABLE void setUmuPath(const QString &path);
+    // True for the umu-run Vermouth downloaded (<some folder>/umu/umu-run), as opposed to one the user picked.
+    static bool isDownloadedUmu(const QString &path);
 
     QStringList globalEnvVars() const;
     Q_INVOKABLE void setGlobalEnvVars(const QStringList &vars);
@@ -135,6 +155,9 @@ public:
     Q_INVOKABLE void setGogRefreshToken(const QString &token);
     QString gogUsername() const;
     Q_INVOKABLE void setGogUsername(const QString &name);
+    bool gogEnabled() const;
+    Q_INVOKABLE void setGogEnabled(bool enabled);
+
     QString gogCacheDir() const;
     Q_INVOKABLE void setGogCacheDir(const QString &dir);
     QString gogInstallDir() const;
@@ -164,9 +187,6 @@ public:
     bool steamShortcutsEnabled() const;
     Q_INVOKABLE void setSteamShortcutsEnabled(bool enabled);
 
-    QString lsfgDllPath() const;
-    Q_INVOKABLE void setLsfgDllPath(const QString &path);
-
     QVariantMap rommCoreMap() const;
     Q_INVOKABLE QString rommCore(const QString &platformSlug) const;
     Q_INVOKABLE void setRommCore(const QString &platformSlug, const QString &corePath);
@@ -177,6 +197,7 @@ public:
 
 Q_SIGNALS:
     void defaultPrefixDirChanged();
+    void storageDirsChanged();
     void defaultGamePrefixChanged();
     void defaultWinePrefixChanged();
     void gamepadFullscreenButtonChanged();
@@ -198,6 +219,7 @@ Q_SIGNALS:
     void rommApiKeyChanged();
     void gogRefreshTokenChanged();
     void gogUsernameChanged();
+    void gogEnabledChanged();
     void gogCacheDirChanged();
     void gogInstallDirChanged();
     void gogInstalledGamesChanged();
@@ -212,7 +234,6 @@ Q_SIGNALS:
     void showScrollBarChanged();
     void showRunnerIconsChanged();
     void steamShortcutsEnabledChanged();
-    void lsfgDllPathChanged();
     void rommCoreMapChanged();
     void rommGameCoreMapChanged();
 

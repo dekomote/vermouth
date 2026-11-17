@@ -107,7 +107,8 @@ void AppModel::rebuildFilter()
         runtimeCounts.insert(it.key(), it.value());
     if (runtimeCounts != m_runtimeCounts) {
         m_runtimeCounts = runtimeCounts;
-        Q_EMIT runtimeCountsChanged();
+        // Queued: rebuildFilter runs inside a model reset, and listeners may reset the model again.
+        QMetaObject::invokeMethod(this, &AppModel::runtimeCountsChanged, Qt::QueuedConnection);
     }
 }
 
@@ -240,16 +241,6 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.enableNsenter;
     case GpuRole:
         return e.gpu;
-    case EnableLsfgRole:
-        return e.enableLsfg;
-    case LsfgMultiplierRole:
-        return e.lsfgMultiplier;
-    case LsfgFlowScaleRole:
-        return e.lsfgFlowScale;
-    case LsfgPerformanceModeRole:
-        return e.lsfgPerformanceMode;
-    case LsfgPresentModeRole:
-        return e.lsfgPresentMode;
     case EnvVarsRole:
         return e.envVars;
     case LastPlayedRole:
@@ -293,11 +284,6 @@ QHash<int, QByteArray> AppModel::roleNames() const
         {EnablePreferSdlRole, "enablePreferSdl"},
         {EnableNsenterRole, "enableNsenter"},
         {GpuRole, "gpu"},
-        {EnableLsfgRole, "enableLsfg"},
-        {LsfgMultiplierRole, "lsfgMultiplier"},
-        {LsfgFlowScaleRole, "lsfgFlowScale"},
-        {LsfgPerformanceModeRole, "lsfgPerformanceMode"},
-        {LsfgPresentModeRole, "lsfgPresentMode"},
         {EnvVarsRole, "envVars"},
         {LastPlayedRole, "lastPlayed"},
         {EnableAutoHdrRole, "enableAutoHdr"},
@@ -583,6 +569,41 @@ void AppModel::load()
 
     if (needsMigration || recoveredFromTmp)
         save();
+}
+
+static QJsonValue rebaseJson(const QJsonValue &value, const QString &oldRoot, const QString &newRoot)
+{
+    if (value.isString()) {
+        const QString s = value.toString();
+        if (s == oldRoot)
+            return newRoot;
+        if (s.startsWith(oldRoot + QLatin1Char('/')))
+            return QString(newRoot + s.mid(oldRoot.size()));
+        return value;
+    }
+    if (value.isArray()) {
+        QJsonArray arr = value.toArray();
+        for (int i = 0; i < arr.size(); ++i)
+            arr[i] = rebaseJson(arr[i], oldRoot, newRoot);
+        return arr;
+    }
+    if (value.isObject()) {
+        QJsonObject obj = value.toObject();
+        for (auto it = obj.begin(); it != obj.end(); ++it)
+            it.value() = rebaseJson(it.value(), oldRoot, newRoot);
+        return obj;
+    }
+    return value;
+}
+
+void AppModel::rewritePaths(const QString &oldRoot, const QString &newRoot)
+{
+    beginResetModel();
+    for (AppEntry &entry : m_entries)
+        entry = AppEntry::fromJson(rebaseJson(entry.toJson(), oldRoot, newRoot).toObject());
+    rebuildFilter();
+    endResetModel();
+    save();
 }
 
 void AppModel::save() const
