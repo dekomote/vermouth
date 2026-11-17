@@ -182,6 +182,10 @@ void UpdateChecker::applyNext()
     const QVariantMap next = m_queue.takeFirst().toMap();
     m_activeKind = next.value(QStringLiteral("kind")).toString();
     Q_EMIT progressChanged();
+    if ((m_activeKind == QLatin1String("umu") ? static_cast<Downloader *>(m_umu) : static_cast<Downloader *>(m_proton))->busy()) {
+        applyNext();
+        return;
+    }
     if (m_activeKind == QLatin1String("umu"))
         m_umu->downloadLatest();
     else

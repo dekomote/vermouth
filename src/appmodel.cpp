@@ -107,7 +107,8 @@ void AppModel::rebuildFilter()
         runtimeCounts.insert(it.key(), it.value());
     if (runtimeCounts != m_runtimeCounts) {
         m_runtimeCounts = runtimeCounts;
-        Q_EMIT runtimeCountsChanged();
+        // Queued: rebuildFilter runs inside a model reset, and listeners may reset the model again.
+        QMetaObject::invokeMethod(this, &AppModel::runtimeCountsChanged, Qt::QueuedConnection);
     }
 }
 
