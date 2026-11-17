@@ -50,6 +50,8 @@ qt_add_executable(vermouth
     src/winedownloader.cpp
     src/winescanner.cpp
     src/umudownloader.cpp
+    src/updatechecker.cpp
+    src/storagemigrator.cpp
     src/uzdoomdownloader.cpp
     src/dosbox.cpp
     src/dosboxdownloader.cpp
@@ -97,6 +99,8 @@ qt_add_qml_module(vermouth
         qml/RuntimePicker.qml
         qml/GpuPicker.qml
         qml/EnvPresetButton.qml
+        qml/UpdateDialog.qml
+        qml/StorageMoveDialog.qml
         qml/EnvPresetDialog.qml
         qml/SettingsDialog.qml
         qml/SteamGridDBPickerDialog.qml

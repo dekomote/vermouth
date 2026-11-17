@@ -16,6 +16,10 @@ public:
     void setInstallPath(const QString &path);
 
     Q_INVOKABLE void downloadLatest();
+    QString installPath() const
+    {
+        return m_installPath;
+    }
 
 Q_SIGNALS:
     void finished(const QString &umuBinPath);
@@ -23,7 +27,7 @@ Q_SIGNALS:
 
 private:
     void onReleaseFetched(QNetworkReply *reply);
-    void startTarExtraction(QTemporaryFile *archiveFile);
+    void startTarExtraction(QTemporaryFile *archiveFile, const QString &tag);
 
     QString m_installPath;
     QProcess *m_tarProc = nullptr;

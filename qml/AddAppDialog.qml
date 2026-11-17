@@ -45,33 +45,10 @@ Kirigami.Dialog {
     property string installerPrefixPath: ""
     property bool mangohudAvailable: false
     property bool gamemodeAvailable: false
-    property bool lsfgAvailable: false
-    // DOSBox Staging is a plain native process: GameMode and frame generation make no sense for it.
+    // DOSBox Staging is a plain native process: GameMode makes no sense for it.
     readonly property bool isDosbox: runtimePicker.runtimeType === "dosbox"
     readonly property bool showAdvancedOptions: runtimePicker.runtimeType !== "steam" && runtimePicker.runtimeType !== "retroarch"
     readonly property bool showLaunchAndEnv: runtimePicker.runtimeType !== "retroarch"
-    property var lsfgPresentModes: [
-        {
-            "text": i18n("Default"),
-            "value": "default"
-        },
-        {
-            "text": i18n("Immediate"),
-            "value": "immediate"
-        },
-        {
-            "text": i18n("Mailbox"),
-            "value": "mailbox"
-        },
-        {
-            "text": i18n("FIFO"),
-            "value": "fifo"
-        },
-        {
-            "text": i18n("FIFO Relaxed"),
-            "value": "fifo_relaxed"
-        }
-    ]
 
     function openForNew() {
         editMode = false;
@@ -97,11 +74,6 @@ Kirigami.Dialog {
         enableNsenterCheck.checked = false;
         gpuCombo.load("");
         enableAutoHdrCheck.checked = false;
-        enableLsfgCheck.checked = false;
-        lsfgMultiplierSpin.value = 2;
-        lsfgFlowScaleSpin.value = 50;
-        lsfgPerformanceModeCheck.checked = false;
-        lsfgPresentModeCombo.currentIndex = 0;
         artSection.expanded = false;
         pendingAutoDownload = false;
         dialog.pendingInstallerRun = false;
@@ -114,7 +86,6 @@ Kirigami.Dialog {
         prefixBasePath = protonScanner.prefixBasePath();
         dialog.mangohudAvailable = launcher.isMangohudAvailable();
         dialog.gamemodeAvailable = launcher.isGamemodeAvailable();
-        dialog.lsfgAvailable = settingsManager.lsfgDllPath !== "";
         dialog.open();
     }
 
@@ -209,18 +180,6 @@ Kirigami.Dialog {
         enableNsenterCheck.checked = app.enableNsenter || false;
         gpuCombo.load(app.gpu || "");
         enableAutoHdrCheck.checked = app.enableAutoHdr || false;
-        enableLsfgCheck.checked = app.enableLsfg || false;
-        lsfgMultiplierSpin.value = app.lsfgMultiplier || 2;
-        lsfgFlowScaleSpin.value = app.lsfgFlowScale || 50;
-        lsfgPerformanceModeCheck.checked = app.lsfgPerformanceMode || false;
-        var lsfgPresentIndex = 0;
-        for (var pm = 0; pm < dialog.lsfgPresentModes.length; pm++) {
-            if (dialog.lsfgPresentModes[pm].value === app.lsfgPresentMode) {
-                lsfgPresentIndex = pm;
-                break;
-            }
-        }
-        lsfgPresentModeCombo.currentIndex = lsfgPresentIndex;
         artSection.expanded = gridField.text !== "" || heroField.text !== "" || logoField.text !== "";
         prefixBasePath = protonScanner.prefixBasePath();
         pendingAutoDownload = false;
@@ -251,7 +210,6 @@ Kirigami.Dialog {
         runtimePicker.loadFromApp(app);
         dialog.mangohudAvailable = launcher.isMangohudAvailable();
         dialog.gamemodeAvailable = launcher.isGamemodeAvailable();
-        dialog.lsfgAvailable = settingsManager.lsfgDllPath !== "";
         dialog.open();
     }
 
@@ -352,11 +310,6 @@ Kirigami.Dialog {
             "enableNsenter": enableNsenterCheck.checked,
             "gpu": gpuCombo.value,
             "enableAutoHdr": enableAutoHdrCheck.checked,
-            "enableLsfg": enableLsfgCheck.checked && rt !== "dosbox",
-            "lsfgMultiplier": lsfgMultiplierSpin.value,
-            "lsfgFlowScale": lsfgFlowScaleSpin.value,
-            "lsfgPerformanceMode": lsfgPerformanceModeCheck.checked,
-            "lsfgPresentMode": lsfgPresentModeCombo.currentValue,
             "envVars": dialog.collectEnvVars()
         };
 
@@ -992,57 +945,6 @@ Kirigami.Dialog {
                             targetModel: gameEnvModel
                         }
                     }
-                }
-
-                Kirigami.Separator {
-                    Kirigami.FormData.isSection: true
-                    Kirigami.FormData.label: i18n("Lossless Scaling Frame Generation")
-                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && !dialog.isDosbox
-                }
-
-                QQC2.CheckBox {
-                    id: enableLsfgCheck
-                    text: i18n("Enable LSFG frame generation")
-                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && !dialog.isDosbox
-                }
-
-                QQC2.SpinBox {
-                    id: lsfgMultiplierSpin
-                    Layout.fillWidth: true
-                    Kirigami.FormData.label: i18n("Frame multiplier:")
-                    from: 2
-                    to: 8
-                    editable: true
-                    textFromValue: function (v) {
-                        return v + "x";
-                    }
-                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && !dialog.isDosbox && enableLsfgCheck.checked
-                }
-
-                QQC2.SpinBox {
-                    id: lsfgFlowScaleSpin
-                    Layout.fillWidth: true
-                    Kirigami.FormData.label: i18n("Flow scale (%):")
-                    from: 0
-                    to: 100
-                    editable: true
-                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && !dialog.isDosbox && enableLsfgCheck.checked
-                }
-
-                QQC2.CheckBox {
-                    id: lsfgPerformanceModeCheck
-                    text: i18n("Performance mode")
-                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && !dialog.isDosbox && enableLsfgCheck.checked
-                }
-
-                QQC2.ComboBox {
-                    id: lsfgPresentModeCombo
-                    Layout.fillWidth: true
-                    Kirigami.FormData.label: i18n("Present mode:")
-                    model: dialog.lsfgPresentModes
-                    textRole: "text"
-                    valueRole: "value"
-                    visible: dialog.showAdvancedOptions && dialog.lsfgAvailable && !dialog.isDosbox && enableLsfgCheck.checked
                 }
             }
         }

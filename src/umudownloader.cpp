@@ -1,4 +1,5 @@
 #include "umudownloader.h"
+#include "protondownloader.h"
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -92,7 +93,7 @@ void UmuDownloader::onReleaseFetched(QNetworkReply *reply)
             connect(tarReply, &QNetworkReply::readyRead, this, [tarReply, tmpFile]() {
                 tmpFile->write(tarReply->readAll());
             });
-            connect(tarReply, &QNetworkReply::finished, this, [this, tarReply, tmpFile]() {
+            connect(tarReply, &QNetworkReply::finished, this, [this, tarReply, tmpFile, tagName]() {
                 tmpFile->flush();
                 tmpFile->close();
                 if (tarReply->error() != QNetworkReply::NoError) {
@@ -106,7 +107,7 @@ void UmuDownloader::onReleaseFetched(QNetworkReply *reply)
                 setStatusText(tr("Installing…"));
                 setProgress(1.0);
                 tarReply->deleteLater();
-                startTarExtraction(tmpFile);
+                startTarExtraction(tmpFile, tagName);
             });
             return;
         }
@@ -132,20 +133,21 @@ void UmuDownloader::onReleaseFetched(QNetworkReply *reply)
         binFile.close();
         binFile.setPermissions(binFile.permissions() | QFile::ExeOwner | QFile::ExeGroup | QFile::ExeOther);
 
+        ProtonDownloader::writeInstalledTag(m_installPath, tagName);
         setStatusText(tr("umu-launcher installed!"));
         setBusy(false);
         Q_EMIT finished(umuBinPath);
     });
 }
 
-void UmuDownloader::startTarExtraction(QTemporaryFile *archiveFile)
+void UmuDownloader::startTarExtraction(QTemporaryFile *archiveFile, const QString &tag)
 {
     delete m_tarProc;
     m_tarProc = new QProcess(this);
     auto *tmpExtractDir = new QString(QDir::tempPath() + QStringLiteral("/vermouth-umu-extract"));
     QDir().mkpath(*tmpExtractDir);
 
-    connect(m_tarProc, &QProcess::finished, this, [this, tmpExtractDir, archiveFile](int exitCode) {
+    connect(m_tarProc, &QProcess::finished, this, [this, tmpExtractDir, archiveFile, tag](int exitCode) {
         delete archiveFile;
         if (exitCode != 0) {
             setStatusText(tr("Extraction failed"));
@@ -166,6 +168,7 @@ void UmuDownloader::startTarExtraction(QTemporaryFile *archiveFile)
         QDir(*tmpExtractDir).removeRecursively();
         delete tmpExtractDir;
 
+        ProtonDownloader::writeInstalledTag(m_installPath, tag);
         setStatusText(tr("umu-launcher installed!"));
         setBusy(false);
         Q_EMIT finished(umuBinPath);

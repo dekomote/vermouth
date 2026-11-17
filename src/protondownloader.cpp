@@ -1,7 +1,15 @@
 #include "protondownloader.h"
 #include <QDir>
+#include <QFile>
+#include <QFutureWatcher>
 #include <QProcess>
 #include <QTemporaryFile>
+#include <QtConcurrent>
+
+static const QString releaseMarkerName()
+{
+    return QStringLiteral(".vermouth-release");
+}
 
 ProtonDownloader::ProtonDownloader(QObject *parent)
     : Downloader(parent)
@@ -13,13 +21,46 @@ void ProtonDownloader::setLocalProtonPath(const QString &path)
     m_localProtonPath = path;
 }
 
-const ProtonBuildConfig *ProtonDownloader::findConfig(const QString &buildType)
+const ProtonBuildConfig *ProtonDownloader::configForKey(const QString &key)
 {
     for (const auto &cfg : protonBuildConfigs) {
-        if (buildType == QLatin1String(cfg.key))
+        if (key == QLatin1String(cfg.key))
             return &cfg;
     }
-    return &protonBuildConfigs[0];
+    return nullptr;
+}
+
+const ProtonBuildConfig *ProtonDownloader::configForFolder(const QString &folderName)
+{
+    for (const auto &cfg : protonBuildConfigs) {
+        if (folderName == QLatin1String(cfg.latestName))
+            return &cfg;
+    }
+    struct Prefix {
+        const char *prefix;
+        const char *key;
+    };
+    static const Prefix prefixes[] = {{"GE-Proton", "ge"}, {"proton-cachyos", "cachyos"}, {"proton-em", "em"}, {"umu-proton", "umu"}, {"dwproton", "dw"}};
+    for (const auto &p : prefixes) {
+        if (folderName.startsWith(QLatin1String(p.prefix), Qt::CaseInsensitive))
+            return configForKey(QLatin1String(p.key));
+    }
+    return nullptr;
+}
+
+QString ProtonDownloader::installedTag(const QString &installDir)
+{
+    QFile f(installDir + QLatin1Char('/') + releaseMarkerName());
+    if (!f.open(QIODevice::ReadOnly))
+        return {};
+    return QString::fromUtf8(f.readAll()).trimmed();
+}
+
+void ProtonDownloader::writeInstalledTag(const QString &installDir, const QString &tag)
+{
+    QFile f(installDir + QLatin1Char('/') + releaseMarkerName());
+    if (f.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        f.write(tag.toUtf8());
 }
 
 void ProtonDownloader::downloadLatest(const QString &buildType)
@@ -27,7 +68,9 @@ void ProtonDownloader::downloadLatest(const QString &buildType)
     if (busy())
         return;
 
-    const auto *config = findConfig(buildType);
+    const auto *config = configForKey(buildType);
+    if (!config)
+        config = &protonBuildConfigs[0];
 
     setBusy(true);
     setStatusText(tr("Checking latest release…"));
@@ -65,19 +108,18 @@ void ProtonDownloader::onReleaseFetched(QNetworkReply *reply, const ProtonBuildC
         return;
     }
 
-    QDir localDir(m_localProtonPath);
-    for (const auto &entry : localDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
-        if (entry.contains(tagName, Qt::CaseInsensitive)) {
-            setStatusText(tr("Latest version (%1) is already installed").arg(tagName));
-            setBusy(false);
-            Q_EMIT finished(localDir.absoluteFilePath(entry));
-            return;
-        }
+    const QString latestDir = m_localProtonPath + QLatin1Char('/') + QLatin1String(config->latestName);
+    if (installedTag(latestDir) == tagName) {
+        setStatusText(tr("Latest version (%1) is already installed").arg(tagName));
+        setBusy(false);
+        Q_EMIT finished(latestDir);
+        return;
     }
 
     QString archiveName = QString::fromLatin1(config->archivePattern).arg(tagName);
     QString downloadUrl = QString::fromLatin1(config->downloadUrl).arg(tagName, archiveName);
-    QStringList tarArgs = {QLatin1String(config->tarFlag), QString(), QStringLiteral("-C"), m_localProtonPath, QStringLiteral("--verbose")};
+    const QString stagingDir = m_localProtonPath + QStringLiteral("/.staging");
+    QStringList tarArgs = {QLatin1String(config->tarFlag), QString(), QStringLiteral("-C"), stagingDir};
 
     setStatusText(tr("Downloading %1…").arg(tagName));
 
@@ -102,7 +144,7 @@ void ProtonDownloader::onReleaseFetched(QNetworkReply *reply, const ProtonBuildC
     connect(dlReply, &QNetworkReply::readyRead, this, [dlReply, tmpFile]() {
         tmpFile->write(dlReply->readAll());
     });
-    connect(dlReply, &QNetworkReply::finished, this, [this, dlReply, tmpFile, tarArgs]() {
+    connect(dlReply, &QNetworkReply::finished, this, [this, dlReply, tmpFile, tarArgs, config, tagName]() {
         tmpFile->flush();
         tmpFile->close();
         if (dlReply->error() != QNetworkReply::NoError) {
@@ -116,24 +158,39 @@ void ProtonDownloader::onReleaseFetched(QNetworkReply *reply, const ProtonBuildC
         setStatusText(tr("Extracting…"));
         setProgress(1.0);
         dlReply->deleteLater();
-        startExtraction(tmpFile, tarArgs);
+        startExtraction(tmpFile, tarArgs, config, tagName);
     });
 }
 
-void ProtonDownloader::startExtraction(QTemporaryFile *archiveFile, const QStringList &tarArgs)
+// Replaces the previous "Latest" folder with the freshly extracted build, so games pointing at it keep working.
+static QString installExtracted(const QString &stagingDir, const QString &localDir, const QString &latestName, const QString &tag)
+{
+    const QStringList dirs = QDir(stagingDir).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    if (dirs.isEmpty())
+        return {};
+
+    const QString latestDir = localDir + QLatin1Char('/') + latestName;
+    const QString oldDir = localDir + QStringLiteral("/.") + latestName + QStringLiteral(".old");
+    QDir(oldDir).removeRecursively();
+    const bool hadOld = QDir(latestDir).exists();
+    if (hadOld && !QDir().rename(latestDir, oldDir))
+        return {};
+    if (!QDir().rename(stagingDir + QLatin1Char('/') + dirs.first(), latestDir)) {
+        if (hadOld)
+            QDir().rename(oldDir, latestDir);
+        return {};
+    }
+    ProtonDownloader::writeInstalledTag(latestDir, tag);
+    QDir(oldDir).removeRecursively();
+    QDir(stagingDir).removeRecursively();
+    return latestDir;
+}
+
+void ProtonDownloader::startExtraction(QTemporaryFile *archiveFile, const QStringList &tarArgs, const ProtonBuildConfig *config, const QString &tag)
 {
     delete m_extractProc;
     m_extractProc = new QProcess(this);
-    connect(m_extractProc, &QProcess::finished, this, [this, archiveFile](int exitCode) {
-        const QByteArray output = m_extractProc->readAllStandardOutput();
-        QString firstLine;
-        for (const QByteArray &line : output.split('\n')) {
-            QString s = QString::fromUtf8(line).trimmed();
-            if (!s.isEmpty() && !s.startsWith(QLatin1Char('.')) && !s.startsWith(QStringLiteral("PaxHeaders"))) {
-                firstLine = s;
-                break;
-            }
-        }
+    connect(m_extractProc, &QProcess::finished, this, [this, archiveFile, config, tag](int exitCode) {
         delete archiveFile;
         if (exitCode != 0) {
             setStatusText(tr("Extraction failed"));
@@ -141,17 +198,30 @@ void ProtonDownloader::startExtraction(QTemporaryFile *archiveFile, const QStrin
             Q_EMIT error(QStringLiteral("tar extraction failed"));
             return;
         }
-        setStatusText(tr("Done!"));
-        setBusy(false);
-        // firstLine is the first entry tar printed, e.g. "GE-Proton9-27/" — strip trailing slash
-        QString topDir = firstLine;
-        if (topDir.endsWith(QLatin1Char('/')))
-            topDir.chop(1);
-        QString installedPath = topDir.isEmpty() ? QString() : m_localProtonPath + QLatin1Char('/') + topDir;
-        Q_EMIT finished(installedPath);
+        setStatusText(tr("Installing…"));
+        const QString stagingDir = m_localProtonPath + QStringLiteral("/.staging");
+        const QString localDir = m_localProtonPath;
+        const QString latestName = QString::fromLatin1(config->latestName);
+        auto *watcher = new QFutureWatcher<QString>(this);
+        connect(watcher, &QFutureWatcher<QString>::finished, this, [this, watcher]() {
+            const QString installedPath = watcher->result();
+            watcher->deleteLater();
+            if (installedPath.isEmpty()) {
+                setStatusText(tr("Installing failed"));
+                setBusy(false);
+                Q_EMIT error(QStringLiteral("Could not install the extracted build"));
+                return;
+            }
+            setStatusText(tr("Done!"));
+            setBusy(false);
+            Q_EMIT finished(installedPath);
+        });
+        watcher->setFuture(QtConcurrent::run(installExtracted, stagingDir, localDir, latestName, tag));
     });
 
-    QDir().mkpath(m_localProtonPath);
+    const QString stagingDir = m_localProtonPath + QStringLiteral("/.staging");
+    QDir(stagingDir).removeRecursively();
+    QDir().mkpath(stagingDir);
     QStringList args = tarArgs;
     args[1] = archiveFile->fileName();
     m_extractProc->setProgram(QStringLiteral("tar"));

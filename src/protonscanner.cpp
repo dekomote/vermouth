@@ -67,6 +67,15 @@ bool ProtonScanner::isInstalled(const QString &path) const
     return !path.isEmpty() && QFileInfo::exists(path + QStringLiteral("/proton"));
 }
 
+QStringList ProtonScanner::steamCompatToolsPaths() const
+{
+    QStringList result;
+    for (const auto &steamRoot : SteamLibrary::steamRootPaths())
+        result << steamRoot + QStringLiteral("/compatibilitytools.d");
+    result.removeDuplicates();
+    return result;
+}
+
 QString ProtonScanner::homePath() const
 {
     return QDir::homePath();
@@ -77,11 +86,16 @@ void ProtonScanner::setCustomPrefixBasePath(const QString &path)
     m_customPrefixBasePath = path;
 }
 
+QString ProtonScanner::defaultPrefixBasePath() const
+{
+    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/prefixes");
+}
+
 QString ProtonScanner::prefixBasePath() const
 {
     if (!m_customPrefixBasePath.isEmpty())
         return m_customPrefixBasePath;
-    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/prefixes");
+    return defaultPrefixBasePath();
 }
 
 QString ProtonScanner::winePrefixBasePath() const
@@ -89,14 +103,35 @@ QString ProtonScanner::winePrefixBasePath() const
     return prefixBasePath() + QStringLiteral("/wines");
 }
 
-QString ProtonScanner::localProtonPath() const
+void ProtonScanner::setCustomLocalProtonPath(const QString &path)
+{
+    m_customLocalProtonPath = path;
+    QDir().mkpath(localProtonPath());
+}
+
+void ProtonScanner::setCustomAssetsPath(const QString &path)
+{
+    m_customAssetsPath = path;
+}
+
+QString ProtonScanner::defaultLocalProtonPath() const
 {
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/protons");
 }
 
+QString ProtonScanner::defaultAssetsPath() const
+{
+    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/assets");
+}
+
+QString ProtonScanner::localProtonPath() const
+{
+    return m_customLocalProtonPath.isEmpty() ? defaultLocalProtonPath() : m_customLocalProtonPath;
+}
+
 QString ProtonScanner::localAssetsPath() const
 {
-    QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/assets");
+    QString path = m_customAssetsPath.isEmpty() ? defaultAssetsPath() : m_customAssetsPath;
     QDir().mkpath(path);
     return path;
 }

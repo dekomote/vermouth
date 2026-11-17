@@ -151,6 +151,24 @@ ColumnLayout {
         return "";
     }
 
+    // Reads the setting so bindings that show these folders re-evaluate when they change.
+    readonly property string localProtonDir: {
+        settingsManager.localProtonDir;
+        return protonScanner.localProtonPath();
+    }
+    readonly property string localWineDir: {
+        settingsManager.localWineDir;
+        return wineScanner.localWinePath();
+    }
+
+    Connections {
+        target: settingsManager
+        function onStorageDirsChanged() {
+            root.refreshProton();
+            root.refreshWine();
+        }
+    }
+
     function refreshProton() {
         var prevPath = "";
         if (protonCombo.currentIndex >= 0 && protonCombo.currentIndex < protonModel.count)
@@ -308,7 +326,7 @@ ColumnLayout {
             QQC2.ToolButton {
                 icon.name: "folder-open-symbolic"
                 QQC2.ToolTip.visible: hovered
-                QQC2.ToolTip.text: i18n("Open Vermouth Proton folder (%1)", protonScanner.localProtonPath())
+                QQC2.ToolTip.text: i18n("Open Vermouth Proton folder (%1)", root.localProtonDir)
                 onClicked: Qt.openUrlExternally("file://" + protonScanner.localProtonPath())
             }
             QQC2.ToolButton {
@@ -384,7 +402,7 @@ ColumnLayout {
             QQC2.ToolButton {
                 icon.name: "folder-open-symbolic"
                 QQC2.ToolTip.visible: hovered
-                QQC2.ToolTip.text: i18n("Open Vermouth Wine folder (%1)", wineScanner.localWinePath())
+                QQC2.ToolTip.text: i18n("Open Vermouth Wine folder (%1)", root.localWineDir)
                 onClicked: Qt.openUrlExternally("file://" + wineScanner.localWinePath())
             }
             QQC2.ToolButton {

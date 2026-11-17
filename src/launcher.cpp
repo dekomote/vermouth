@@ -87,11 +87,6 @@ void Launcher::setDosboxPath(const QString &path)
     m_dosboxPath = path;
 }
 
-void Launcher::setLsfgDllPath(const QString &path)
-{
-    m_lsfgDllPath = path;
-}
-
 void Launcher::setRommCoreMap(const QVariantMap &map)
 {
     m_rommCoreMap = map;
@@ -717,40 +712,6 @@ qint64 Launcher::launchEntry(const QVariantMap &app)
     if (app[QStringLiteral("enablePreferSdl")].toBool()) {
         env.insert(QStringLiteral("PROTON_PREFER_SDL"), QStringLiteral("1"));
     }
-    if (app[QStringLiteral("enableLsfg")].toBool()) {
-        env.insert(QStringLiteral("LSFG_LEGACY"), QStringLiteral("1"));
-        env.insert(QStringLiteral("LSFGVK_ENV"), QStringLiteral("1"));
-
-        // Set LSFG DLL paths from settings
-        QString lsfgDllPath = m_lsfgDllPath;
-        if (!lsfgDllPath.isEmpty()) {
-            env.insert(QStringLiteral("LSFG_DLL_PATH"), lsfgDllPath);
-            env.insert(QStringLiteral("LSFGVK_DLL_PATH"), lsfgDllPath);
-        }
-
-        int lsfgMultiplier = app[QStringLiteral("lsfgMultiplier")].toInt();
-        if (lsfgMultiplier > 0) {
-            env.insert(QStringLiteral("LSFG_MULTIPLIER"), QString::number(lsfgMultiplier));
-            env.insert(QStringLiteral("LSFGVK_MULTIPLIER"), QString::number(lsfgMultiplier));
-        }
-
-        int lsfgFlowScale = app[QStringLiteral("lsfgFlowScale")].toInt();
-        if (lsfgFlowScale > 0) {
-            double flowScale = lsfgFlowScale / 100.0;
-            env.insert(QStringLiteral("LSFG_FLOW_SCALE"), QString::number(flowScale, 'f', 2));
-            env.insert(QStringLiteral("LSFGVK_FLOW_SCALE"), QString::number(flowScale, 'f', 2));
-        }
-
-        bool lsfgPerformanceMode = app[QStringLiteral("lsfgPerformanceMode")].toBool();
-        env.insert(QStringLiteral("LSFG_PERFORMANCE_MODE"), lsfgPerformanceMode ? QStringLiteral("1") : QStringLiteral("0"));
-        env.insert(QStringLiteral("LSFGVK_PERFORMANCE_MODE"), lsfgPerformanceMode ? QStringLiteral("1") : QStringLiteral("0"));
-
-        QString lsfgPresentMode = app[QStringLiteral("lsfgPresentMode")].toString();
-        if (!lsfgPresentMode.isEmpty()) {
-            env.insert(QStringLiteral("LSFG_EXPERIMENTAL_PRESENT_MODE"), lsfgPresentMode);
-        }
-    }
-
     if (!app[QStringLiteral("protonGameId")].toString().isEmpty()) {
         env.insert(QStringLiteral("GAMEID"), app[QStringLiteral("protonGameId")].toString());
     }
@@ -1177,25 +1138,6 @@ bool Launcher::isMangohudAvailable() const
 bool Launcher::isGamemodeAvailable() const
 {
     return !QStandardPaths::findExecutable(QStringLiteral("gamemoderun")).isEmpty();
-}
-
-QString Launcher::autoDetectLsfgDll() const
-{
-    // Common locations for Lossless Scaling DLL
-    const QStringList candidates = {
-        QDir::homePath() + QStringLiteral("/.local/share/Steam/steamapps/common/Lossless Scaling/Lossless.dll"),
-        QDir::homePath() + QStringLiteral("/.steam/steam/steamapps/common/Lossless Scaling/Lossless.dll"),
-        QDir::homePath() + QStringLiteral("/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/Lossless Scaling/Lossless.dll"),
-        QDir::homePath() + QStringLiteral("/.var/app/com.valvesoftware.Steam/data/Steam/steamapps/common/Lossless Scaling/Lossless.dll"),
-    };
-
-    for (const QString &path : candidates) {
-        if (QFileInfo::exists(path)) {
-            return path;
-        }
-    }
-
-    return QString();
 }
 
 QStringList Launcher::platformSlugs() const
