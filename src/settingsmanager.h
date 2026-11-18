@@ -60,6 +60,14 @@ public:
     // Folders for downloaded runtimes and game art; empty means the default under the app data directory.
     // Trims whitespace and trailing slashes; empty stays empty.
     Q_INVOKABLE static QString cleanDir(const QString &path);
+    QString filePath() const
+    {
+        return m_settings.fileName();
+    }
+    void sync()
+    {
+        m_settings.sync();
+    }
     QString assetsDir() const;
     Q_INVOKABLE void setAssetsDir(const QString &path);
     QString localProtonDir() const;

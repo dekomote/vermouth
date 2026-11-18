@@ -52,6 +52,7 @@ qt_add_executable(vermouth
     src/umudownloader.cpp
     src/updatechecker.cpp
     src/storagemigrator.cpp
+    src/backupmanager.cpp
     src/uzdoomdownloader.cpp
     src/dosbox.cpp
     src/dosboxdownloader.cpp

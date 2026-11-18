@@ -1,4 +1,5 @@
 #include "appmodel.h"
+#include "backupmanager.h"
 #include "colorschemeswitcher.h"
 #include "desktopfilewriter.h"
 #include "dosboxdownloader.h"
@@ -425,6 +426,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("wineScanner"), &wineScanner);
     engine.rootContext()->setContextProperty(QStringLiteral("wineDownloader"), &wineDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("umuDownloader"), &umuDownloader);
+    BackupManager backupManager(&appModel, &settingsManager);
+    engine.rootContext()->setContextProperty(QStringLiteral("backupManager"), &backupManager);
     StorageMigrator storageMigrator(&appModel, &settingsManager);
     engine.rootContext()->setContextProperty(QStringLiteral("storageMigrator"), &storageMigrator);
     UpdateChecker updateChecker(&settingsManager, &protonScanner, &protonDownloader, &umuDownloader);

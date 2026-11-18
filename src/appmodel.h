@@ -105,6 +105,10 @@ public:
     }
     void setSortAscending(bool ascending);
 
+    QString gamesFilePath() const
+    {
+        return configPath();
+    }
     void load();
     void save() const;
 

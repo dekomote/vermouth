@@ -380,42 +380,6 @@ Kirigami.ScrollablePage {
 
             Kirigami.Separator {
                 Kirigami.FormData.isSection: true
-                Kirigami.FormData.label: i18n("Vermouth Proton Folder")
-            }
-
-            QQC2.Label {
-                Kirigami.FormData.label: ""
-                text: i18n("Download GE Proton to run most games and apps — no Steam or manual setup needed.")
-                wrapMode: Text.WordWrap
-                Layout.fillWidth: true
-                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
-                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
-                font.italic: true
-                color: Kirigami.Theme.disabledTextColor
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                Kirigami.FormData.label: i18n("GE Proton:")
-                QQC2.Button {
-                    icon.name: "folder-open-symbolic"
-                    text: i18n("Open Vermouth Proton folder")
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: settingsPage.localProtonDir
-                    onClicked: Qt.openUrlExternally("file://" + protonScanner.localProtonPath())
-                }
-                QQC2.Button {
-                    text: i18n("Download Latest GE Proton")
-                    icon.name: "folder-download-symbolic"
-                    enabled: !protonDownloader.busy
-                    QQC2.ToolTip.visible: hovered
-                    QQC2.ToolTip.text: protonDownloader.statusText ? protonDownloader.statusText : i18n("Download latest GE Proton")
-                    onClicked: protonDownloader.downloadLatest()
-                }
-            }
-
-            Kirigami.Separator {
-                Kirigami.FormData.isSection: true
                 Kirigami.FormData.label: i18n("SteamGridDB")
             }
 
@@ -931,7 +895,114 @@ Kirigami.ScrollablePage {
                 textRole: "text"
                 valueRole: "value"
             }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("Backup")
+            }
+
+            QQC2.Label {
+                Kirigami.FormData.label: ""
+                text: i18n("Save your settings or your game list to a file, or restore them from one. Settings backups include API keys and logins, so keep them private. Restoring first keeps a copy of the current file next to it with a .bak ending.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
+                font.italic: true
+                color: Kirigami.Theme.disabledTextColor
+            }
+
+            RowLayout {
+                Kirigami.FormData.label: i18n("Settings:")
+                QQC2.Button {
+                    text: i18n("Back Up…")
+                    icon.name: "document-save-symbolic"
+                    onClicked: backupSettingsDialog.open()
+                }
+                QQC2.Button {
+                    text: i18n("Restore…")
+                    icon.name: "document-open-symbolic"
+                    onClicked: restoreSettingsDialog.open()
+                }
+            }
+
+            RowLayout {
+                Kirigami.FormData.label: i18n("Game list:")
+                QQC2.Button {
+                    text: i18n("Back Up…")
+                    icon.name: "document-save-symbolic"
+                    onClicked: backupGamesDialog.open()
+                }
+                QQC2.Button {
+                    text: i18n("Restore…")
+                    icon.name: "document-open-symbolic"
+                    onClicked: restoreGamesDialog.open()
+                }
+            }
         }
+    }
+
+    function backupDone(error, message) {
+        if (error !== "")
+            applicationWindow().showPassiveNotification(error, 5000);
+        else
+            applicationWindow().showPassiveNotification(message, 3000);
+    }
+
+    function today() {
+        return Qt.formatDate(new Date(), "yyyy-MM-dd");
+    }
+
+    FileDialog {
+        id: backupSettingsDialog
+        title: i18n("Back Up Settings")
+        fileMode: FileDialog.SaveFile
+        currentFolder: "file://" + protonScanner.homePath()
+        currentFile: "file://" + protonScanner.homePath() + "/vermouth-settings-" + settingsPage.today() + ".conf"
+        nameFilters: [i18n("Settings backup (*.conf)"), i18n("All files (*)")]
+        onAccepted: settingsPage.backupDone(backupManager.backupSettings(selectedFile.toString()), i18n("Settings backed up"))
+    }
+
+    FileDialog {
+        id: restoreSettingsDialog
+        title: i18n("Restore Settings")
+        fileMode: FileDialog.OpenFile
+        currentFolder: "file://" + protonScanner.homePath()
+        nameFilters: [i18n("Settings backup (*.conf)"), i18n("All files (*)")]
+        onAccepted: {
+            var error = backupManager.restoreSettings(selectedFile.toString());
+            if (error !== "")
+                settingsPage.backupDone(error, "");
+            else
+                restartDialog.open();
+        }
+    }
+
+    FileDialog {
+        id: backupGamesDialog
+        title: i18n("Back Up Game List")
+        fileMode: FileDialog.SaveFile
+        currentFolder: "file://" + protonScanner.homePath()
+        currentFile: "file://" + protonScanner.homePath() + "/vermouth-games-" + settingsPage.today() + ".json"
+        nameFilters: [i18n("Game list backup (*.json)"), i18n("All files (*)")]
+        onAccepted: settingsPage.backupDone(backupManager.backupGames(selectedFile.toString()), i18n("Game list backed up"))
+    }
+
+    FileDialog {
+        id: restoreGamesDialog
+        title: i18n("Restore Game List")
+        fileMode: FileDialog.OpenFile
+        currentFolder: "file://" + protonScanner.homePath()
+        nameFilters: [i18n("Game list backup (*.json)"), i18n("All files (*)")]
+        onAccepted: settingsPage.backupDone(backupManager.restoreGames(selectedFile.toString()), i18n("Game list restored"))
+    }
+
+    Kirigami.PromptDialog {
+        id: restartDialog
+        title: i18n("Settings Restored")
+        subtitle: i18n("Vermouth has to restart to apply the restored settings. It will close now; start it again afterwards.")
+        standardButtons: Kirigami.Dialog.Ok
+        onAccepted: Qt.quit()
     }
 
     FileDialog {
