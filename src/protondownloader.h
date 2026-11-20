@@ -52,6 +52,13 @@ static const ProtonBuildConfig protonBuildConfigs[] = {
      "-xf",
      ".tar.xz",
      "DW-Proton-Latest"},
+    {"wineland",
+     "https://github.com/nanomatters/proton-salkim/releases/latest",
+     "https://github.com/nanomatters/proton-salkim/releases/download/%1/%2",
+     "proton-%1-x86_64.tar.xz",
+     "-xf",
+     ".tar.xz",
+     "Proton-Wineland-Latest"},
 };
 
 class ProtonDownloader : public Downloader

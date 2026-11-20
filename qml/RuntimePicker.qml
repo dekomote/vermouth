@@ -370,6 +370,11 @@ ColumnLayout {
                         enabled: !protonDownloader.busy
                         onTriggered: protonDownloader.downloadLatest("dw")
                     }
+                    QQC2.MenuItem {
+                        text: i18n("Download latest Proton-Wineland")
+                        enabled: !protonDownloader.busy
+                        onTriggered: protonDownloader.downloadLatest("wineland")
+                    }
                 }
             }
         }

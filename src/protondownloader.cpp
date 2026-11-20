@@ -40,7 +40,8 @@ const ProtonBuildConfig *ProtonDownloader::configForFolder(const QString &folder
         const char *prefix;
         const char *key;
     };
-    static const Prefix prefixes[] = {{"GE-Proton", "ge"}, {"proton-cachyos", "cachyos"}, {"proton-em", "em"}, {"umu-proton", "umu"}, {"dwproton", "dw"}};
+    static const Prefix prefixes[] =
+        {{"GE-Proton", "ge"}, {"proton-cachyos", "cachyos"}, {"proton-em", "em"}, {"umu-proton", "umu"}, {"dwproton", "dw"}, {"proton-wineland", "wineland"}};
     for (const auto &p : prefixes) {
         if (folderName.startsWith(QLatin1String(p.prefix), Qt::CaseInsensitive))
             return configForKey(QLatin1String(p.key));

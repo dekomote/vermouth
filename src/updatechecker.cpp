@@ -22,6 +22,8 @@ static QString displayName(const QString &key)
         return QStringLiteral("UMU-Proton");
     if (key == QLatin1String("dw"))
         return QStringLiteral("DW Proton");
+    if (key == QLatin1String("wineland"))
+        return QStringLiteral("Proton-Wineland");
     return key;
 }
 
