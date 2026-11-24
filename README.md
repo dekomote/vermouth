@@ -371,6 +371,8 @@ To install it permanently into your NixOS configuration, add the flake to your i
 ```nix
 {
   inputs.vermouth.url = "github:dekomote/vermouth";
+  # Optional: build against your system's Qt instead of the one pinned in the flake
+  inputs.vermouth.inputs.nixpkgs.follows = "nixpkgs";
 
   environment.systemPackages = [
     inputs.vermouth.packages.${pkgs.system}.default

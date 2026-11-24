@@ -15,7 +15,6 @@
       packages = forAllSystems (pkgs: {
         default = pkgs.stdenv.mkDerivation {
           pname = "vermouth";
-          dontWrapQtApps = true;
           version = "2.8.0";
           src = ./.;
 
@@ -23,6 +22,7 @@
             cmake
             kdePackages.extra-cmake-modules
             kdePackages.qttools
+            kdePackages.wrapQtAppsHook
             icoutils
           ];
 
@@ -30,6 +30,7 @@
             stdenv.cc.cc.lib
             kdePackages.qtbase
             kdePackages.qtdeclarative
+            kdePackages.qtwayland
             kdePackages.kirigami
             kdePackages.kcoreaddons
             kdePackages.ki18n
