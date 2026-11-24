@@ -403,13 +403,23 @@ qint64 Launcher::launch(const QString &binary,
         return -1;
     }
 
+    // Running state is keyed by the entry's id, so two entries sharing an exe are tracked and stopped separately.
+    // Installers and prefix tools reuse an entry but are not that game, so they stay keyed by their exe.
+    QString key = exePath;
+    const QString entryId = m_watchCandidate.value(QStringLiteral("id")).toString();
+    if (!entryId.isEmpty() && m_watchCandidate.value(QStringLiteral("exePath")).toString() == exePath
+        && !m_watchCandidate.value(QStringLiteral("skipGlobalLaunchOptions")).toBool())
+        key = entryId;
+
     auto *proc = new QProcess(this);
     auto *timer = new QElapsedTimer();
     timer->start();
-    m_runningProcesses.insert(exePath, proc);
+    m_runningProcesses.insert(key, proc);
+    m_runningExes.insert(key, exePath);
     Q_EMIT runningExePathsChanged();
-    connect(proc, &QProcess::finished, this, [this, exePath, proc, timer, enableLogging, autoHdr](int exitCode) {
-        m_runningProcesses.remove(exePath);
+    connect(proc, &QProcess::finished, this, [this, exePath, key, proc, timer, enableLogging, autoHdr](int exitCode) {
+        m_runningProcesses.remove(key);
+        m_runningExes.remove(key);
         Q_EMIT runningExePathsChanged();
         Q_EMIT processFinished(exitCode);
         if (autoHdr && m_hdrEnabled)
@@ -423,7 +433,7 @@ qint64 Launcher::launch(const QString &binary,
             }
         }
         if (!exePath.startsWith(QStringLiteral("steam:")))
-            finishLaunch(exePath);
+            finishLaunch(key);
         delete timer;
         proc->deleteLater();
     });
@@ -476,7 +486,8 @@ qint64 Launcher::launch(const QString &binary,
     }
 
     if (!proc->waitForStarted(5000)) {
-        m_runningProcesses.remove(exePath);
+        m_runningProcesses.remove(key);
+        m_runningExes.remove(key);
         Q_EMIT runningExePathsChanged();
         Q_EMIT launchError(exePath, proc->errorString());
         delete timer;
@@ -486,7 +497,7 @@ qint64 Launcher::launch(const QString &binary,
         Q_EMIT launched(exePath);
         qint64 pid = static_cast<qint64>(proc->processId());
         if (!m_watchCandidate.isEmpty())
-            trackLaunch(exePath, m_watchCandidate);
+            trackLaunch(key, m_watchCandidate);
         return pid;
     }
 }
@@ -936,7 +947,9 @@ static QList<qint64> pidsWithEnvEntry(const QByteArray &entry)
 
 void Launcher::stopEntry(const QVariantMap &app)
 {
-    QProcess *proc = m_runningProcesses.value(app[QStringLiteral("exePath")].toString(), nullptr);
+    QProcess *proc = m_runningProcesses.value(app[QStringLiteral("id")].toString(), nullptr);
+    if (!proc)
+        proc = m_runningProcesses.value(app[QStringLiteral("exePath")].toString(), nullptr);
     if (!proc)
         return;
     if (proc->processId() <= 0) {
@@ -1119,10 +1132,13 @@ void Launcher::runWinetricks(const QVariantMap &app)
 
 qint64 Launcher::runningPidForExe(const QString &exePath) const
 {
-    QProcess *proc = m_runningProcesses.value(exePath, nullptr);
-    if (!proc)
-        return -1;
-    return static_cast<qint64>(proc->processId());
+    for (auto it = m_runningExes.constBegin(); it != m_runningExes.constEnd(); ++it) {
+        if (it.value() == exePath) {
+            QProcess *proc = m_runningProcesses.value(it.key(), nullptr);
+            return proc ? static_cast<qint64>(proc->processId()) : -1;
+        }
+    }
+    return -1;
 }
 
 bool Launcher::isWinetricksAvailable() const

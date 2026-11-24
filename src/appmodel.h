@@ -78,7 +78,7 @@ public:
     Q_INVOKABLE QString generateUUID() const;
     Q_INVOKABLE void
     updateAppArt(const QString &id, const QString &iconPath, const QString &gridPath, const QString &heroPath, const QString &logoPath, int steamGridDbId = 0);
-    Q_INVOKABLE void addPlayTime(const QString &exePath, qint64 seconds);
+    Q_INVOKABLE void addPlayTime(const QString &key, qint64 seconds);
     // Points every saved path under oldRoot at newRoot, in all games.
     void rewritePaths(const QString &oldRoot, const QString &newRoot);
 

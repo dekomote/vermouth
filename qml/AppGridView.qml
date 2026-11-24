@@ -56,7 +56,7 @@ GameGridView {
         enabled: gridView.active && gridView.currentIndex >= 0
         onActivated: {
             var app = appModel.getApp(gridView.currentIndex);
-            var key = app.runtimeType === "steam" ? "steam:" + app.steamAppId : app.exePath;
+            var key = app.runtimeType === "steam" ? "steam:" + app.steamAppId : app.id;
             if (launcher.activeLaunchKeys.indexOf(key) >= 0)
                 gridView.requestStop(key);
             else
@@ -129,7 +129,7 @@ GameGridView {
         QQC2.Menu {
             id: contextMenu
             QQC2.MenuItem {
-                property bool isRunning: launcher.runningExePaths.indexOf(cardFrame.exePath) >= 0
+                property bool isRunning: launcher.runningKeys.indexOf(cardFrame.appId) >= 0
                 text: isRunning ? i18n("Stop") : i18n("Launch")
                 icon.name: isRunning ? "media-playback-stop-symbolic" : "media-playback-start-symbolic"
                 onTriggered: {
@@ -343,7 +343,7 @@ GameGridView {
             contextMenu.popup();
         }
 
-        readonly property string launchKey: runtimeType === "steam" ? "steam:" + steamAppId : exePath
+        readonly property string launchKey: runtimeType === "steam" ? "steam:" + steamAppId : appId
         readonly property bool running: launcher.activeLaunchKeys.indexOf(launchKey) >= 0
         Rectangle {
             id: runningOverlay

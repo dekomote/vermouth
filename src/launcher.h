@@ -40,6 +40,13 @@ public:
     Q_PROPERTY(QStringList runningExePaths READ runningExePaths NOTIFY runningExePathsChanged)
     QStringList runningExePaths() const
     {
+        return m_runningExes.values();
+    }
+
+    // Keys (entry ids, or exe paths for installers and tools) of the processes Vermouth started.
+    Q_PROPERTY(QStringList runningKeys READ runningKeys NOTIFY runningExePathsChanged)
+    QStringList runningKeys() const
+    {
         return m_runningProcesses.keys();
     }
 
@@ -125,6 +132,7 @@ private:
     QString m_defaultProtonPath;
     QString m_defaultWineBinary;
     QHash<QString, QProcess *> m_runningProcesses;
+    QHash<QString, QString> m_runningExes;
     QVariantMap m_watchCandidate;
     QHash<QString, QVariantMap> m_activeLaunches;
     void trackLaunch(const QString &key, const QVariantMap &app);

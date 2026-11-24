@@ -254,9 +254,9 @@ int main(int argc, char *argv[])
     QTimer playTimeTimer;
     playTimeTimer.setInterval(1000);
     QObject::connect(&playTimeTimer, &QTimer::timeout, [&]() {
-        const auto paths = launcher.runningExePaths();
-        for (const QString &path : paths)
-            appModel.addPlayTime(path, 1);
+        const auto keys = launcher.runningKeys();
+        for (const QString &key : keys)
+            appModel.addPlayTime(key, 1);
     });
     QTimer playTimeStartDelay;
     playTimeStartDelay.setSingleShot(true);

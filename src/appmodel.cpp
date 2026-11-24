@@ -431,10 +431,10 @@ void AppModel::updateAppArt(const QString &id,
     }
 }
 
-void AppModel::addPlayTime(const QString &exePath, qint64 seconds)
+void AppModel::addPlayTime(const QString &key, qint64 seconds)
 {
     for (int i = 0; i < m_entries.size(); ++i) {
-        if (m_entries[i].exePath != exePath)
+        if (m_entries[i].id != key && m_entries[i].exePath != key)
             continue;
         m_entries[i].playTime += seconds;
         m_entries[i].lastPlayed = QDateTime::currentDateTime();
