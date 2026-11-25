@@ -97,8 +97,10 @@ GameGridView {
         }
         iconFallback: iconPath !== "" ? (iconPath.startsWith("/") ? "file://" + iconPath : "image://icon/" + iconPath) : ""
         heroLogo: logoPath !== "" ? "file://" + logoPath : ""
+        platformLogo: epicAppName !== "" ? "qrc:/icons/epic.svg" : ""
 
         required property string appId
+        required property string epicAppName
         required property string name
         required property string exePath
         required property string runtimeType

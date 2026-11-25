@@ -1,5 +1,6 @@
 #include "launcher.h"
 #include "dosbox.h"
+#include "epicclient.h"
 #include "flatpakutils.h"
 #include "gpumanager.h"
 #include "platformcores.h"
@@ -662,8 +663,83 @@ qint64 Launcher::startSteamGame(const QVariantMap &app, const QProcessEnvironmen
     return pid;
 }
 
+// Epic games need fresh login arguments on every start. `legendary launch --json` prints them (and the
+// game's environment) without starting anything, so the game itself runs through the normal launch path.
+void Launcher::resolveEpicLaunch(const QVariantMap &app)
+{
+    const QString name = app[QStringLiteral("name")].toString();
+    const QString legendary = EpicClient::findLegendary();
+    if (legendary.isEmpty()) {
+        Q_EMIT launchError(name, QStringLiteral("legendary was not found. Install it to launch Epic games."));
+        return;
+    }
+    auto *proc = new QProcess(this);
+    proc->setProcessChannelMode(QProcess::MergedChannels);
+    connect(proc, &QProcess::errorOccurred, this, [this, proc, name](QProcess::ProcessError e) {
+        if (e == QProcess::FailedToStart) {
+            Q_EMIT launchError(name, QStringLiteral("Could not start legendary"));
+            proc->deleteLater();
+        }
+    });
+    connect(proc, &QProcess::finished, this, [this, proc, app, name](int code) {
+        const QByteArray out = proc->readAll();
+        proc->deleteLater();
+
+        QJsonObject params;
+        int pos = 0;
+        while (pos < out.size()) {
+            if (out.at(pos) == '{') {
+                QJsonParseError err;
+                const QJsonDocument doc = QJsonDocument::fromJson(out.mid(pos), &err);
+                if (err.error == QJsonParseError::NoError) {
+                    params = doc.object();
+                    break;
+                }
+            }
+            const int nl = out.indexOf('\n', pos);
+            if (nl < 0)
+                break;
+            pos = nl + 1;
+        }
+        if (code != 0 || params.isEmpty()) {
+            const QStringList lines = QString::fromUtf8(out).split(QRegularExpression(QStringLiteral("[\r\n]+")), Qt::SkipEmptyParts);
+            Q_EMIT launchError(name, lines.isEmpty() ? QStringLiteral("legendary could not prepare the launch") : lines.last().trimmed());
+            return;
+        }
+
+        QStringList args;
+        for (const char *key : {"game_parameters", "egl_parameters", "user_parameters"}) {
+            const QJsonArray list = params.value(QLatin1String(key)).toArray();
+            for (const QJsonValue &v : list)
+                args << v.toString();
+        }
+        // Single-quote every argument for the shell the launch options run through.
+        QString joined = QStringLiteral("%command%");
+        for (QString a : std::as_const(args)) {
+            a.replace(QLatin1Char('\''), QStringLiteral("'\\''"));
+            joined += QStringLiteral(" '") + a + QLatin1Char('\'');
+        }
+
+        QVariantMap resolved = app;
+        resolved[QStringLiteral("epicResolved")] = true;
+        resolved[QStringLiteral("launchOptions")] = joined;
+        QStringList envVars = app[QStringLiteral("envVars")].toStringList();
+        const QJsonObject extraEnv = params.value(QStringLiteral("environment")).toObject();
+        for (auto it = extraEnv.constBegin(); it != extraEnv.constEnd(); ++it)
+            envVars << it.key() + QLatin1Char('=') + it.value().toString();
+        resolved[QStringLiteral("envVars")] = envVars;
+        launchEntry(resolved);
+    });
+    proc->start(legendary, {QStringLiteral("launch"), app[QStringLiteral("epicAppName")].toString(), QStringLiteral("--json")});
+}
+
 qint64 Launcher::launchEntry(const QVariantMap &app)
 {
+    if (!app[QStringLiteral("epicAppName")].toString().isEmpty() && !app[QStringLiteral("epicResolved")].toBool()) {
+        resolveEpicLaunch(app);
+        return -1;
+    }
+
     m_watchCandidate = app;
     auto clearWatchCandidate = qScopeGuard([this] {
         m_watchCandidate.clear();

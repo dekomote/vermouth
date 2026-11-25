@@ -69,6 +69,8 @@ public:
 
     // Advanced game settings
     QString protonGameId;
+    // Set for Epic Games Store installs, which are started through `legendary launch`.
+    QString epicAppName;
     bool enableMangohud = false;
     bool enableGamemode = false;
     bool enablePreferSdl = false;

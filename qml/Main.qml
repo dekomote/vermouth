@@ -47,6 +47,15 @@ Kirigami.ApplicationWindow {
             search: true
         },
         {
+            key: "epic",
+            name: i18n("Epic Library"),
+            icon: "epic",
+            iconSource: "qrc:/icons/epic.svg",
+            enabled: settingsManager.epicEnabled && epicClient.available,
+            nav: true,
+            search: true
+        },
+        {
             key: "about",
             name: i18n("About Vermouth"),
             icon: "help-about",
@@ -79,6 +88,10 @@ Kirigami.ApplicationWindow {
             if (!settingsManager.gogEnabled && root.currentPage === "gog")
                 root.navigate("games");
         }
+        function onEpicEnabledChanged() {
+            if (!settingsManager.epicEnabled && root.currentPage === "epic")
+                root.navigate("games");
+        }
     }
     property string previousPage: "games"
     readonly property var navPages: pages.filter(p => p.nav && p.enabled)
@@ -87,7 +100,8 @@ Kirigami.ApplicationWindow {
     readonly property var pageViews: ({
             "games": gridView,
             "romm": rommView,
-            "gog": gogView
+            "gog": gogView,
+            "epic": epicView
         })
     function currentView() {
         return root.pageViews[root.currentPage] ?? gridView;
@@ -116,9 +130,35 @@ Kirigami.ApplicationWindow {
             gogLibraryModel.revalidateInstalled();
             if (gogClient.authenticated && !gogLibraryModel.busy && (gogWasSearching || gogLibraryModel.count === 0))
                 gogView.refresh();
+        } else if (key === "epic") {
+            epicView.searchText = "";
+            epicLibraryModel.setFilter("");
+            if (epicClient.authenticated && !epicClient.busy && epicLibraryModel.totalCount === 0)
+                epicView.refresh();
         }
         if (root.pageViews[key])
             Qt.callLater(() => root.currentView().forceActiveFocus());
+    }
+
+    // Switch to the games tab and select a game, e.g. when it is started from a store tab.
+    function showGame(appId) {
+        root.navigate("games");
+        if (root.runtimeFilter !== "") {
+            root.runtimeFilter = "";
+            appModel.setRuntimeFilter("");
+            gridView.searchActive = root.searchQuery !== "";
+        }
+        Qt.callLater(() => {
+            for (var i = 0; i < appModel.count; i++) {
+                if (appModel.getApp(i).id === appId) {
+                    gridView.currentIndex = i;
+                    gridView.savedIndex = i;
+                    gridView.positionViewAtIndex(i, GridView.Contain);
+                    gridView.forceActiveFocus();
+                    return;
+                }
+            }
+        });
     }
 
     // Step through the sidebar nav pages, used by the gamepad shoulder buttons.
@@ -144,6 +184,8 @@ Kirigami.ApplicationWindow {
             rommView.applySearch(text);
         } else if (root.currentPage === "gog") {
             gogView.applySearch(text);
+        } else if (root.currentPage === "epic") {
+            epicView.applySearch(text);
         }
     }
     readonly property bool sidebarPinned: !globalDrawer.modal && !root.bigPicture
@@ -744,12 +786,29 @@ Kirigami.ApplicationWindow {
                     showNames: gridView.showNames
                 }
 
+                EpicView {
+                    id: epicView
+                    onGameStarted: appId => root.showGame(appId)
+                    viewType: gridView.viewType
+                    scaleFactor: gridView.scaleFactor
+                    showNames: gridView.showNames
+                }
+
                 Kirigami.AboutPage {
                     aboutData: About
                 }
 
                 SettingsDialog {
                     id: settingsPage
+                    onLoginRequested: store => {
+                        // Settings are applied when saved, so make sure the store's tab is available first.
+                        if (store === "gog" && !settingsManager.gogEnabled || store === "epic" && !settingsManager.epicEnabled) {
+                            showPassiveNotification(i18n("Enable it and save the settings first"), 4000);
+                            return;
+                        }
+                        root.navigate(store);
+                        Qt.callLater(() => (store === "gog" ? gogView : epicView).openLogin());
+                    }
                 }
 
                 WelcomeScreen {}
@@ -1043,6 +1102,15 @@ Kirigami.ApplicationWindow {
                 footerStatusText.text = "";
             return;
         }
+        if (root.currentPage === "epic") {
+            if (epicClient.statusText !== "")
+                footerStatusText.text = epicClient.statusText;
+            else if (epicClient.username !== "")
+                footerStatusText.text = epicLibraryModel.totalCount > 0 ? i18n("%1 — %2 games", epicClient.username, epicLibraryModel.totalCount) : epicClient.username;
+            else
+                footerStatusText.text = "";
+            return;
+        }
         if (root.currentPage !== "games") {
             footerStatusText.text = "";
             return;
@@ -1288,6 +1356,26 @@ Kirigami.ApplicationWindow {
         }
         function onStatusTextChanged() {
             if (root.currentPage === "gog")
+                root.updateFooterStatus();
+        }
+    }
+
+    Connections {
+        target: epicLibraryModel
+        function onCountChanged() {
+            if (root.currentPage === "epic")
+                root.updateFooterStatus();
+        }
+    }
+
+    Connections {
+        target: epicClient
+        function onUsernameChanged() {
+            if (root.currentPage === "epic")
+                root.updateFooterStatus();
+        }
+        function onStatusTextChanged() {
+            if (root.currentPage === "epic")
                 root.updateFooterStatus();
         }
     }

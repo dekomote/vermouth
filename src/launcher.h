@@ -135,6 +135,7 @@ private:
     QHash<QString, QString> m_runningExes;
     QVariantMap m_watchCandidate;
     QHash<QString, QVariantMap> m_activeLaunches;
+    void resolveEpicLaunch(const QVariantMap &app);
     void trackLaunch(const QString &key, const QVariantMap &app);
     void finishLaunch(const QString &key);
     qint64 startSteamGame(const QVariantMap &app, const QProcessEnvironment &env);

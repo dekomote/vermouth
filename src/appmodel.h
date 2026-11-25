@@ -49,6 +49,7 @@ public:
         EnvVarsRole,
         LastPlayedRole,
         EnableAutoHdrRole,
+        EpicAppNameRole,
     };
 
     explicit AppModel(QObject *parent = nullptr);

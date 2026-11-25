@@ -245,6 +245,8 @@ QVariant AppModel::data(const QModelIndex &index, int role) const
         return e.envVars;
     case LastPlayedRole:
         return e.lastPlayed;
+    case EpicAppNameRole:
+        return e.epicAppName;
     case EnableAutoHdrRole:
         return e.enableAutoHdr;
     }
@@ -287,6 +289,7 @@ QHash<int, QByteArray> AppModel::roleNames() const
         {EnvVarsRole, "envVars"},
         {LastPlayedRole, "lastPlayed"},
         {EnableAutoHdrRole, "enableAutoHdr"},
+        {EpicAppNameRole, "epicAppName"},
     };
 }
 

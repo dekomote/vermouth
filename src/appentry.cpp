@@ -59,6 +59,7 @@ QJsonObject AppEntry::toJson() const
     obj[QStringLiteral("dateAdded")] = dateAdded.toString(Qt::ISODate);
     obj[QStringLiteral("lastPlayed")] = lastPlayed.isValid() ? lastPlayed.toString(Qt::ISODate) : QString();
     obj[QStringLiteral("protonGameId")] = protonGameId;
+    obj[QStringLiteral("epicAppName")] = epicAppName;
     obj[QStringLiteral("enableMangohud")] = enableMangohud;
     obj[QStringLiteral("enableGamemode")] = enableGamemode;
     obj[QStringLiteral("enablePreferSdl")] = enablePreferSdl;
@@ -99,6 +100,7 @@ QVariantMap AppEntry::toVariantMap() const
         {QStringLiteral("dateAdded"), dateAdded},
         {QStringLiteral("lastPlayed"), lastPlayed},
         {QStringLiteral("protonGameId"), protonGameId},
+        {QStringLiteral("epicAppName"), epicAppName},
         {QStringLiteral("enableMangohud"), enableMangohud},
         {QStringLiteral("enableGamemode"), enableGamemode},
         {QStringLiteral("enablePreferSdl"), enablePreferSdl},
@@ -146,6 +148,7 @@ AppEntry AppEntry::fromJson(const QJsonObject &obj)
     e.dateAdded = QDateTime::fromString(obj[QStringLiteral("dateAdded")].toString(), Qt::ISODate);
     e.lastPlayed = QDateTime::fromString(obj[QStringLiteral("lastPlayed")].toString(), Qt::ISODate);
     e.protonGameId = obj[QStringLiteral("protonGameId")].toString();
+    e.epicAppName = obj[QStringLiteral("epicAppName")].toString();
     e.enableMangohud = obj[QStringLiteral("enableMangohud")].toBool(false);
     e.enableGamemode = obj[QStringLiteral("enableGamemode")].toBool(false);
     e.enablePreferSdl = obj[QStringLiteral("enablePreferSdl")].toBool(false);
@@ -189,6 +192,8 @@ void AppEntry::updateFromVariantMap(const QVariantMap &app)
     if (app.contains(QStringLiteral("playTime")))
         playTime = app.value(QStringLiteral("playTime")).toLongLong();
     protonGameId = app.value(QStringLiteral("protonGameId"), QString()).toString();
+    if (app.contains(QStringLiteral("epicAppName")))
+        epicAppName = app.value(QStringLiteral("epicAppName")).toString();
     enableMangohud = app.value(QStringLiteral("enableMangohud"), false).toBool();
     enableGamemode = app.value(QStringLiteral("enableGamemode"), false).toBool();
     enablePreferSdl = app.value(QStringLiteral("enablePreferSdl"), false).toBool();

@@ -6,6 +6,9 @@ import org.kde.kirigami as Kirigami
 
 Kirigami.ScrollablePage {
     id: settingsPage
+
+    // Store logins live in the store tabs, so these ask the main window to open them.
+    signal loginRequested(string store)
     title: i18n("Settings")
 
     readonly property string localProtonDir: {
@@ -90,6 +93,8 @@ Kirigami.ScrollablePage {
         settingsManager.setGogEnabled(gogEnabledSwitch.checked);
         settingsManager.setGogCacheDir(gogCacheDirField.text);
         settingsManager.setGogInstallDir(gogInstallDirField.text);
+        settingsManager.setEpicEnabled(epicEnabledSwitch.checked);
+        settingsManager.setEpicInstallDir(epicInstallDirField.text);
         defaultRuntimePicker.saveToSettings();
         var vars = [];
         for (var i = 0; i < envModel.count; i++) {
@@ -131,6 +136,8 @@ Kirigami.ScrollablePage {
         gogEnabledSwitch.checked = settingsManager.gogEnabled;
         gogCacheDirField.text = settingsManager.gogCacheDir;
         gogInstallDirField.text = settingsManager.gogInstallDir;
+        epicEnabledSwitch.checked = settingsManager.epicEnabled;
+        epicInstallDirField.text = settingsManager.epicInstallDir;
         pathsModel.clear();
         var paths = settingsManager.extraProtonPaths;
         for (var i = 0; i < paths.length; i++) {
@@ -523,6 +530,12 @@ Kirigami.ScrollablePage {
                     text: gogClient.authenticated ? (gogClient.username !== "" ? i18n("Logged in as %1", gogClient.username) : i18n("Logged in")) : i18n("Not logged in")
                 }
                 QQC2.Button {
+                    text: i18n("Log in")
+                    icon.name: "system-log-in-symbolic"
+                    visible: !gogClient.authenticated
+                    onClicked: settingsPage.loginRequested("gog")
+                }
+                QQC2.Button {
                     text: i18n("Log out")
                     icon.name: "system-log-out-symbolic"
                     enabled: gogClient.authenticated
@@ -564,6 +577,77 @@ Kirigami.ScrollablePage {
                 }
                 Kirigami.ContextualHelpButton {
                     toolTipText: i18n("Where GOG games are installed.")
+                    icon.name: "help-about-symbolic"
+                }
+            }
+
+            Kirigami.Separator {
+                Kirigami.FormData.isSection: true
+                Kirigami.FormData.label: i18n("Epic Games")
+            }
+
+            QQC2.Switch {
+                id: epicEnabledSwitch
+                Kirigami.FormData.label: i18n("Epic Library:")
+                text: i18n("Enable")
+            }
+
+            QQC2.Label {
+                visible: epicEnabledSwitch.checked
+                Kirigami.FormData.label: ""
+                text: epicClient.available ? i18n("Log in from the Epic Library tab to browse and install your Epic games. Uses the legendary command line tool. Installed games are added to your game list.") : i18n("The legendary command line tool was not found. Install it (for example with pip or your package manager) and press Check again.")
+                wrapMode: Text.WordWrap
+                Layout.fillWidth: true
+                Layout.maximumWidth: Kirigami.Units.gridUnit * 26
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize - 2
+                font.italic: true
+                color: epicClient.available ? Kirigami.Theme.disabledTextColor : Kirigami.Theme.negativeTextColor
+            }
+
+            RowLayout {
+                visible: epicEnabledSwitch.checked
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Account:")
+                QQC2.Label {
+                    Layout.fillWidth: true
+                    elide: Text.ElideRight
+                    text: epicClient.authenticated ? (epicClient.username !== "" ? i18n("Logged in as %1", epicClient.username) : i18n("Logged in")) : i18n("Not logged in")
+                }
+                QQC2.Button {
+                    text: i18n("Check again")
+                    icon.name: "view-refresh-symbolic"
+                    visible: !epicClient.available
+                    onClicked: epicClient.detect()
+                }
+                QQC2.Button {
+                    text: i18n("Log in")
+                    icon.name: "system-log-in-symbolic"
+                    visible: !epicClient.authenticated && epicClient.available
+                    onClicked: settingsPage.loginRequested("epic")
+                }
+                QQC2.Button {
+                    text: i18n("Log out")
+                    icon.name: "system-log-out-symbolic"
+                    enabled: epicClient.authenticated
+                    onClicked: epicClient.logout()
+                }
+            }
+
+            RowLayout {
+                visible: epicEnabledSwitch.checked
+                Layout.fillWidth: true
+                Kirigami.FormData.label: i18n("Install Folder:")
+                QQC2.TextField {
+                    id: epicInstallDirField
+                    Layout.fillWidth: true
+                    placeholderText: i18n("Default: ~/Epic Games")
+                }
+                QQC2.ToolButton {
+                    icon.name: "document-open-symbolic"
+                    onClicked: epicInstallFolderDialog.open()
+                }
+                Kirigami.ContextualHelpButton {
+                    toolTipText: i18n("Where Epic games are installed. Wine prefixes use your default prefix folders.")
                     icon.name: "help-about-symbolic"
                 }
             }
@@ -1101,5 +1185,12 @@ Kirigami.ScrollablePage {
         title: i18n("Select GOG Install Folder")
         currentFolder: "file://" + protonScanner.homePath()
         onAccepted: gogInstallDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
+    }
+
+    FolderDialog {
+        id: epicInstallFolderDialog
+        title: i18n("Select Epic Install Folder")
+        currentFolder: "file://" + protonScanner.homePath()
+        onAccepted: epicInstallDirField.text = decodeURIComponent(selectedFolder.toString().replace("file://", ""))
     }
 }

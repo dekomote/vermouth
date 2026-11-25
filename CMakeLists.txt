@@ -71,6 +71,8 @@ qt_add_executable(vermouth
     src/goglibrarymodel.cpp
     src/gogdownloader.cpp
     src/goginstaller.cpp
+    src/epicclient.cpp
+    src/epiclibrarymodel.cpp
     src/runtimetypemodel.cpp
     src/rommclient.cpp
     src/rommcovercache.cpp
@@ -110,6 +112,7 @@ qt_add_qml_module(vermouth
         qml/CorePickerDialog.qml
         qml/RommView.qml
         qml/GogView.qml
+        qml/EpicView.qml
         qml/DownloaderProgress.qml
         qml/FlatpakHostHint.qml
         qml/TimeUtils.js

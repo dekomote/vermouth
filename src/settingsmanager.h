@@ -39,6 +39,8 @@ class SettingsManager : public QObject
     Q_PROPERTY(bool gogEnabled READ gogEnabled WRITE setGogEnabled NOTIFY gogEnabledChanged)
     Q_PROPERTY(QString gogCacheDir READ gogCacheDir WRITE setGogCacheDir NOTIFY gogCacheDirChanged)
     Q_PROPERTY(QString gogInstallDir READ gogInstallDir WRITE setGogInstallDir NOTIFY gogInstallDirChanged)
+    Q_PROPERTY(bool epicEnabled READ epicEnabled WRITE setEpicEnabled NOTIFY epicEnabledChanged)
+    Q_PROPERTY(QString epicInstallDir READ epicInstallDir WRITE setEpicInstallDir NOTIFY epicInstallDirChanged)
     Q_PROPERTY(QString retroarchPath READ retroarchPath WRITE setRetroarchPath NOTIFY retroarchPathChanged)
     Q_PROPERTY(QString uzdoomPath READ uzdoomPath WRITE setUzdoomPath NOTIFY uzdoomPathChanged)
     Q_PROPERTY(QString dosboxPath READ dosboxPath WRITE setDosboxPath NOTIFY dosboxPathChanged)
@@ -171,6 +173,11 @@ public:
     QString gogInstallDir() const;
     Q_INVOKABLE void setGogInstallDir(const QString &dir);
 
+    bool epicEnabled() const;
+    Q_INVOKABLE void setEpicEnabled(bool enabled);
+    QString epicInstallDir() const;
+    Q_INVOKABLE void setEpicInstallDir(const QString &dir);
+
     QVariantMap gogInstalledGames() const;
     Q_INVOKABLE void setGogInstalledGame(const QString &gameId, const QString &exePath);
     Q_INVOKABLE void removeGogInstalledGame(const QString &gameId);
@@ -231,6 +238,8 @@ Q_SIGNALS:
     void gogCacheDirChanged();
     void gogInstallDirChanged();
     void gogInstalledGamesChanged();
+    void epicEnabledChanged();
+    void epicInstallDirChanged();
     void retroarchPathChanged();
     void uzdoomPathChanged();
     void dosboxPathChanged();

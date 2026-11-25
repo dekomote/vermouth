@@ -3,6 +3,8 @@
 #include "colorschemeswitcher.h"
 #include "desktopfilewriter.h"
 #include "dosboxdownloader.h"
+#include "epicclient.h"
+#include "epiclibrarymodel.h"
 #include "flatpakutils.h"
 #include "gamepadhandler.h"
 #include "gogclient.h"
@@ -42,6 +44,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickImageProvider>
+#include <QStandardPaths>
 #include <QTimer>
 
 class IconImageProvider : public QQuickImageProvider
@@ -402,6 +405,22 @@ int main(int argc, char *argv[])
         gogDownloader.setCacheDir(settingsManager.gogCacheDir());
     });
 
+    // Epic Games (through legendary)
+    EpicClient epicClient;
+    GogCoverCache epicCoverCache;
+    epicCoverCache.setCacheDir(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QStringLiteral("/epic/covers"));
+    EpicLibraryModel epicLibraryModel;
+    epicLibraryModel.setClient(&epicClient);
+    epicLibraryModel.setCoverCache(&epicCoverCache);
+    QObject::connect(&epicCoverCache, &GogCoverCache::coverReady, &epicLibraryModel, &EpicLibraryModel::notifyCoverCached);
+    QObject::connect(&epicClient, &EpicClient::authenticatedChanged, &epicLibraryModel, [&]() {
+        if (!epicClient.authenticated())
+            epicLibraryModel.clear();
+    });
+    QObject::connect(&settingsManager, &SettingsManager::umuPathChanged, &epicClient, [&]() { });
+    if (settingsManager.epicEnabled())
+        epicClient.refreshStatus();
+
     QObject::connect(&settingsManager, &SettingsManager::bigPictureChanged, &colorSchemeSwitcher, applyActiveTheme);
     QObject::connect(&settingsManager, &SettingsManager::lightsOutChanged, &colorSchemeSwitcher, applyActiveTheme);
     QObject::connect(&settingsManager, &SettingsManager::themeIdChanged, &colorSchemeSwitcher, applyActiveTheme);
@@ -444,6 +463,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty(QStringLiteral("gogCoverCache"), &gogCoverCache);
     engine.rootContext()->setContextProperty(QStringLiteral("gogDownloader"), &gogDownloader);
     engine.rootContext()->setContextProperty(QStringLiteral("gogInstaller"), &gogInstaller);
+    engine.rootContext()->setContextProperty(QStringLiteral("epicClient"), &epicClient);
+    engine.rootContext()->setContextProperty(QStringLiteral("epicLibraryModel"), &epicLibraryModel);
     engine.rootContext()->setContextProperty(QStringLiteral("runtimeModel"), &runtimeTypeModel);
     engine.rootContext()->setContextProperty(QStringLiteral("rommClient"), &rommClient);
     engine.rootContext()->setContextProperty(QStringLiteral("rommModel"), &rommModel);

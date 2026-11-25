@@ -68,6 +68,8 @@ Kirigami.Dialog {
         playTimeField.text = "";
         platformCombo.currentIndex = -1;
         protonGameIdField.text = "";
+        isEpicCheck.checked = false;
+        epicAppNameField.text = "";
         enableMangohudCheck.checked = false;
         enableGamemodeCheck.checked = false;
         enablePreferSdlCheck.checked = false;
@@ -174,6 +176,8 @@ Kirigami.Dialog {
         playTimeField.text = TimeUtils.formatPlayTime(app.playTime) || "0:00:00";
         platformCombo.currentIndex = platformCombo.find(app.platformSlug);
         protonGameIdField.text = app.protonGameId || "";
+        isEpicCheck.checked = (app.epicAppName || "") !== "";
+        epicAppNameField.text = app.epicAppName || "";
         enableMangohudCheck.checked = app.enableMangohud || false;
         enableGamemodeCheck.checked = app.enableGamemode || false;
         enablePreferSdlCheck.checked = app.enablePreferSdl || false;
@@ -249,6 +253,10 @@ Kirigami.Dialog {
             validationError = i18n("Executable path is required.");
             return false;
         }
+        if (isEpicCheck.visible && isEpicCheck.checked && epicAppNameField.text.trim() === "") {
+            validationError = i18n("Enter the Epic app name, or untick the Epic Games option.");
+            return false;
+        }
         var rtError = runtimePicker.validate();
         if (rtError !== "") {
             validationError = rtError;
@@ -304,6 +312,7 @@ Kirigami.Dialog {
             "logoPath": logoField.text || "",
             "steamGridDbId": sgdbId,
             "protonGameId": protonGameIdField.text || "",
+            "epicAppName": isEpicCheck.checked ? epicAppNameField.text.trim() : "",
             "enableMangohud": enableMangohudCheck.checked,
             "enableGamemode": enableGamemodeCheck.checked && rt !== "dosbox",
             "enablePreferSdl": enablePreferSdlCheck.checked,
@@ -797,6 +806,23 @@ Kirigami.Dialog {
                     Kirigami.FormData.label: i18n("Proton Game ID (GAMEID):")
                     placeholderText: i18n("optional, e.g. 0 for a non-Steam game")
                     visible: runtimePicker.resolvedRuntimeType === "proton"
+                }
+
+                QQC2.CheckBox {
+                    id: isEpicCheck
+                    text: i18n("This is an Epic Games game")
+                    visible: runtimePicker.resolvedRuntimeType === "proton" || runtimePicker.resolvedRuntimeType === "wine"
+                    QQC2.ToolTip.text: i18n("Starts the game through legendary, which gives it Epic's login arguments. Needs legendary installed and logged in.")
+                    QQC2.ToolTip.visible: hovered
+                    QQC2.ToolTip.delay: Kirigami.Units.toolTipDelay
+                }
+
+                QQC2.TextField {
+                    id: epicAppNameField
+                    Layout.fillWidth: true
+                    Kirigami.FormData.label: i18n("Epic app name:")
+                    placeholderText: i18n("e.g. Anemone (see legendary list)")
+                    visible: isEpicCheck.visible && isEpicCheck.checked
                 }
 
                 QQC2.CheckBox {

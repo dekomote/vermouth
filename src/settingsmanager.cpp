@@ -604,6 +604,36 @@ void SettingsManager::setGogInstallDir(const QString &dir)
     Q_EMIT gogInstallDirChanged();
 }
 
+bool SettingsManager::epicEnabled() const
+{
+    return m_settings.value(QStringLiteral("epicEnabled"), false).toBool();
+}
+
+void SettingsManager::setEpicEnabled(bool enabled)
+{
+    if (epicEnabled() == enabled)
+        return;
+    m_settings.setValue(QStringLiteral("epicEnabled"), enabled);
+    Q_EMIT epicEnabledChanged();
+}
+
+QString SettingsManager::epicInstallDir() const
+{
+    const QString stored = m_settings.value(QStringLiteral("epicInstallDir")).toString();
+    if (!stored.isEmpty())
+        return stored;
+    return QDir::homePath() + QStringLiteral("/Epic Games");
+}
+
+void SettingsManager::setEpicInstallDir(const QString &dir)
+{
+    const QString clean = cleanDir(dir);
+    if (m_settings.value(QStringLiteral("epicInstallDir")).toString() == clean)
+        return;
+    m_settings.setValue(QStringLiteral("epicInstallDir"), clean);
+    Q_EMIT epicInstallDirChanged();
+}
+
 QVariantMap SettingsManager::gogInstalledGames() const
 {
     QString json = m_settings.value(QStringLiteral("gogInstalledGames")).toString();

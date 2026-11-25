@@ -41,6 +41,10 @@ GameGridView {
             searchDebounce.restart();
     }
 
+    function openLogin() {
+        loginDialog.open();
+    }
+
     function refresh() {
         if (gogClient.authenticated)
             gogLibraryModel.fetchLibrary("", 1);
