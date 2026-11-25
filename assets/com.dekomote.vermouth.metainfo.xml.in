@@ -49,6 +49,11 @@
     <control>touch</control>
   </supports>
   <releases>
+    <release version="2.9.0" date="2026-11-25">
+        <description>
+          <p>This release adds backup and restore buttons in Settings for your settings and your game list. Restoring keeps a .bak copy of what it replaces. Proton-Wineland is now in the list of downloadable Proton builds. A running game is now tracked by its own entry instead of its exe path, so two entries that share an exe are shown as running, stopped and timed separately. The Nix flake now wraps the app so it uses its own Qt libraries.</p>
+        </description>
+    </release>
     <release version="2.8.0" date="2026-11-17">
         <description>
           <p>This release checks for newer umu-launcher and default Proton builds when Vermouth starts and offers to install them with a click. Downloaded Proton builds are now kept as "Latest" folders, such as GE-Proton-Latest, that are updated in place so games keep working. The assets, Proton, Wine and prefix folders can be changed in Settings, with the option to move the files and update your games, or only the games. Settings also has a Steam button that fills in Steam's compatibility tools folder. The GOG library is now a switch in Settings, off by default for new users. Support for Lossless Scaling frame generation (LSFG) was removed.</p>

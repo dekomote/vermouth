@@ -15,7 +15,7 @@
       packages = forAllSystems (pkgs: {
         default = pkgs.stdenv.mkDerivation {
           pname = "vermouth";
-          version = "2.8.0";
+          version = "2.9.0";
           src = ./.;
 
           nativeBuildInputs = with pkgs; [
